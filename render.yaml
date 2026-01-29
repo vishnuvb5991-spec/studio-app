@@ -1,0 +1,62 @@
+services:
+  # Django REST API
+  - type: web
+    name: studio-django-api
+    env: python
+    plan: free
+    rootDir: backend-django
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn studio_backend.wsgi:application --bind 0.0.0.0:$PORT
+    autoDeploy: true
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: "*"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: studio-postgres
+          property: connectionString
+
+  # Node.js real-time server (Socket.io + MongoDB)
+  - type: web
+    name: studio-realtime-node
+    env: node
+    plan: free
+    rootDir: backend-node
+    buildCommand: npm install
+    startCommand: npm start
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: $PORT
+      - key: MONGODB_URI
+        value: ""
+      - key: JWT_SECRET
+        generateValue: true
+
+  # React admin dashboard (Vite) deployed as web service
+  - type: web
+    name: studio-web-admin
+    env: node
+    plan: free
+    rootDir: web-admin
+    buildCommand: npm install && npm run build
+    startCommand: npx serve -s dist -l $PORT
+    autoDeploy: true
+    envVars:
+      - key: VITE_DJANGO_API_BASE_URL
+        value: ""
+      - key: VITE_NODE_API_BASE_URL
+        value: ""
+
+databases:
+  - name: studio-postgres
+    plan: free
+    databaseName: studio_db
+    user: studio_user
+
