@@ -71,7 +71,7 @@ function Restorations() {
                             <div style={{ textAlign: 'right' }}>
                                 <div style={{ marginBottom: '1rem' }}>
                                     <span className={`badge badge-${order.status === 'completed' ? 'success' :
-                                            order.status === 'pending' ? 'warning' : 'info'
+                                        order.status === 'pending' ? 'warning' : 'info'
                                         }`}>
                                         {order.status.toUpperCase()}
                                     </span>

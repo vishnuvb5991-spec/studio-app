@@ -90,7 +90,7 @@ function Bookings() {
                                     </td>
                                     <td>
                                         <span className={`badge badge-${booking.status === 'confirmed' ? 'success' :
-                                                booking.status === 'pending' ? 'warning' : 'info'
+                                            booking.status === 'pending' ? 'warning' : 'info'
                                             }`}>
                                             {booking.status.toUpperCase()}
                                         </span>

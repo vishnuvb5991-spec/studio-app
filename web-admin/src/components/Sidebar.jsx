@@ -23,7 +23,7 @@ const navItems = [
 
 function Sidebar() {
     return (
-        <aside className="sidebar">
+        <aside className="sidebar" style={{ zIndex: 1000 }}>
             {/* Logo */}
             <div style={{
                 display: 'flex',
@@ -71,7 +71,9 @@ function Sidebar() {
                             textDecoration: 'none',
                             marginBottom: '0.25rem',
                             transition: 'all var(--transition-fast)',
+                            cursor: 'pointer'
                         })}
+                        onClick={() => console.log(`🧭 Navigating to: ${item.path}`)}
                     >
                         <item.icon size={20} />
                         <span style={{ fontWeight: 500 }}>{item.label}</span>
