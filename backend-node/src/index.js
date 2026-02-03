@@ -44,28 +44,6 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// MongoDB Connection with retry logic
-const connectDB = async () => {
-  const mongoUri = process.env.MONGODB_URI;
-  if (!mongoUri) {
-    console.error('❌ MONGODB_URI not set in environment');
-    return;
-  }
-
-  try {
-    await mongoose.connect(mongoUri, {
-      serverSelectionTimeoutMS: 10000,
-      socketTimeoutMS: 45000
-    });
-    console.log('✅ MongoDB connected');
-  } catch (err) {
-    console.error('❌ MongoDB connection error:', err.message);
-    // Don't crash the server, just log the error
-  }
-};
-
-connectDB();
-
 // Routes
 app.use('/api/chat', chatRoutes);
 app.use('/api/notifications', notificationRoutes);
@@ -75,6 +53,7 @@ app.get('/health', (req, res) => {
   res.json({
     status: 'ok',
     service: 'Studio Real-time Server',
+    mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
     timestamp: new Date().toISOString()
   });
 });
@@ -99,12 +78,26 @@ io.on('connection', (socket) => {
 // Make io accessible to routes
 app.set('io', io);
 
-const PORT = process.env.PORT || 5000;
-const HOST = '0.0.0.0';
+// PORT must be parsed as integer and server must start IMMEDIATELY
+// This is critical for Render to detect the port binding
+const PORT = parseInt(process.env.PORT, 10) || 5000;
 
-server.listen(PORT, HOST, () => {
-  console.log(`🚀 Real-time server running on http://${HOST}:${PORT}`);
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Real-time server running on port ${PORT}`);
   console.log(`📡 Socket.io ready for connections`);
+
+  // Connect to MongoDB AFTER server is listening
+  const mongoUri = process.env.MONGODB_URI;
+  if (mongoUri) {
+    mongoose.connect(mongoUri, {
+      serverSelectionTimeoutMS: 10000,
+      socketTimeoutMS: 45000
+    })
+      .then(() => console.log('✅ MongoDB connected'))
+      .catch(err => console.error('❌ MongoDB connection error:', err.message));
+  } else {
+    console.warn('⚠️ MONGODB_URI not set, skipping database connection');
+  }
 });
 
 module.exports = { app, io };
