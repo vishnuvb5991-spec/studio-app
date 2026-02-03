@@ -20,14 +20,18 @@ const registerSocketHandlers = require('./socket/handlers');
 const app = express();
 const server = http.createServer(app);
 
+// Allowed origins for CORS
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:8080',
+  'http://127.0.0.1:3000',
+  /\.onrender\.com$/
+];
+
 // Socket.io setup with CORS
 const io = new Server(server, {
   cors: {
-    origin: [
-      'http://localhost:3000',
-      'http://localhost:8080',
-      'http://127.0.0.1:3000'
-    ],
+    origin: allowedOrigins,
     methods: ['GET', 'POST'],
     credentials: true
   }
@@ -35,15 +39,32 @@ const io = new Server(server, {
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:8080'],
+  origin: allowedOrigins,
   credentials: true
 }));
 app.use(express.json());
 
-// MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/studio_app')
-  .then(() => console.log('✅ MongoDB connected'))
-  .catch(err => console.error('❌ MongoDB connection error:', err));
+// MongoDB Connection with retry logic
+const connectDB = async () => {
+  const mongoUri = process.env.MONGODB_URI;
+  if (!mongoUri) {
+    console.error('❌ MONGODB_URI not set in environment');
+    return;
+  }
+
+  try {
+    await mongoose.connect(mongoUri, {
+      serverSelectionTimeoutMS: 10000,
+      socketTimeoutMS: 45000
+    });
+    console.log('✅ MongoDB connected');
+  } catch (err) {
+    console.error('❌ MongoDB connection error:', err.message);
+    // Don't crash the server, just log the error
+  }
+};
+
+connectDB();
 
 // Routes
 app.use('/api/chat', chatRoutes);
@@ -58,13 +79,18 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Root endpoint
+app.get('/', (req, res) => {
+  res.json({ message: 'Studio Real-time Server is running!' });
+});
+
 // Socket.io connection handler
 io.on('connection', (socket) => {
   console.log(`🔌 User connected: ${socket.id}`);
-  
+
   // Register all socket event handlers
   registerSocketHandlers(io, socket);
-  
+
   socket.on('disconnect', () => {
     console.log(`🔌 User disconnected: ${socket.id}`);
   });
@@ -74,8 +100,10 @@ io.on('connection', (socket) => {
 app.set('io', io);
 
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-  console.log(`🚀 Real-time server running on port ${PORT}`);
+const HOST = '0.0.0.0';
+
+server.listen(PORT, HOST, () => {
+  console.log(`🚀 Real-time server running on http://${HOST}:${PORT}`);
   console.log(`📡 Socket.io ready for connections`);
 });
 
