@@ -14,7 +14,9 @@ function Bookings() {
     const fetchBookings = async () => {
         try {
             const response = await api.get('/bookings/');
-            setBookings(response.data);
+            // Handle both paginated (results) and non-paginated responses safely
+            const data = response.data;
+            setBookings(Array.isArray(data) ? data : (data.results || []));
         } catch (error) {
             console.error('Failed to fetch bookings:', error);
         } finally {

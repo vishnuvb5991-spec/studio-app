@@ -14,8 +14,10 @@ function Customers() {
     const fetchCustomers = async () => {
         try {
             // Fetching all users with type customer from Django
-            const response = await api.get('/auth/studios/'); // Using studios list as a proxy or dedicated customer endpoint
-            setCustomers(response.data);
+            const response = await api.get('/auth/studios/');
+            // Handle both paginated (results) and non-paginated responses safely
+            const data = response.data;
+            setCustomers(Array.isArray(data) ? data : (data.results || []));
         } catch (error) {
             console.error('Failed to fetch customers:', error);
         } finally {

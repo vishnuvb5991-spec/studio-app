@@ -13,7 +13,9 @@ function Albums() {
     const fetchAlbums = async () => {
         try {
             const response = await api.get('/albums/');
-            setAlbums(response.data);
+            // Handle both paginated (results) and non-paginated responses safely
+            const data = response.data;
+            setAlbums(Array.isArray(data) ? data : (data.results || []));
         } catch (error) {
             console.error('Failed to fetch albums:', error);
         } finally {

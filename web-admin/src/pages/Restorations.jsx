@@ -13,7 +13,9 @@ function Restorations() {
     const fetchOrders = async () => {
         try {
             const response = await api.get('/restoration/');
-            setOrders(response.data);
+            // Handle both paginated (results) and non-paginated responses safely
+            const data = response.data;
+            setOrders(Array.isArray(data) ? data : (data.results || []));
         } catch (error) {
             console.error('Failed to fetch restoration orders:', error);
         } finally {
