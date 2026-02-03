@@ -7,6 +7,7 @@ services:
     rootDir: backend-django
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn studio_backend.wsgi:application --bind 0.0.0.0:$PORT
+    releaseCommand: python manage.py migrate
     autoDeploy: true
     envVars:
       - key: SECRET_KEY
