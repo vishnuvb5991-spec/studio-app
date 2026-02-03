@@ -39,9 +39,33 @@ export function AuthProvider({ children }) {
 
             return { success: true };
         } catch (error) {
+            console.error('❌ Login Error Details:', error.response?.data);
+
+            let errorMessage = 'Login failed';
+
+            if (error.response?.data) {
+                const data = error.response.data;
+                // DRF typically returns non_field_errors or specific field errors
+                if (data.non_field_errors) {
+                    errorMessage = data.non_field_errors[0];
+                } else if (data.detail) {
+                    errorMessage = data.detail;
+                } else if (data.error) {
+                    errorMessage = data.error;
+                } else if (typeof data === 'object') {
+                    // Try to extract first error from any field
+                    const firstKey = Object.keys(data)[0];
+                    if (Array.isArray(data[firstKey])) {
+                        errorMessage = `${firstKey}: ${data[firstKey][0]}`;
+                    }
+                }
+            } else if (error.request) {
+                errorMessage = 'No response from server. Check your internet or API URL.';
+            }
+
             return {
                 success: false,
-                error: error.response?.data?.error || 'Login failed'
+                error: errorMessage
             };
         }
     };

@@ -54,10 +54,7 @@ services:
     autoDeploy: true
     envVars:
       - key: VITE_DJANGO_API_BASE_URL
-        fromService:
-          type: web
-          name: studio-django-api
-          property: host
+        value: "https://studio-django-api.onrender.com"
       - key: VITE_NODE_API_BASE_URL
         fromService:
           type: web

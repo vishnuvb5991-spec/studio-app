@@ -18,31 +18,29 @@ class Command(BaseCommand):
         password = os.environ.get('ADMIN_PASSWORD', 'StudioPro2024!')
         username = os.environ.get('ADMIN_USERNAME', 'admin')
         
-        # Check if any admin user exists
-        if User.objects.filter(user_type='admin').exists():
+        # Check if any superuser exists
+        if User.objects.filter(is_superuser=True).exists():
             self.stdout.write(
-                self.style.WARNING('Admin user already exists. Skipping creation.')
+                self.style.WARNING('Superuser already exists. Skipping creation.')
             )
             return
         
         # Check if user with this email exists
         if User.objects.filter(email=email).exists():
             self.stdout.write(
-                self.style.WARNING(f'User with email {email} already exists.')
+                self.style.WARNING(f'User with email {email} already exists but is not a superuser.')
             )
             return
         
         # Create the admin user
         try:
-            user = User.objects.create_user(
+            user = User.objects.create_superuser(
                 username=username,
                 email=email,
                 password=password,
                 first_name='Studio',
                 last_name='Admin',
                 user_type='studio_owner',
-                is_staff=True,
-                is_superuser=True,
                 is_verified=True
             )
             
@@ -51,9 +49,6 @@ class Command(BaseCommand):
             )
             self.stdout.write(
                 self.style.WARNING(f'Default password: {password}')
-            )
-            self.stdout.write(
-                self.style.WARNING('Please change this password after first login!')
             )
             
         except Exception as e:
