@@ -2,7 +2,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import {
     LayoutDashboard,
-    Images,
+    Image,
     Calendar,
     Wand2,
     CreditCard,
@@ -13,7 +13,7 @@ import {
 
 const navItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
-    { icon: Images, label: 'Albums', path: '/albums' },
+    { icon: Image, label: 'Albums', path: '/albums' },
     { icon: Calendar, label: 'Bookings', path: '/bookings' },
     { icon: Wand2, label: 'Restoration', path: '/restorations' },
     { icon: CreditCard, label: 'Payments', path: '/payments' },
