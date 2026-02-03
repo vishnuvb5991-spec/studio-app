@@ -69,4 +69,3 @@ databases:
     plan: free
     databaseName: studio_db
     user: studio_user
-
