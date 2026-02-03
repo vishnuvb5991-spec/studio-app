@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
     Calendar,
-    Images,
+    Image,
     CreditCard,
     Users,
     TrendingUp,
@@ -53,7 +53,7 @@ function Dashboard() {
         {
             title: 'Albums Created',
             value: 24,
-            icon: Images,
+            icon: Image,
             color: 'var(--success)',
             change: '+8%'
         },
