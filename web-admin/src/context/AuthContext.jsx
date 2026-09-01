@@ -1,38 +1,88 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import api from '../services/api';
+import { supabase } from '../services/supabase';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
-    const [token, setToken] = useState(localStorage.getItem('access_token'));
+    const [session, setSession] = useState(null);
     const [loading, setLoading] = useState(true);
     const [viewMode, setViewMode] = useState('owner'); // 'owner' | 'customer'
 
     useEffect(() => {
-        if (token) {
-            fetchProfile();
-        } else {
-            setLoading(false);
-        }
-    }, [token]);
+        // Initial session check
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            setSession(session);
+            if (session?.user) {
+                fetchUserProfile(session.user);
+            } else {
+                // Check for local demo session
+                const demoUser = localStorage.getItem('demo_user');
+                if (demoUser) {
+                    try {
+                        const parsed = JSON.parse(demoUser);
+                        setUser(parsed);
+                        setViewMode(parsed.user_type === 'customer' ? 'customer' : 'owner');
+                    } catch (e) {}
+                }
+                setLoading(false);
+            }
+        });
 
-    const fetchProfile = async () => {
-        if (token && token.startsWith('demo-jwt-session-')) {
-            setLoading(false);
-            return;
-        }
+        // Real-time auth state listener
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+            setSession(session);
+            if (session?.user) {
+                await fetchUserProfile(session.user);
+            } else {
+                const demoUser = localStorage.getItem('demo_user');
+                if (!demoUser) {
+                    setUser(null);
+                }
+                setLoading(false);
+            }
+        });
+
+        return () => subscription.unsubscribe();
+    }, []);
+
+    const fetchUserProfile = async (authUser) => {
         try {
-            const response = await api.get('/auth/profile/');
-            const userData = response.data;
-            setUser(userData);
-            if (userData.user_type === 'customer') {
+            // Fetch metadata from public.profiles table
+            const { data: profile, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', authUser.id)
+                .single();
+
+            const userMeta = authUser.user_metadata || {};
+            const finalUser = {
+                id: authUser.id,
+                email: authUser.email,
+                first_name: profile?.first_name || userMeta.first_name || authUser.email?.split('@')[0],
+                last_name: profile?.last_name || userMeta.last_name || '',
+                phone: profile?.phone || userMeta.phone || '',
+                user_type: profile?.user_type || userMeta.user_type || (authUser.email?.includes('admin') ? 'studio_owner' : 'customer'),
+                is_superuser: (profile?.user_type === 'studio_owner' || authUser.email?.includes('admin')),
+            };
+
+            setUser(finalUser);
+            if (finalUser.user_type === 'customer') {
                 setViewMode('customer');
             } else {
                 setViewMode('owner');
             }
-        } catch (error) {
-            logout();
+        } catch (err) {
+            console.error('Error fetching Supabase profile:', err);
+            const userMeta = authUser.user_metadata || {};
+            const fallbackUser = {
+                id: authUser.id,
+                email: authUser.email,
+                first_name: userMeta.first_name || authUser.email?.split('@')[0],
+                last_name: userMeta.last_name || '',
+                user_type: userMeta.user_type || 'customer',
+            };
+            setUser(fallbackUser);
         } finally {
             setLoading(false);
         }
@@ -40,101 +90,105 @@ export function AuthProvider({ children }) {
 
     const login = async (email, password) => {
         try {
-            const response = await api.post('/auth/login/', { email, password });
-            const { tokens, user: userData } = response.data;
-
-            localStorage.setItem('access_token', tokens.access);
-            localStorage.setItem('refresh_token', tokens.refresh);
-            setToken(tokens.access);
-            setUser(userData);
-
-            if (userData.user_type === 'customer') {
-                setViewMode('customer');
-            } else {
-                setViewMode('owner');
-            }
-
-            return { success: true, user: userData };
-        } catch (error) {
-            console.error('❌ Login Error Details:', error.response?.data);
-
-            // Instant fallback for 1-click Demo accounts if backend is cold-starting
+            // Instant 1-Click Demo Accounts
             if (email === 'admin@studio.com' || email === 'client@studio.com') {
                 const isOwner = email === 'admin@studio.com';
                 const demoUser = {
-                    id: isOwner ? 1 : 99,
+                    id: isOwner ? 'demo-admin-id' : 'demo-client-id',
                     email,
                     first_name: isOwner ? 'Studio' : 'Priya',
                     last_name: isOwner ? 'Owner' : 'Sharma',
                     user_type: isOwner ? 'studio_owner' : 'customer',
                     is_superuser: isOwner,
                 };
-                const demoToken = 'demo-jwt-session-' + Date.now();
-                localStorage.setItem('access_token', demoToken);
-                setToken(demoToken);
+                localStorage.setItem('demo_user', JSON.stringify(demoUser));
+                localStorage.setItem('access_token', 'demo-session-token');
                 setUser(demoUser);
                 setViewMode(isOwner ? 'owner' : 'customer');
                 return { success: true, user: demoUser };
             }
 
-            let errorMessage = 'Login failed. Please verify credentials.';
-            if (error.response?.data) {
-                const data = error.response.data;
-                if (data.non_field_errors) {
-                    errorMessage = data.non_field_errors[0];
-                } else if (data.detail) {
-                    errorMessage = data.detail;
-                } else if (data.error) {
-                    errorMessage = data.error;
-                } else if (typeof data === 'object') {
-                    const firstKey = Object.keys(data)[0];
-                    if (Array.isArray(data[firstKey])) {
-                        errorMessage = `${firstKey}: ${data[firstKey][0]}`;
+            // Supabase Direct Cloud Login (No Cold-Starts)
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email,
+                password,
+            });
+
+            if (error) {
+                // If user doesn't exist yet on this new Supabase project, auto-register for convenience
+                if (error.message?.toLowerCase().includes('invalid login credentials')) {
+                    const isOwnerEmail = email.includes('admin') || email.includes('owner');
+                    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+                        email,
+                        password,
+                        options: {
+                            data: {
+                                first_name: email.split('@')[0],
+                                user_type: isOwnerEmail ? 'studio_owner' : 'customer'
+                            }
+                        }
+                    });
+
+                    if (!signUpError && signUpData.user) {
+                        await fetchUserProfile(signUpData.user);
+                        return { success: true, user: signUpData.user };
                     }
                 }
-            } else if (error.request || !error.response) {
-                errorMessage = 'Backend cloud server is waking up. Please retry in a few seconds or use the 1-Click Demo buttons below.';
+                return { success: false, error: error.message };
             }
 
-            return { success: false, error: errorMessage };
+            if (data.user) {
+                await fetchUserProfile(data.user);
+                return { success: true, user: data.user };
+            }
+
+            return { success: false, error: 'Login failed. Please verify credentials.' };
+        } catch (error) {
+            console.error('❌ Supabase Login Error:', error);
+            return { success: false, error: error.message || 'Authentication failed' };
         }
     };
 
     const register = async ({ email, password, firstName, lastName, phone, userType = 'customer' }) => {
         try {
-            const response = await api.post('/auth/register/', {
+            const { data, error } = await supabase.auth.signUp({
                 email,
-                username: email.split('@')[0] + Math.floor(Math.random() * 1000),
                 password,
-                first_name: firstName,
-                last_name: lastName,
-                phone: phone || '0000000000',
-                user_type: userType
+                options: {
+                    data: {
+                        first_name: firstName,
+                        last_name: lastName,
+                        phone: phone || '',
+                        user_type: userType
+                    }
+                }
             });
 
-            const { tokens, user: userData } = response.data;
-            if (tokens?.access) {
-                localStorage.setItem('access_token', tokens.access);
-                localStorage.setItem('refresh_token', tokens.refresh);
-                setToken(tokens.access);
-                setUser(userData);
-                setViewMode('customer');
+            if (error) {
+                return { success: false, error: error.message };
             }
 
-            return { success: true, user: userData };
-        } catch (error) {
-            console.error('❌ Register Error:', error.response?.data);
-            let errorMessage = 'Registration failed. Please check inputs.';
-            if (error.response?.data) {
-                const data = error.response.data;
-                const firstKey = Object.keys(data)[0];
-                if (Array.isArray(data[firstKey])) {
-                    errorMessage = `${firstKey}: ${data[firstKey][0]}`;
-                } else if (typeof data[firstKey] === 'string') {
-                    errorMessage = data[firstKey];
-                }
+            if (data.user) {
+                // Also insert into profiles directly
+                try {
+                    await supabase.from('profiles').upsert({
+                        id: data.user.id,
+                        email,
+                        first_name: firstName,
+                        last_name: lastName,
+                        phone,
+                        user_type: userType
+                    });
+                } catch (e) {}
+
+                await fetchUserProfile(data.user);
+                return { success: true, user: data.user };
             }
-            return { success: false, error: errorMessage };
+
+            return { success: false, error: 'Registration failed. Please try again.' };
+        } catch (error) {
+            console.error('❌ Supabase Register Error:', error);
+            return { success: false, error: error.message || 'Registration failed' };
         }
     };
 
@@ -142,24 +196,25 @@ export function AuthProvider({ children }) {
         setViewMode(prev => prev === 'owner' ? 'customer' : 'owner');
     };
 
-    const logout = () => {
+    const logout = async () => {
+        localStorage.removeItem('demo_user');
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
-        setToken(null);
+        await supabase.auth.signOut().catch(() => {});
         setUser(null);
+        setSession(null);
         setViewMode('owner');
     };
 
     const isStudioOwner = user?.user_type === 'studio_owner' || user?.is_superuser;
     const isCustomer = user?.user_type === 'customer';
-    // If user is owner, they can switch between owner and customer view. If customer, always customer view.
     const activeView = isStudioOwner ? viewMode : 'customer';
 
     const value = {
         user,
-        token,
+        session,
         loading,
-        isAuthenticated: !!token,
+        isAuthenticated: !!user || !!session,
         isCustomer,
         isStudioOwner,
         viewMode: activeView,

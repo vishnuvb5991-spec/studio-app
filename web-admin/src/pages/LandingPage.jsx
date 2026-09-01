@@ -671,14 +671,14 @@ export default function LandingPage() {
                                 {authLoading ? (
                                     <>
                                         <Loader2 size={18} className="animate-spin" />
-                                        <span>Connecting to Cloud Server...</span>
+                                        <span>Authenticating with Supabase...</span>
                                     </>
                                 ) : (authMode === 'login' ? 'Sign In to Portal' : 'Create My Account')}
                             </button>
 
                             {authLoading && (
-                                <p style={{ fontSize: '0.75rem', color: '#a78bfa', textAlign: 'center', marginBottom: '1rem' }}>
-                                    ⚡ Render free instance is waking up from cloud sleep (~20-40s)...
+                                <p style={{ fontSize: '0.75rem', color: '#34d399', textAlign: 'center', marginBottom: '1rem' }}>
+                                    🔒 Direct Supabase Cloud Auth • Instant Verification
                                 </p>
                             )}
                         </form>
