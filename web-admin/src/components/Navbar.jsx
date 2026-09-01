@@ -1,9 +1,10 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Bell, Search, LogOut, Sparkles, ShieldCheck } from 'lucide-react';
+import { Bell, Search, LogOut, Sparkles, ShieldCheck, Globe } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 function Navbar() {
-    const { user, logout } = useAuth();
+    const { user, isCustomer, logout } = useAuth();
 
     return (
         <header style={{
@@ -17,7 +18,7 @@ function Navbar() {
             {/* Search with Command shortcut */}
             <div style={{
                 position: 'relative',
-                width: 360,
+                width: 340,
             }}>
                 <Search
                     size={17}
@@ -31,7 +32,7 @@ function Navbar() {
                 />
                 <input
                     type="text"
-                    placeholder="Search bookings, albums, customers..."
+                    placeholder="Search bookings, albums, photos..."
                     style={{
                         paddingLeft: 42,
                         paddingRight: 60,
@@ -60,22 +61,27 @@ function Navbar() {
 
             {/* Right Controls */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                {/* Live System Indicator */}
-                <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    padding: '0.45rem 0.9rem',
-                    background: 'rgba(16, 185, 129, 0.1)',
-                    border: '1px solid rgba(16, 185, 129, 0.25)',
-                    borderRadius: 'var(--radius-full)',
-                    fontSize: '0.75rem',
-                    fontWeight: 700,
-                    color: '#34d399'
-                }}>
-                    <div className="pulse-dot" />
-                    <span>Realtime API Live</span>
-                </div>
+                {/* Switch to Public Website Link */}
+                <Link
+                    to="/"
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.45rem',
+                        padding: '0.55rem 1rem',
+                        background: 'rgba(255, 255, 255, 0.06)',
+                        border: '1px solid var(--border-subtle)',
+                        borderRadius: 'var(--radius-full)',
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                        color: 'var(--text-primary)',
+                        textDecoration: 'none',
+                        transition: 'all var(--transition-fast)'
+                    }}
+                >
+                    <Globe size={14} color="#06b6d4" />
+                    <span>View Public Website</span>
+                </Link>
 
                 {/* Notifications Button */}
                 <button style={{
@@ -129,14 +135,14 @@ function Navbar() {
                         color: '#ffffff',
                         boxShadow: '0 0 12px var(--primary-glow)'
                     }}>
-                        {user?.first_name?.[0] || 'A'}
+                        {user?.first_name?.[0] || 'U'}
                     </div>
                     <div>
                         <p style={{ fontWeight: 700, fontSize: '0.825rem', lineHeight: 1.2, color: 'var(--text-pure)' }}>
-                            {user?.first_name || 'Admin'} {user?.last_name || 'Studio'}
+                            {user?.first_name || 'Client'} {user?.last_name || ''}
                         </p>
-                        <p style={{ fontSize: '0.7rem', color: '#a78bfa', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
-                            <ShieldCheck size={11} /> Verified Owner
+                        <p style={{ fontSize: '0.7rem', color: isCustomer ? '#22d3ee' : '#a78bfa', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                            <ShieldCheck size={11} /> {isCustomer ? 'Verified Client' : 'Studio Owner'}
                         </p>
                     </div>
                 </div>

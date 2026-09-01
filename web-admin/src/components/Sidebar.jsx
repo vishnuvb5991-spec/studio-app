@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 
 const studioOwnerNav = [
-    { icon: LayoutDashboard, label: 'Command Center', path: '/', badge: null },
+    { icon: LayoutDashboard, label: 'Command Center', path: '/dashboard', badge: null },
     { icon: Image, label: 'Client Galleries', path: '/albums', badge: 'HD' },
     { icon: Calendar, label: 'Shoot Schedules', path: '/bookings', badge: 'Live' },
     { icon: Wand2, label: 'AI Restoration Lab', path: '/restorations', badge: 'AI' },
@@ -27,7 +27,7 @@ const studioOwnerNav = [
 ];
 
 const customerNav = [
-    { icon: LayoutDashboard, label: 'Client Home', path: '/', badge: null },
+    { icon: LayoutDashboard, label: 'Client Home', path: '/dashboard', badge: null },
     { icon: Image, label: 'My Photo Albums', path: '/albums', badge: 'Download' },
     { icon: Calendar, label: 'My Event Bookings', path: '/bookings', badge: null },
     { icon: Wand2, label: 'Restore Old Photos', path: '/restorations', badge: 'AI' },
@@ -102,7 +102,7 @@ function Sidebar() {
                     <NavLink
                         key={item.path}
                         to={item.path}
-                        end={item.path === '/'}
+                        end={item.path === '/dashboard'}
                         style={({ isActive }) => ({
                             display: 'flex',
                             alignItems: 'center',

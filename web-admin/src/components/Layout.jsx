@@ -14,17 +14,17 @@ function Layout() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 height: '100vh',
-                background: 'var(--bg-primary)'
+                background: 'var(--bg-main)'
             }}>
-                <div className="animate-pulse" style={{ color: 'var(--primary)' }}>
-                    Loading...
+                <div className="animate-pulse" style={{ color: 'var(--primary)', fontWeight: 700 }}>
+                    Connecting to Studio Pro Cloud...
                 </div>
             </div>
         );
     }
 
     if (!isAuthenticated) {
-        return <Navigate to="/login" replace />;
+        return <Navigate to="/" replace />;
     }
 
     return (
@@ -32,7 +32,7 @@ function Layout() {
             <Sidebar />
             <div className="main-content">
                 <Navbar />
-                <main style={{ marginTop: '1rem' }}>
+                <main style={{ marginTop: '0.5rem' }}>
                     <Outlet />
                 </main>
             </div>
