@@ -1,10 +1,14 @@
 import axios from 'axios';
 
+const defaultUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:8000/api/v1'
+    : 'https://studio-django-api.onrender.com/api/v1';
+
 const API_BASE_URL = import.meta.env.VITE_DJANGO_API_BASE_URL
     ? (import.meta.env.VITE_DJANGO_API_BASE_URL.startsWith('http')
-        ? `${import.meta.env.VITE_DJANGO_API_BASE_URL}/api/v1`
-        : `https://${import.meta.env.VITE_DJANGO_API_BASE_URL}/api/v1`)
-    : 'http://localhost:8000/api/v1';
+        ? `${import.meta.env.VITE_DJANGO_API_BASE_URL.replace(/\/$/, '')}/api/v1`
+        : `https://${import.meta.env.VITE_DJANGO_API_BASE_URL.replace(/\/$/, '')}/api/v1`)
+    : defaultUrl;
 
 const api = axios.create({
     baseURL: API_BASE_URL,
