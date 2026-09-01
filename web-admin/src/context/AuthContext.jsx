@@ -37,15 +37,13 @@ export function AuthProvider({ children }) {
             setToken(tokens.access);
             setUser(userData);
 
-            return { success: true };
+            return { success: true, user: userData };
         } catch (error) {
             console.error('❌ Login Error Details:', error.response?.data);
 
-            let errorMessage = 'Login failed';
-
+            let errorMessage = 'Login failed. Please verify credentials.';
             if (error.response?.data) {
                 const data = error.response.data;
-                // DRF typically returns non_field_errors or specific field errors
                 if (data.non_field_errors) {
                     errorMessage = data.non_field_errors[0];
                 } else if (data.detail) {
@@ -53,20 +51,53 @@ export function AuthProvider({ children }) {
                 } else if (data.error) {
                     errorMessage = data.error;
                 } else if (typeof data === 'object') {
-                    // Try to extract first error from any field
                     const firstKey = Object.keys(data)[0];
                     if (Array.isArray(data[firstKey])) {
                         errorMessage = `${firstKey}: ${data[firstKey][0]}`;
                     }
                 }
             } else if (error.request) {
-                errorMessage = 'No response from server. Check your internet or API URL.';
+                errorMessage = 'No response from cloud server. Check internet connection.';
             }
 
-            return {
-                success: false,
-                error: errorMessage
-            };
+            return { success: false, error: errorMessage };
+        }
+    };
+
+    const register = async ({ email, password, firstName, lastName, phone, userType = 'customer' }) => {
+        try {
+            const response = await api.post('/auth/register/', {
+                email,
+                username: email.split('@')[0] + Math.floor(Math.random() * 1000),
+                password,
+                first_name: firstName,
+                last_name: lastName,
+                phone: phone || '0000000000',
+                user_type: userType
+            });
+
+            const { tokens, user: userData } = response.data;
+            if (tokens?.access) {
+                localStorage.setItem('access_token', tokens.access);
+                localStorage.setItem('refresh_token', tokens.refresh);
+                setToken(tokens.access);
+                setUser(userData);
+            }
+
+            return { success: true, user: userData };
+        } catch (error) {
+            console.error('❌ Register Error:', error.response?.data);
+            let errorMessage = 'Registration failed. Please check inputs.';
+            if (error.response?.data) {
+                const data = error.response.data;
+                const firstKey = Object.keys(data)[0];
+                if (Array.isArray(data[firstKey])) {
+                    errorMessage = `${firstKey}: ${data[firstKey][0]}`;
+                } else if (typeof data[firstKey] === 'string') {
+                    errorMessage = data[firstKey];
+                }
+            }
+            return { success: false, error: errorMessage };
         }
     };
 
@@ -82,7 +113,10 @@ export function AuthProvider({ children }) {
         token,
         loading,
         isAuthenticated: !!token,
+        isCustomer: user?.user_type === 'customer',
+        isStudioOwner: user?.user_type === 'studio_owner' || user?.is_superuser,
         login,
+        register,
         logout,
     };
 

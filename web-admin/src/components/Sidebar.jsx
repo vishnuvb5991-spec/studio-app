@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import {
     LayoutDashboard,
     Image,
@@ -10,21 +11,34 @@ import {
     Settings,
     Camera,
     Sparkles,
-    Zap,
-    ExternalLink
+    UserCheck,
+    Smartphone,
+    Download
 } from 'lucide-react';
 
-const navItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', path: '/', badge: null },
-    { icon: Image, label: 'Albums', path: '/albums', badge: 'HD' },
-    { icon: Calendar, label: 'Bookings', path: '/bookings', badge: 'Live' },
-    { icon: Wand2, label: 'Restoration', path: '/restorations', badge: 'AI' },
-    { icon: CreditCard, label: 'Payments', path: '/payments', badge: '₹' },
-    { icon: Users, label: 'Customers', path: '/customers', badge: null },
-    { icon: Settings, label: 'Settings', path: '/settings', badge: null },
+const studioOwnerNav = [
+    { icon: LayoutDashboard, label: 'Command Center', path: '/', badge: null },
+    { icon: Image, label: 'Client Galleries', path: '/albums', badge: 'HD' },
+    { icon: Calendar, label: 'Shoot Schedules', path: '/bookings', badge: 'Live' },
+    { icon: Wand2, label: 'AI Restoration Lab', path: '/restorations', badge: 'AI' },
+    { icon: CreditCard, label: 'Payments & Revenue', path: '/payments', badge: '₹' },
+    { icon: Users, label: 'Customer CRM', path: '/customers', badge: null },
+    { icon: Settings, label: 'Studio Settings', path: '/settings', badge: null },
+];
+
+const customerNav = [
+    { icon: LayoutDashboard, label: 'Client Home', path: '/', badge: null },
+    { icon: Image, label: 'My Photo Albums', path: '/albums', badge: 'Download' },
+    { icon: Calendar, label: 'My Event Bookings', path: '/bookings', badge: null },
+    { icon: Wand2, label: 'Restore Old Photos', path: '/restorations', badge: 'AI' },
+    { icon: CreditCard, label: 'Invoices & Receipts', path: '/payments', badge: null },
+    { icon: Settings, label: 'Profile Settings', path: '/settings', badge: null },
 ];
 
 function Sidebar() {
+    const { user, isCustomer } = useAuth();
+    const navItems = isCustomer ? customerNav : studioOwnerNav;
+
     return (
         <aside className="sidebar">
             {/* Brand Logo */}
@@ -61,12 +75,12 @@ function Sidebar() {
                     </div>
                     <div style={{
                         fontSize: '0.7rem',
-                        fontWeight: 600,
-                        color: 'var(--text-muted)',
+                        fontWeight: 700,
+                        color: isCustomer ? 'var(--accent-cyan)' : 'var(--text-muted)',
                         textTransform: 'uppercase',
                         letterSpacing: '0.08em'
                     }}>
-                        Enterprise Studio Suite
+                        {isCustomer ? '👤 Client Portal' : '👑 Studio Suite'}
                     </div>
                 </div>
             </div>
@@ -81,7 +95,7 @@ function Sidebar() {
                     color: 'var(--text-muted)',
                     padding: '0.5rem 0.75rem 0.25rem'
                 }}>
-                    Menu
+                    {isCustomer ? 'My Hub' : 'Management'}
                 </div>
 
                 {navItems.map((item) => (
@@ -134,7 +148,7 @@ function Sidebar() {
                 ))}
             </nav>
 
-            {/* Cloud & AI Status Footer Card */}
+            {/* Mobile App Sync Promotion / Cloud Status Card */}
             <div style={{
                 marginTop: 'auto',
                 padding: '1.15rem',
@@ -145,47 +159,32 @@ function Sidebar() {
                 position: 'relative',
                 overflow: 'hidden'
             }}>
-                <div style={{
-                    position: 'absolute',
-                    top: -15,
-                    right: -15,
-                    width: 70,
-                    height: 70,
-                    background: 'var(--grad-primary)',
-                    borderRadius: '50%',
-                    filter: 'blur(30px)',
-                    opacity: 0.35
-                }} />
-
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.65rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                        <div className="pulse-dot" />
-                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#34d399' }}>Cloud Engine</span>
-                    </div>
-                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>v2.4 Live</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.45rem' }}>
+                    <Smartphone size={16} color="var(--accent-cyan)" />
+                    <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-pure)' }}>
+                        Mobile App Sync
+                    </span>
                 </div>
 
                 <p style={{
-                    fontSize: '0.8rem',
+                    fontSize: '0.75rem',
                     color: 'var(--text-secondary)',
-                    marginBottom: '0.85rem',
-                    lineHeight: 1.4
+                    marginBottom: '0.65rem',
+                    lineHeight: 1.35
                 }}>
-                    AI Photo enhancement & automatic booking sync active.
+                    Use your same account to download photos on your Android/iOS phone.
                 </p>
 
                 <div style={{
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '0.5rem 0.75rem',
-                    background: 'rgba(255, 255, 255, 0.04)',
-                    borderRadius: 'var(--radius-sm)',
-                    fontSize: '0.75rem',
-                    fontWeight: 600
+                    gap: '0.35rem',
+                    fontSize: '0.7rem',
+                    color: '#34d399',
+                    fontWeight: 700
                 }}>
-                    <span>Storage (Cloudinary)</span>
-                    <span style={{ color: 'var(--accent-cyan)' }}>82%</span>
+                    <div className="pulse-dot" />
+                    <span>Live 2-Way Sync Active</span>
                 </div>
             </div>
         </aside>

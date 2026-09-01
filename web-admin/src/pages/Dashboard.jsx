@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
 import {
     Calendar,
     Image,
@@ -12,12 +13,16 @@ import {
     Plus,
     Wand2,
     ArrowUpRight,
-    Activity
+    Activity,
+    Download,
+    Eye,
+    ShieldCheck,
+    Smartphone,
+    Share2
 } from 'lucide-react';
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import api from '../services/api';
 
-// Dynamic Chart Data
 const chartData = [
     { name: 'Mon', revenue: 14500, bookings: 4 },
     { name: 'Tue', revenue: 18200, bookings: 6 },
@@ -29,12 +34,17 @@ const chartData = [
 ];
 
 function Dashboard() {
+    const { user, isCustomer } = useAuth();
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetchStats();
-    }, []);
+        if (!isCustomer) {
+            fetchStats();
+        } else {
+            setLoading(false);
+        }
+    }, [isCustomer]);
 
     const fetchStats = async () => {
         try {
@@ -47,6 +57,11 @@ function Dashboard() {
         }
     };
 
+    if (isCustomer) {
+        return <CustomerPortalView user={user} />;
+    }
+
+    // Studio Owner Dashboard
     const statCards = [
         {
             title: 'Gross Revenue',
@@ -88,7 +103,7 @@ function Dashboard() {
 
     return (
         <div className="animate-fadeIn">
-            {/* Header with Quick Action Launchers */}
+            {/* Header */}
             <div style={{
                 display: 'flex',
                 justifyContent: 'space-between',
@@ -107,7 +122,6 @@ function Dashboard() {
                     </p>
                 </div>
 
-                {/* Action Chips */}
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                     <a href="/bookings" className="btn btn-secondary" style={{ fontSize: '0.825rem', padding: '0.65rem 1.15rem' }}>
                         <Plus size={16} /> New Booking
@@ -137,7 +151,6 @@ function Dashboard() {
                             overflow: 'hidden'
                         }}
                     >
-                        {/* Corner Glow Accent */}
                         <div style={{
                             position: 'absolute',
                             top: -20,
@@ -192,11 +205,7 @@ function Dashboard() {
                                 {stat.value}
                             </p>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <p style={{
-                                    fontSize: '0.85rem',
-                                    fontWeight: 600,
-                                    color: 'var(--text-secondary)'
-                                }}>
+                                <p style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
                                     {stat.title}
                                 </p>
                                 <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
@@ -208,14 +217,13 @@ function Dashboard() {
                 ))}
             </div>
 
-            {/* Visual Analytics & Breakdown */}
+            {/* Visual Analytics & Pipeline */}
             <div style={{
                 display: 'grid',
                 gridTemplateColumns: '2fr 1fr',
                 gap: '1.75rem',
                 marginBottom: '2rem',
             }}>
-                {/* Revenue Curve Chart */}
                 <div className="card" style={{ padding: '1.75rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                         <div>
@@ -227,9 +235,7 @@ function Dashboard() {
                                 Peak income generated during weekend wedding shoots
                             </p>
                         </div>
-                        <span className="badge badge-success">
-                            ● Live Sync
-                        </span>
+                        <span className="badge badge-success">● Live Sync</span>
                     </div>
 
                     <ResponsiveContainer width="100%" height={260}>
@@ -240,39 +246,14 @@ function Dashboard() {
                                     <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.0} />
                                 </linearGradient>
                             </defs>
-                            <XAxis
-                                dataKey="name"
-                                axisLine={false}
-                                tickLine={false}
-                                tick={{ fill: '#94a3b8', fontSize: 12, fontWeight: 600 }}
-                            />
-                            <YAxis
-                                axisLine={false}
-                                tickLine={false}
-                                tick={{ fill: '#64748b', fontSize: 12 }}
-                            />
-                            <Tooltip
-                                contentStyle={{
-                                    background: 'rgba(15, 17, 35, 0.95)',
-                                    border: '1px solid rgba(139, 92, 246, 0.4)',
-                                    borderRadius: '12px',
-                                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6)',
-                                    color: '#ffffff'
-                                }}
-                            />
-                            <Area
-                                type="monotone"
-                                dataKey="revenue"
-                                stroke="#ec4899"
-                                strokeWidth={3}
-                                fillOpacity={1}
-                                fill="url(#colorRev)"
-                            />
+                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12, fontWeight: 600 }} />
+                            <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
+                            <Tooltip contentStyle={{ background: 'rgba(15, 17, 35, 0.95)', border: '1px solid rgba(139, 92, 246, 0.4)', borderRadius: '12px', color: '#ffffff' }} />
+                            <Area type="monotone" dataKey="revenue" stroke="#ec4899" strokeWidth={3} fillOpacity={1} fill="url(#colorRev)" />
                         </AreaChart>
                     </ResponsiveContainer>
                 </div>
 
-                {/* Booking Status Progress */}
                 <div className="card" style={{ padding: '1.75rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                     <div>
                         <h3 style={{ marginBottom: '0.25rem' }}>Workflow Pipeline</h3>
@@ -282,168 +263,137 @@ function Dashboard() {
                     </div>
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                        <PipelineProgress
-                            label="Pending Confirmation"
-                            count={stats?.pending_bookings || 7}
-                            color="#f59e0b"
-                            percent="25%"
-                        />
-                        <PipelineProgress
-                            label="Confirmed & In Production"
-                            count={stats?.confirmed_bookings || 19}
-                            color="#06b6d4"
-                            percent="60%"
-                        />
-                        <PipelineProgress
-                            label="Completed & Delivered"
-                            count={stats?.completed_bookings || 16}
-                            color="#10b981"
-                            percent="90%"
-                        />
+                        <PipelineProgress label="Pending Confirmation" count={stats?.pending_bookings || 7} color="#f59e0b" percent="25%" />
+                        <PipelineProgress label="Confirmed & In Production" count={stats?.confirmed_bookings || 19} color="#06b6d4" percent="60%" />
+                        <PipelineProgress label="Completed & Delivered" count={stats?.completed_bookings || 16} color="#10b981" percent="90%" />
                     </div>
 
-                    <a href="/bookings" style={{
-                        marginTop: '1.5rem',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        padding: '0.75rem 1rem',
-                        background: 'rgba(255, 255, 255, 0.04)',
-                        borderRadius: 'var(--radius-md)',
-                        fontSize: '0.85rem',
-                        fontWeight: 600,
-                        color: 'var(--primary-light)'
-                    }}>
+                    <a href="/bookings" style={{ marginTop: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 1rem', background: 'rgba(255, 255, 255, 0.04)', borderRadius: 'var(--radius-md)', fontSize: '0.85rem', fontWeight: 600, color: 'var(--primary-light)' }}>
                         <span>Open Schedule Matrix</span>
                         <ArrowUpRight size={16} />
                     </a>
                 </div>
             </div>
+        </div>
+    );
+}
 
-            {/* Recent Live Activity Feed */}
-            <div className="card" style={{ padding: '1.75rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+// Dedicated Customer Portal View for clients logging in via web
+function CustomerPortalView({ user }) {
+    return (
+        <div className="animate-fadeIn">
+            {/* Customer Welcome Hero */}
+            <div className="card" style={{
+                padding: '2.5rem',
+                marginBottom: '2rem',
+                background: 'linear-gradient(135deg, rgba(30, 35, 71, 0.8), rgba(15, 17, 35, 0.95))',
+                border: '1px solid var(--border-highlight)',
+                position: 'relative',
+                overflow: 'hidden'
+            }}>
+                <div style={{
+                    position: 'absolute',
+                    top: -50,
+                    right: -50,
+                    width: 200,
+                    height: 200,
+                    background: 'var(--grad-primary)',
+                    borderRadius: '50%',
+                    filter: 'blur(80px)',
+                    opacity: 0.3
+                }} />
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem' }}>
                     <div>
-                        <h3>Recent Bookings & Studio Activity</h3>
-                        <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                            Latest transactions and shoots updated in real time
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', padding: '0.35rem 0.85rem', borderRadius: 'var(--radius-full)', background: 'rgba(6, 182, 212, 0.15)', border: '1px solid rgba(6, 182, 212, 0.35)', color: '#22d3ee', fontSize: '0.75rem', fontWeight: 800, marginBottom: '0.75rem' }}>
+                            <Sparkles size={13} /> CLIENT PORTAL & GALLERY ACCESS
+                        </div>
+                        <h1 style={{ fontSize: '2.1rem', marginBottom: '0.5rem' }}>
+                            Welcome, <span className="gradient-text">{user?.first_name || 'Valued Client'}</span>!
+                        </h1>
+                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', maxWidth: 600 }}>
+                            Browse your Ultra-HD event galleries, download high-res photos, track wedding dates, or request AI restorations right here.
                         </p>
                     </div>
-                    <a href="/bookings" className="btn btn-secondary" style={{ fontSize: '0.8rem', padding: '0.5rem 1rem' }}>
-                        View All Bookings
-                    </a>
+
+                    <div style={{ display: 'flex', gap: '0.75rem' }}>
+                        <a href="/albums" className="btn btn-primary" style={{ padding: '0.85rem 1.4rem' }}>
+                            <Image size={17} /> View My Photos
+                        </a>
+                        <a href="/restorations" className="btn btn-secondary" style={{ padding: '0.85rem 1.4rem' }}>
+                            <Wand2 size={17} /> AI Restore Photo
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            {/* Quick Action Tiles */}
+            <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                gap: '1.5rem',
+                marginBottom: '2rem'
+            }}>
+                {/* Albums Tile */}
+                <a href="/albums" className="card card-interactive" style={{ textDecoration: 'none', display: 'flex', gap: '1.25rem', alignItems: 'center' }}>
+                    <div style={{ width: 54, height: 54, borderRadius: 'var(--radius-md)', background: 'var(--grad-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 20px var(--primary-glow)' }}>
+                        <Image size={26} color="#ffffff" />
+                    </div>
+                    <div>
+                        <h3 style={{ fontSize: '1.1rem', marginBottom: '0.2rem', color: 'var(--text-pure)' }}>Photo Albums</h3>
+                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>View, favorite & download original quality</p>
+                    </div>
+                </a>
+
+                {/* Bookings Tile */}
+                <a href="/bookings" className="card card-interactive" style={{ textDecoration: 'none', display: 'flex', gap: '1.25rem', alignItems: 'center' }}>
+                    <div style={{ width: 54, height: 54, borderRadius: 'var(--radius-md)', background: 'var(--grad-cyan-blue)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 20px var(--accent-cyan-glow)' }}>
+                        <Calendar size={26} color="#ffffff" />
+                    </div>
+                    <div>
+                        <h3 style={{ fontSize: '1.1rem', marginBottom: '0.2rem', color: 'var(--text-pure)' }}>My Bookings</h3>
+                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Check shoot schedule & venue details</p>
+                    </div>
+                </a>
+
+                {/* Restoration Tile */}
+                <a href="/restorations" className="card card-interactive" style={{ textDecoration: 'none', display: 'flex', gap: '1.25rem', alignItems: 'center' }}>
+                    <div style={{ width: 54, height: 54, borderRadius: 'var(--radius-md)', background: 'var(--grad-sunset)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 20px var(--accent-amber-glow)' }}>
+                        <Wand2 size={26} color="#ffffff" />
+                    </div>
+                    <div>
+                        <h3 style={{ fontSize: '1.1rem', marginBottom: '0.2rem', color: 'var(--text-pure)' }}>Restore Old Photos</h3>
+                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Upload torn/black & white photos for AI repair</p>
+                    </div>
+                </a>
+            </div>
+
+            {/* Mobile App Synergy Card */}
+            <div className="card" style={{
+                padding: '2rem',
+                background: 'rgba(20, 24, 48, 0.65)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: '1.5rem'
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+                    <div style={{ width: 52, height: 52, borderRadius: 'var(--radius-md)', background: 'rgba(6, 182, 212, 0.15)', border: '1px solid rgba(6, 182, 212, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Smartphone size={28} color="#22d3ee" />
+                    </div>
+                    <div>
+                        <h3 style={{ fontSize: '1.15rem', marginBottom: '0.25rem' }}>Prefer using your Phone?</h3>
+                        <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                            Install the Studio Pro mobile app on Android or iOS. Log in with your same email (<strong>{user?.email}</strong>) to sync your photos instantly!
+                        </p>
+                    </div>
                 </div>
 
-                <div className="table-container">
-                    <table className="table">
-                        <thead>
-                            <tr>
-                                <th>Event Type</th>
-                                <th>Customer</th>
-                                <th>Schedule Date</th>
-                                <th>Amount</th>
-                                <th>Gateway</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>
-                                    <div style={{ fontWeight: 700, color: 'var(--text-pure)' }}>Grand Wedding & Reception</div>
-                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>4K Cinematic + Drone + Candid</div>
-                                </td>
-                                <td>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                                        <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--grad-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 800 }}>
-                                            R
-                                        </div>
-                                        <div>
-                                            <div style={{ fontWeight: 600 }}>Rahul & Sneha</div>
-                                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>rahul.s@gmail.com</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div style={{ fontWeight: 600 }}>Oct 24, 2026</div>
-                                    <div style={{ fontSize: '0.75rem', color: '#06b6d4' }}>Full Day Shoot</div>
-                                </td>
-                                <td>
-                                    <div style={{ fontWeight: 800, color: '#34d399', fontSize: '0.95rem' }}>₹1,25,000</div>
-                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>₹50,000 Advance Paid</div>
-                                </td>
-                                <td>
-                                    <span className="badge badge-purple">Razorpay UPI</span>
-                                </td>
-                                <td>
-                                    <span className="badge badge-success">Confirmed</span>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td>
-                                    <div style={{ fontWeight: 700, color: 'var(--text-pure)' }}>Pre-Wedding Sunset Story</div>
-                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Beach Resort & Outdoor</div>
-                                </td>
-                                <td>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                                        <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--grad-cyan-blue)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 800 }}>
-                                            P
-                                        </div>
-                                        <div>
-                                            <div style={{ fontWeight: 600 }}>Priya Patel</div>
-                                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>priya.p@outlook.com</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div style={{ fontWeight: 600 }}>Nov 02, 2026</div>
-                                    <div style={{ fontSize: '0.75rem', color: '#f59e0b' }}>Evening Slot</div>
-                                </td>
-                                <td>
-                                    <div style={{ fontWeight: 800, color: '#34d399', fontSize: '0.95rem' }}>₹45,000</div>
-                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Full Payment Complete</div>
-                                </td>
-                                <td>
-                                    <span className="badge badge-info">Google Pay</span>
-                                </td>
-                                <td>
-                                    <span className="badge badge-success">Confirmed</span>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td>
-                                    <div style={{ fontWeight: 700, color: 'var(--text-pure)' }}>AI Heritage Photo Restoration</div>
-                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Torn 1968 Family Portrait + Colorize</div>
-                                </td>
-                                <td>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                                        <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--grad-sunset)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 800 }}>
-                                            A
-                                        </div>
-                                        <div>
-                                            <div style={{ fontWeight: 600 }}>Anand Verma</div>
-                                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>anand.v@gmail.com</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div style={{ fontWeight: 600 }}>Sep 04, 2026</div>
-                                    <div style={{ fontSize: '0.75rem', color: '#ec4899' }}>Urgent (24h)</div>
-                                </td>
-                                <td>
-                                    <div style={{ fontWeight: 800, color: '#34d399', fontSize: '0.95rem' }}>₹4,500</div>
-                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Settled</div>
-                                </td>
-                                <td>
-                                    <span className="badge badge-purple">PhonePe</span>
-                                </td>
-                                <td>
-                                    <span className="badge badge-warning">In Review</span>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div style={{ display: 'flex', gap: '0.75rem' }}>
+                    <button className="btn btn-secondary" onClick={() => alert('Download link sent to registered email & phone!')}>
+                        <Download size={16} /> Get Mobile App Link
+                    </button>
                 </div>
             </div>
         </div>
