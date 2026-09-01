@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -19,7 +19,8 @@ import {
     ExternalLink,
     Star,
     Layers,
-    ChevronRight
+    ChevronRight,
+    Loader2
 } from 'lucide-react';
 
 export default function LandingPage() {
@@ -29,6 +30,12 @@ export default function LandingPage() {
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const [authMode, setAuthMode] = useState('login'); // 'login' | 'register'
     const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+
+    // Auto warm-up Render backend in background as soon as page loads
+    useEffect(() => {
+        const pingUrl = 'https://studio-django-api.onrender.com/api/v1/bookings/dashboard_stats/';
+        fetch(pingUrl, { method: 'GET', mode: 'cors' }).catch(() => {});
+    }, []);
 
     // Auth Form States
     const [email, setEmail] = useState('admin@studio.com');
@@ -659,10 +666,21 @@ export default function LandingPage() {
                                 type="submit"
                                 className="btn btn-primary"
                                 disabled={authLoading}
-                                style={{ width: '100%', padding: '0.85rem', fontSize: '0.9rem', marginBottom: '1.25rem' }}
+                                style={{ width: '100%', padding: '0.85rem', fontSize: '0.9rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
                             >
-                                {authLoading ? 'Signing In...' : (authMode === 'login' ? 'Sign In to Portal' : 'Create My Account')}
+                                {authLoading ? (
+                                    <>
+                                        <Loader2 size={18} className="animate-spin" />
+                                        <span>Connecting to Cloud Server...</span>
+                                    </>
+                                ) : (authMode === 'login' ? 'Sign In to Portal' : 'Create My Account')}
                             </button>
+
+                            {authLoading && (
+                                <p style={{ fontSize: '0.75rem', color: '#a78bfa', textAlign: 'center', marginBottom: '1rem' }}>
+                                    ⚡ Render free instance is waking up from cloud sleep (~20-40s)...
+                                </p>
+                            )}
                         </form>
 
                         {/* Quick Test Accounts */}
