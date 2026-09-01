@@ -6,9 +6,19 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.http import JsonResponse
+from django.utils import timezone
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+
+def health_check(request):
+    """Lightweight health check endpoint for 24/7 uptime pings"""
+    return JsonResponse({
+        "status": "healthy",
+        "service": "studio-django-api",
+        "timestamp": timezone.now().isoformat()
+    })
 
 # API Documentation
 schema_view = get_schema_view(
@@ -25,6 +35,9 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
+    # Health Check (Keep-Alive)
+    path('api/v1/health/', health_check, name='health-check'),
+
     # Admin
     path('admin/', admin.site.urls),
     

@@ -1,0 +1,23 @@
+name: Keep Render Backend Awake 24/7
+
+on:
+  schedule:
+    # Run every 10 minutes continuously
+    - cron: '*/10 * * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+
+jobs:
+  ping-render:
+    name: Ping Django Cloud API
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Keep-Alive Ping
+        run: |
+          echo "Pinging Render Django Backend at $(date)..."
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://studio-django-api.onrender.com/api/v1/health/ || true)
+          echo "Health check HTTP Status: $STATUS"
+          if [ "$STATUS" = "200" ]; then
+            echo "✅ Render backend is active and awake!"
+          else
+            echo "⚠️ Server response: $STATUS (waking up)"
+          fi
