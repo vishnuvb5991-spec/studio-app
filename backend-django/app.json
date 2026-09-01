@@ -1,0 +1,45 @@
+{
+  "name": "studio-django-api",
+  "description": "Studio Pro - Django REST API backend with PostgreSQL",
+  "keywords": ["django", "rest-api", "photography", "studio"],
+  "website": "https://studio-pro-vishnu.netlify.app",
+  "repository": "https://github.com/vishnuvb5991-spec/studio-app",
+  "stack": "heroku-24",
+  "buildpacks": [
+    {"url": "heroku/python"}
+  ],
+  "formation": {
+    "web": {"quantity": 1, "size": "eco"}
+  },
+  "addons": [
+    {"plan": "heroku-postgresql:essential-0"}
+  ],
+  "env": {
+    "SECRET_KEY": {
+      "description": "Django secret key",
+      "generator": "secret",
+      "required": true
+    },
+    "DEBUG": {
+      "description": "Django debug mode",
+      "value": "False",
+      "required": true
+    },
+    "ALLOWED_HOSTS": {
+      "description": "Comma-separated allowed hosts",
+      "value": "studio-django-api.herokuapp.com,.netlify.app,localhost",
+      "required": true
+    },
+    "RAZORPAY_KEY_ID": {
+      "description": "Razorpay API Key ID",
+      "required": false
+    },
+    "RAZORPAY_KEY_SECRET": {
+      "description": "Razorpay API Key Secret",
+      "required": false
+    }
+  },
+  "scripts": {
+    "postdeploy": "python manage.py migrate --noinput"
+  }
+}

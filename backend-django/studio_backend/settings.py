@@ -129,8 +129,8 @@ CORS_ALLOWED_ORIGINS = config(
         "http://localhost:3000",
         "http://127.0.0.1:3000",
         "http://localhost:8080",
-        "https://studio-web-admin.onrender.com",   # legacy Render (keep during transition)
-        "https://studio-pro.netlify.app",           # Netlify — update after you get your domain
+        "https://studio-web-admin.onrender.com",      # legacy Render (transition period)
+        "https://studio-pro-vishnu.netlify.app",      # Netlify production URL
     ])
 ).split(',')
 
