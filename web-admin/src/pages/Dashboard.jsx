@@ -18,7 +18,8 @@ import {
     Eye,
     ShieldCheck,
     Smartphone,
-    Share2
+    Share2,
+    Crown
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import api from '../services/api';
@@ -34,17 +35,19 @@ const chartData = [
 ];
 
 function Dashboard() {
-    const { user, isCustomer } = useAuth();
+    const { user, isStudioOwner, viewMode } = useAuth();
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    const isCustomerView = viewMode === 'customer';
+
     useEffect(() => {
-        if (!isCustomer) {
+        if (!isCustomerView) {
             fetchStats();
         } else {
             setLoading(false);
         }
-    }, [isCustomer]);
+    }, [isCustomerView]);
 
     const fetchStats = async () => {
         try {
@@ -57,8 +60,8 @@ function Dashboard() {
         }
     };
 
-    if (isCustomer) {
-        return <CustomerPortalView user={user} />;
+    if (isCustomerView) {
+        return <CustomerPortalView user={user} isOwnerPreview={isStudioOwner} />;
     }
 
     // Studio Owner Dashboard
@@ -279,9 +282,40 @@ function Dashboard() {
 }
 
 // Dedicated Customer Portal View for clients logging in via web
-function CustomerPortalView({ user }) {
+function CustomerPortalView({ user, isOwnerPreview }) {
+    const { toggleViewMode } = useAuth();
+
     return (
         <div className="animate-fadeIn">
+            {/* Studio Owner Preview Alert Banner */}
+            {isOwnerPreview && (
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '0.85rem 1.25rem',
+                    background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(139, 92, 246, 0.15))',
+                    border: '1px solid rgba(6, 182, 212, 0.4)',
+                    borderRadius: 'var(--radius-md)',
+                    marginBottom: '1.5rem'
+                }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                        <Crown size={18} color="#ec4899" />
+                        <div>
+                            <span style={{ fontWeight: 800, fontSize: '0.85rem', color: '#ffffff' }}>Studio Owner Customer Preview: </span>
+                            <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>You are currently viewing the platform as your clients experience it.</span>
+                        </div>
+                    </div>
+                    <button
+                        onClick={toggleViewMode}
+                        className="btn btn-secondary"
+                        style={{ padding: '0.4rem 0.85rem', fontSize: '0.75rem', fontWeight: 700 }}
+                    >
+                        Back to Command Center →
+                    </button>
+                </div>
+            )}
+
             {/* Customer Welcome Hero */}
             <div className="card" style={{
                 padding: '2.5rem',

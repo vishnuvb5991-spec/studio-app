@@ -7,6 +7,7 @@ export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(localStorage.getItem('access_token'));
     const [loading, setLoading] = useState(true);
+    const [viewMode, setViewMode] = useState('owner'); // 'owner' | 'customer'
 
     useEffect(() => {
         if (token) {
@@ -19,7 +20,13 @@ export function AuthProvider({ children }) {
     const fetchProfile = async () => {
         try {
             const response = await api.get('/auth/profile/');
-            setUser(response.data);
+            const userData = response.data;
+            setUser(userData);
+            if (userData.user_type === 'customer') {
+                setViewMode('customer');
+            } else {
+                setViewMode('owner');
+            }
         } catch (error) {
             logout();
         } finally {
@@ -36,6 +43,12 @@ export function AuthProvider({ children }) {
             localStorage.setItem('refresh_token', tokens.refresh);
             setToken(tokens.access);
             setUser(userData);
+
+            if (userData.user_type === 'customer') {
+                setViewMode('customer');
+            } else {
+                setViewMode('owner');
+            }
 
             return { success: true, user: userData };
         } catch (error) {
@@ -82,6 +95,7 @@ export function AuthProvider({ children }) {
                 localStorage.setItem('refresh_token', tokens.refresh);
                 setToken(tokens.access);
                 setUser(userData);
+                setViewMode('customer');
             }
 
             return { success: true, user: userData };
@@ -101,20 +115,33 @@ export function AuthProvider({ children }) {
         }
     };
 
+    const toggleViewMode = () => {
+        setViewMode(prev => prev === 'owner' ? 'customer' : 'owner');
+    };
+
     const logout = () => {
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
         setToken(null);
         setUser(null);
+        setViewMode('owner');
     };
+
+    const isStudioOwner = user?.user_type === 'studio_owner' || user?.is_superuser;
+    const isCustomer = user?.user_type === 'customer';
+    // If user is owner, they can switch between owner and customer view. If customer, always customer view.
+    const activeView = isStudioOwner ? viewMode : 'customer';
 
     const value = {
         user,
         token,
         loading,
         isAuthenticated: !!token,
-        isCustomer: user?.user_type === 'customer',
-        isStudioOwner: user?.user_type === 'studio_owner' || user?.is_superuser,
+        isCustomer,
+        isStudioOwner,
+        viewMode: activeView,
+        setViewMode,
+        toggleViewMode,
         login,
         register,
         logout,

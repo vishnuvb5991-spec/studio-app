@@ -13,7 +13,10 @@ import {
     Sparkles,
     UserCheck,
     Smartphone,
-    Download
+    Download,
+    Eye,
+    Repeat,
+    Crown
 } from 'lucide-react';
 
 const studioOwnerNav = [
@@ -36,8 +39,9 @@ const customerNav = [
 ];
 
 function Sidebar() {
-    const { user, isCustomer } = useAuth();
-    const navItems = isCustomer ? customerNav : studioOwnerNav;
+    const { user, isStudioOwner, viewMode, toggleViewMode } = useAuth();
+    const isCustomerView = viewMode === 'customer';
+    const navItems = isCustomerView ? customerNav : studioOwnerNav;
 
     return (
         <aside className="sidebar">
@@ -46,7 +50,7 @@ function Sidebar() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.85rem',
-                marginBottom: '2.25rem',
+                marginBottom: '2rem',
                 padding: '0 0.5rem'
             }}>
                 <div style={{
@@ -76,11 +80,11 @@ function Sidebar() {
                     <div style={{
                         fontSize: '0.7rem',
                         fontWeight: 700,
-                        color: isCustomer ? 'var(--accent-cyan)' : 'var(--text-muted)',
+                        color: isCustomerView ? 'var(--accent-cyan)' : '#a78bfa',
                         textTransform: 'uppercase',
                         letterSpacing: '0.08em'
                     }}>
-                        {isCustomer ? '👤 Client Portal' : '👑 Studio Suite'}
+                        {isCustomerView ? (isStudioOwner ? '👤 Customer View (Owner)' : '👤 Client Portal') : '👑 Studio Suite'}
                     </div>
                 </div>
             </div>
@@ -95,7 +99,7 @@ function Sidebar() {
                     color: 'var(--text-muted)',
                     padding: '0.5rem 0.75rem 0.25rem'
                 }}>
-                    {isCustomer ? 'My Hub' : 'Management'}
+                    {isCustomerView ? 'Customer Space' : 'Studio Management'}
                 </div>
 
                 {navItems.map((item) => (
@@ -148,9 +152,35 @@ function Sidebar() {
                 ))}
             </nav>
 
-            {/* Mobile App Sync Promotion / Cloud Status Card */}
+            {/* Owner Dual-Access Switcher Card */}
+            {isStudioOwner && (
+                <div style={{
+                    marginTop: 'auto',
+                    marginBottom: '1rem',
+                    padding: '0.85rem 1rem',
+                    background: isCustomerView ? 'rgba(6, 182, 212, 0.1)' : 'rgba(139, 92, 246, 0.1)',
+                    border: `1px solid ${isCustomerView ? 'rgba(6, 182, 212, 0.3)' : 'rgba(139, 92, 246, 0.3)'}`,
+                    borderRadius: 'var(--radius-md)',
+                    cursor: 'pointer'
+                }}
+                onClick={toggleViewMode}
+                title="Switch view"
+                >
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            {isCustomerView ? <Crown size={16} color="#ec4899" /> : <Eye size={16} color="#22d3ee" />}
+                            <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-pure)' }}>
+                                {isCustomerView ? 'Switch to Owner Mode' : 'Preview Customer Mode'}
+                            </span>
+                        </div>
+                        <Repeat size={14} color="var(--text-muted)" />
+                    </div>
+                </div>
+            )}
+
+            {/* Mobile App Sync / Cloud Status Card */}
             <div style={{
-                marginTop: 'auto',
+                marginTop: isStudioOwner ? 0 : 'auto',
                 padding: '1.15rem',
                 background: 'linear-gradient(135deg, rgba(20, 24, 48, 0.9), rgba(15, 17, 35, 0.95))',
                 borderRadius: 'var(--radius-lg)',
@@ -172,7 +202,7 @@ function Sidebar() {
                     marginBottom: '0.65rem',
                     lineHeight: 1.35
                 }}>
-                    Use your same account to download photos on your Android/iOS phone.
+                    Use your same credentials on Android/iOS to access client galleries.
                 </p>
 
                 <div style={{
