@@ -4,9 +4,13 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .npm
-.env
 dist/
 build/
+# Ignore secret local env files but KEEP .env.production (Netlify reads it at build time)
+.env
+.env.local
+.env.development.local
+.env.test.local
 
 # Django
 __pycache__/

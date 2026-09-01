@@ -14,7 +14,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Security Settings
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-this-in-production')
 DEBUG = config('DEBUG', default=True, cast=bool)
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,.onrender.com').split(',')
+ALLOWED_HOSTS = config(
+    'ALLOWED_HOSTS',
+    default='localhost,127.0.0.1,.onrender.com,.herokuapp.com,.netlify.app'
+).split(',')
 
 # Application definition
 INSTALLED_APPS = [
@@ -119,15 +122,22 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
-# CORS Settings
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://localhost:8080",
-    "https://studio-web-admin.onrender.com",
-]
+# CORS Settings — allow local dev, Netlify frontend, and Heroku backend (for admin)
+CORS_ALLOWED_ORIGINS = config(
+    'CORS_ALLOWED_ORIGINS',
+    default=','.join([
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:8080",
+        "https://studio-web-admin.onrender.com",   # legacy Render (keep during transition)
+        "https://studio-pro.netlify.app",           # Netlify — update after you get your domain
+    ])
+).split(',')
+
 CORS_ALLOWED_ORIGIN_REGEXES = [
-    r"^https://.*\.onrender\.com$",
+    r"^https://.*\.onrender\.com$",      # legacy Render (transition period)
+    r"^https://.*\.netlify\.app$",       # all Netlify preview/production deploys
+    r"^https://.*\.herokuapp\.com$",     # Heroku dyno URLs if accessed directly
 ]
 CORS_ALLOW_CREDENTIALS = True
 
