@@ -1,5 +1,5 @@
 services:
-  # Django REST API
+  # Django REST API (Backend)
   - type: web
     name: studio-django-api
     env: python
@@ -42,24 +42,6 @@ services:
         value: "mongodb+srv://vishnuvb5991_db_user:JXDojIJn6pO5n1pz@cluster0.b2qpwtw.mongodb.net/studio_db?retryWrites=true&w=majority&appName=Cluster0"
       - key: JWT_SECRET
         generateValue: true
-
-  # React admin dashboard (Vite) deployed as web service
-  - type: web
-    name: studio-web-admin
-    env: node
-    plan: free
-    rootDir: web-admin
-    buildCommand: npm install && npm run build
-    startCommand: npx serve -s dist -l $PORT
-    autoDeploy: true
-    envVars:
-      - key: VITE_DJANGO_API_BASE_URL
-        value: "https://studio-django-api.onrender.com"
-      - key: VITE_NODE_API_BASE_URL
-        fromService:
-          type: web
-          name: studio-realtime-node
-          property: host
 
 databases:
   - name: studio-postgres
