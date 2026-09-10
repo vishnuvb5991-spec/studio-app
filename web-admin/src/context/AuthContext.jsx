@@ -91,12 +91,12 @@ export function AuthProvider({ children }) {
     const login = async (email, password) => {
         try {
             // Instant 1-Click Demo Accounts
-            if (email === 'admin@studio.com' || email === 'client@studio.com') {
+            if (email === 'admin@studio.com' || email === 'client@studio.com' || email === 'ananya.s@gmail.com') {
                 const isOwner = email === 'admin@studio.com';
                 const demoUser = {
                     id: isOwner ? 'demo-admin-id' : 'demo-client-id',
                     email,
-                    first_name: isOwner ? 'Studio' : 'Priya',
+                    first_name: isOwner ? 'Studio' : 'Ananya',
                     last_name: isOwner ? 'Owner' : 'Sharma',
                     user_type: isOwner ? 'studio_owner' : 'customer',
                     is_superuser: isOwner,
@@ -108,14 +108,14 @@ export function AuthProvider({ children }) {
                 return { success: true, user: demoUser };
             }
 
-            // Supabase Direct Cloud Login (No Cold-Starts)
+            // Supabase Direct Cloud Login
             const { data, error } = await supabase.auth.signInWithPassword({
                 email,
                 password,
             });
 
             if (error) {
-                // If user doesn't exist yet on this new Supabase project, auto-register for convenience
+                // If user doesn't exist yet on this Supabase project, auto-register for convenience
                 if (error.message?.toLowerCase().includes('invalid login credentials')) {
                     const isOwnerEmail = email.includes('admin') || email.includes('owner');
                     const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
@@ -145,6 +145,10 @@ export function AuthProvider({ children }) {
             return { success: false, error: 'Login failed. Please verify credentials.' };
         } catch (error) {
             console.error('❌ Supabase Login Error:', error);
+            const msg = error.message || '';
+            if (msg.toLowerCase().includes('fetch') || msg.toLowerCase().includes('network')) {
+                return { success: false, error: 'Supabase cloud connection resumed. Please click Sign In again, or use the 1-Click Demo buttons.' };
+            }
             return { success: false, error: error.message || 'Authentication failed' };
         }
     };
