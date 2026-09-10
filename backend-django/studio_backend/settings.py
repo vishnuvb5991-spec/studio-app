@@ -100,6 +100,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # REST Framework Configuration
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
+        'accounts.authentication.SupabaseAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
@@ -144,6 +145,15 @@ CORS_ALLOW_CREDENTIALS = True
 # Razorpay Settings
 RAZORPAY_KEY_ID = config('RAZORPAY_KEY_ID', default='')
 RAZORPAY_KEY_SECRET = config('RAZORPAY_KEY_SECRET', default='')
+# Configure this separately in the Razorpay Dashboard webhook settings.  It is
+# deliberately not the API key secret, so rotating one does not break the other.
+RAZORPAY_WEBHOOK_SECRET = config('RAZORPAY_WEBHOOK_SECRET', default='')
+
+# Supabase Auth bridge. The publishable key is safe to use in browser clients;
+# here it lets Django ask Supabase to validate a presented user session.
+SUPABASE_URL = config('SUPABASE_URL', default='')
+SUPABASE_PUBLISHABLE_KEY = config('SUPABASE_PUBLISHABLE_KEY', default='')
+SUPABASE_AUTH_TIMEOUT_SECONDS = config('SUPABASE_AUTH_TIMEOUT_SECONDS', default=5, cast=int)
 
 # Internationalization
 LANGUAGE_CODE = 'en-us'

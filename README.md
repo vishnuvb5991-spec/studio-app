@@ -149,6 +149,22 @@ Uses **Razorpay** for secure payments supporting:
 - Credit/Debit Cards
 - Net Banking
 
+To enable checkout, set `RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET` on the
+Django service. Create a separate webhook secret in Razorpay and set it as
+`RAZORPAY_WEBHOOK_SECRET`; configure the webhook URL as
+`https://<your-api-host>/api/v1/payments/webhook/` and subscribe to
+`payment.captured`, `payment.failed`, and `refund.processed` events. Use test
+mode credentials until the integration is approved for live payments.
+
+### Supabase Auth with Django on Render
+
+The web app signs users in with Supabase. Django verifies that Supabase session
+on every protected API request and links it to a local user, while keeping all
+payment logic and Razorpay secrets on the Django service. In the Render Django
+service, set `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY`, then deploy so the
+`accounts.0002_user_supabase_user_id` migration runs. Do not put Razorpay
+secrets or a Supabase service-role key in a browser or Flutter application.
+
 ## 📄 License
 
 MIT License - Feel free to use for your studio business!

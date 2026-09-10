@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
+import 'package:provider/provider.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import '../../config/theme.dart';
 import '../../config/api_config.dart';
+import '../../providers/auth_provider.dart';
 import '../../widgets/custom_button.dart';
 
 /// Payment Screen with Razorpay Integration
@@ -9,12 +12,14 @@ class PaymentScreen extends StatefulWidget {
   final double amount;
   final String paymentType;
   final String? bookingId;
+  final String? restorationOrderId;
   
   const PaymentScreen({
     super.key,
     required this.amount,
     required this.paymentType,
     this.bookingId,
+    this.restorationOrderId,
   });
 
   @override
@@ -23,7 +28,9 @@ class PaymentScreen extends StatefulWidget {
 
 class _PaymentScreenState extends State<PaymentScreen> {
   late Razorpay _razorpay;
+  final Dio _dio = Dio();
   bool _isLoading = false;
+  String? _paymentId;
 
   @override
   void initState() {
@@ -40,15 +47,37 @@ class _PaymentScreenState extends State<PaymentScreen> {
     super.dispose();
   }
 
-  void _handlePaymentSuccess(PaymentSuccessResponse response) {
-    // TODO: Verify payment on backend
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Payment Successful! 🎉'),
-        backgroundColor: AppColors.success,
-      ),
-    );
-    Navigator.pop(context, true);
+  Future<void> _handlePaymentSuccess(PaymentSuccessResponse response) async {
+    final token = context.read<AuthProvider>().token;
+    final paymentId = _paymentId;
+    if (token == null || paymentId == null || response.orderId == null ||
+        response.paymentId == null || response.signature == null) {
+      _showError('We could not verify this payment. Please contact support.');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+    try {
+      await _dio.post(
+        '${ApiConfig.payments}/verify/',
+        data: {
+          'payment_id': paymentId,
+          'razorpay_order_id': response.orderId,
+          'razorpay_payment_id': response.paymentId,
+          'razorpay_signature': response.signature,
+        },
+        options: Options(headers: ApiConfig.headers(token)),
+      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Payment successful!'), backgroundColor: AppColors.success),
+      );
+      Navigator.pop(context, true);
+    } on DioException {
+      if (mounted) _showError('Payment received, but verification failed. Please contact support.');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
@@ -66,29 +95,52 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
-  void _startPayment() {
-    var options = {
-      'key': ApiConfig.razorpayKeyId,
-      'amount': (widget.amount * 100).toInt(), // Amount in paise
-      'name': 'Studio Pro',
-      'description': widget.paymentType.replaceAll('_', ' ').toUpperCase(),
-      'prefill': {
-        'contact': '',
-        'email': '',
-      },
-      'external': {
-        'wallets': ['paytm', 'gpay', 'phonepe']
-      },
-      'theme': {
-        'color': '#6366F1',
-      },
-    };
-
-    try {
-      _razorpay.open(options);
-    } catch (e) {
-      debugPrint('Error: $e');
+  Future<void> _startPayment() async {
+    final token = context.read<AuthProvider>().token;
+    if (token == null) {
+      _showError('Please sign in before making a payment.');
+      return;
     }
+    setState(() => _isLoading = true);
+    try {
+      final order = await _dio.post(
+        '${ApiConfig.payments}/create-order/',
+        data: {
+          'amount': widget.amount.toStringAsFixed(2),
+          'payment_type': widget.paymentType,
+          if (widget.bookingId != null) 'booking_id': widget.bookingId,
+          if (widget.restorationOrderId != null) 'restoration_order_id': widget.restorationOrderId,
+        },
+        options: Options(headers: ApiConfig.headers(token)),
+      );
+      _paymentId = order.data['payment_id'] as String?;
+      if (_paymentId == null) throw StateError('Missing payment ID');
+
+      final options = {
+        'key': order.data['razorpay_key'],
+        'order_id': order.data['razorpay_order_id'],
+        'amount': order.data['amount'],
+        'currency': order.data['currency'],
+        'name': order.data['name'],
+        'description': order.data['description'],
+        'prefill': order.data['prefill'],
+        'theme': order.data['theme'],
+      };
+      _razorpay.open(options);
+    } on DioException catch (e) {
+      _showError(e.response?.data?['error']?.toString() ?? 'Could not start payment.');
+    } catch (_) {
+      _showError('Could not start payment. Please try again.');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _showError(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: AppColors.error),
+    );
   }
 
   @override

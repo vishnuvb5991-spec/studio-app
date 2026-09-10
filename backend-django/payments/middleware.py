@@ -17,7 +17,7 @@ class PaymentSecurityMiddleware(MiddlewareMixin):
     def process_request(self, request):
         """Add security headers for payment endpoints"""
         
-        if request.path.startswith('/api/payments/'):
+        if request.path.startswith('/api/v1/payments/'):
             # Add security headers
             request.META['HTTP_X_CONTENT_TYPE_OPTIONS'] = 'nosniff'
             request.META['HTTP_X_FRAME_OPTIONS'] = 'DENY'
@@ -29,7 +29,7 @@ class PaymentSecurityMiddleware(MiddlewareMixin):
     def process_response(self, request, response):
         """Add security headers to response"""
         
-        if request.path.startswith('/api/payments/'):
+        if request.path.startswith('/api/v1/payments/'):
             response['X-Content-Type-Options'] = 'nosniff'
             response['X-Frame-Options'] = 'DENY'
             response['X-XSS-Protection'] = '1; mode=block'
@@ -51,7 +51,7 @@ class RateLimitMiddleware(MiddlewareMixin):
     def process_request(self, request):
         """Rate limit payment creation attempts"""
         
-        if request.path == '/api/payments/create-order/' and request.method == 'POST':
+        if request.path == '/api/v1/payments/create-order/' and request.method == 'POST':
             client_ip = self.get_client_ip(request)
             current_time = int(time.time())
             

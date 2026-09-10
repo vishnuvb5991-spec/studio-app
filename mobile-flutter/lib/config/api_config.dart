@@ -8,9 +8,6 @@ class ApiConfig {
   static const String nodeBaseUrl = 'http://10.0.2.2:5000';  // Android emulator
   // static const String nodeBaseUrl = 'http://localhost:5000';  // iOS/Web
   
-  // Razorpay
-  static const String razorpayKeyId = 'rzp_test_xxxxxxxxxxxx';
-  
   // API Endpoints
   static const String auth = '$djangoBaseUrl/auth';
   static const String albums = '$djangoBaseUrl/albums';

@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import api from '../services/api';
+import { openRazorpayCheckout } from '../services/razorpay';
 import {
     CreditCard,
     ArrowUpRight,
@@ -76,10 +78,48 @@ const mockTransactions = [
 function Payments() {
     const [filter, setFilter] = useState('all');
     const [transactions] = useState(mockTransactions);
+    const [amount, setAmount] = useState('');
+    const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+    const [isPaying, setIsPaying] = useState(false);
+    const [checkoutMessage, setCheckoutMessage] = useState('');
 
     const filteredTransactions = filter === 'all' 
         ? transactions 
         : transactions.filter(t => t.status === filter);
+
+    const startPayment = async (event) => {
+        event.preventDefault();
+        const parsedAmount = Number(amount);
+        if (!Number.isFinite(parsedAmount) || parsedAmount < 1) {
+            setCheckoutMessage('Enter an amount of at least ₹1.');
+            return;
+        }
+
+        setIsPaying(true);
+        setCheckoutMessage('');
+        try {
+            const { data: order } = await api.post('/payments/create-order/', {
+                amount: parsedAmount.toFixed(2),
+                payment_type: 'other',
+                description: 'Studio payment collected from web dashboard',
+            });
+            await openRazorpayCheckout(order, async (response) => {
+                await api.post('/payments/verify/', {
+                    payment_id: order.payment_id,
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_signature: response.razorpay_signature,
+                });
+                setCheckoutMessage('Payment verified successfully.');
+                setIsCheckoutOpen(false);
+                setAmount('');
+            });
+        } catch (error) {
+            setCheckoutMessage(error.response?.data?.error || error.message || 'Unable to complete payment.');
+        } finally {
+            setIsPaying(false);
+        }
+    };
 
     return (
         <div className="animate-fadeIn">
@@ -106,11 +146,51 @@ function Payments() {
                     <button className="btn btn-secondary" style={{ fontSize: '0.825rem' }}>
                         <Download size={16} /> Export Statement (CSV)
                     </button>
-                    <button className="btn btn-primary" style={{ fontSize: '0.825rem' }}>
-                        <Wallet size={16} /> Instant Payout
+                    <button
+                        className="btn btn-primary"
+                        style={{ fontSize: '0.825rem' }}
+                        onClick={() => { setCheckoutMessage(''); setIsCheckoutOpen(true); }}
+                    >
+                        <Wallet size={16} /> Collect Payment
                     </button>
                 </div>
             </div>
+
+            {isCheckoutOpen && (
+                <form onSubmit={startPayment} className="card" style={{ marginBottom: '1.5rem', padding: '1.25rem', maxWidth: 520 }}>
+                    <h3 style={{ marginBottom: '0.45rem' }}>Collect a payment</h3>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '1rem' }}>
+                        Razorpay Checkout opens after the server creates the order. The payment is recorded only after signature verification.
+                    </p>
+                    <label htmlFor="payment-amount" style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.45rem' }}>Amount (₹)</label>
+                    <input
+                        id="payment-amount"
+                        type="number"
+                        min="1"
+                        step="0.01"
+                        value={amount}
+                        onChange={(event) => setAmount(event.target.value)}
+                        placeholder="0.00"
+                        required
+                        disabled={isPaying}
+                        style={{ width: '100%', marginBottom: '0.9rem' }}
+                    />
+                    <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                        <button className="btn btn-primary" type="submit" disabled={isPaying}>
+                            <CreditCard size={16} /> {isPaying ? 'Opening Checkout…' : 'Continue to Razorpay'}
+                        </button>
+                        <button className="btn btn-secondary" type="button" disabled={isPaying} onClick={() => setIsCheckoutOpen(false)}>
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            )}
+
+            {checkoutMessage && (
+                <p role="status" style={{ color: checkoutMessage.includes('successfully') ? '#34d399' : '#f87171', marginBottom: '1.25rem' }}>
+                    {checkoutMessage}
+                </p>
+            )}
 
             {/* Financial Summary Cards */}
             <div style={{

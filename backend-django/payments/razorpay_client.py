@@ -2,6 +2,8 @@
 Razorpay Payment Gateway Client
 """
 
+from decimal import Decimal, ROUND_HALF_UP
+
 import razorpay
 from django.conf import settings
 
@@ -19,7 +21,7 @@ class RazorpayClient:
         Create a Razorpay order
         
         Args:
-            amount: Amount in paise (₹100 = 10000 paise)
+            amount: Amount in rupees (converted to paise before the API call)
             currency: Currency code (default: INR)
             receipt: Receipt ID for your reference
             notes: Additional notes (dict)
@@ -27,8 +29,11 @@ class RazorpayClient:
         Returns:
             Order details dict with 'id', 'amount', 'currency', etc.
         """
+        amount_in_paise = (Decimal(str(amount)) * 100).quantize(
+            Decimal('1'), rounding=ROUND_HALF_UP
+        )
         order_data = {
-            'amount': int(amount * 100),  # Convert to paise
+            'amount': int(amount_in_paise),
             'currency': currency,
             'payment_capture': 1,  # Auto capture
         }
@@ -64,7 +69,7 @@ class RazorpayClient:
     
     def capture_payment(self, payment_id, amount):
         """Capture an authorized payment"""
-        return self.client.payment.capture(payment_id, int(amount * 100))
+        return self.client.payment.capture(payment_id, self._to_paise(amount))
     
     def create_refund(self, payment_id, amount, notes=None):
         """
@@ -75,9 +80,7 @@ class RazorpayClient:
             amount: Refund amount in rupees
             notes: Additional notes
         """
-        refund_data = {
-            'amount': int(amount * 100)
-        }
+        refund_data = {'amount': self._to_paise(amount)}
         
         if notes:
             refund_data['notes'] = notes
@@ -91,6 +94,12 @@ class RazorpayClient:
     def fetch_order_payments(self, order_id):
         """Fetch all payments for an order"""
         return self.client.order.payments(order_id)
+
+    @staticmethod
+    def _to_paise(amount):
+        return int((Decimal(str(amount)) * 100).quantize(
+            Decimal('1'), rounding=ROUND_HALF_UP
+        ))
 
 
 # Singleton instance

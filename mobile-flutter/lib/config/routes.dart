@@ -75,6 +75,7 @@ class AppRouter {
             amount: extra?['amount'] ?? 0,
             paymentType: extra?['paymentType'] ?? 'other',
             bookingId: extra?['bookingId'],
+            restorationOrderId: extra?['restorationOrderId'],
           );
         },
       ),

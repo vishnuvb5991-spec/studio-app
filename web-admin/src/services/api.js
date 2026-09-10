@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { supabase } from './supabase';
 
 const defaultUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:8000/api/v1'
@@ -21,8 +22,11 @@ console.log('🌐 API Base URL:', API_BASE_URL);
 
 // Request interceptor for adding auth token
 api.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem('access_token');
+    async (config) => {
+        const { data: { session } } = await supabase.auth.getSession();
+        // Supabase is the browser identity provider. The demo/Django fallback
+        // preserves the existing local-development login behavior.
+        const token = session?.access_token || localStorage.getItem('access_token');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -38,6 +42,12 @@ api.interceptors.response.use(
         const originalRequest = error.config;
 
         if (error.response?.status === 401 && !originalRequest._retry) {
+            const { data: { session } } = await supabase.auth.getSession();
+            // Supabase refreshes its own token. A Django token-refresh request
+            // is not valid for a Supabase access token.
+            if (session?.access_token) {
+                return Promise.reject(error);
+            }
             originalRequest._retry = true;
 
             try {

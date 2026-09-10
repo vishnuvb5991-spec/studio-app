@@ -3,18 +3,18 @@ Views for Payment Processing with Razorpay
 """
 
 from rest_framework import viewsets, status, permissions
-from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 import json
 import hmac
 import hashlib
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from datetime import datetime
-import uuid
 import logging
+from decimal import Decimal, ROUND_HALF_UP
 
 from .models import Payment, Invoice, Refund
 from .serializers import (
@@ -58,6 +58,38 @@ class CreatePaymentOrderView(APIView):
         data = serializer.validated_data
         amount = data['amount']
         payment_type = data['payment_type']
+
+        # A client must never be able to choose the amount for an existing order.
+        # Resolve the payable amount and ownership from the server-side resource.
+        booking = None
+        restoration_order = None
+        if data.get('booking_id'):
+            try:
+                booking = Booking.objects.get(id=data['booking_id'], customer=request.user)
+            except Booking.DoesNotExist:
+                return Response({'error': 'Booking not found'}, status=status.HTTP_404_NOT_FOUND)
+            if payment_type == 'booking_advance':
+                amount = booking.advance_amount
+            elif payment_type in ('booking_full', 'booking_balance'):
+                amount = booking.balance_amount if booking.advance_paid else booking.total_amount
+            else:
+                return Response(
+                    {'error': 'Booking payments require a booking payment type.'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        elif data.get('restoration_order_id'):
+            try:
+                restoration_order = RestorationOrder.objects.get(
+                    id=data['restoration_order_id'], customer=request.user
+                )
+            except RestorationOrder.DoesNotExist:
+                return Response({'error': 'Restoration order not found'}, status=status.HTTP_404_NOT_FOUND)
+            if payment_type != 'restoration':
+                return Response(
+                    {'error': 'Restoration orders require the restoration payment type.'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            amount = restoration_order.final_price or restoration_order.estimated_price
         
         # Validate payment amount
         try:
@@ -81,7 +113,7 @@ class CreatePaymentOrderView(APIView):
         # Create Razorpay order
         try:
             razorpay_order = razorpay_client.create_order(
-                amount=float(validated_amount),
+                amount=validated_amount,
                 receipt=generate_secure_receipt(),
                 notes={
                     'payment_type': payment_type,
@@ -108,17 +140,19 @@ class CreatePaymentOrderView(APIView):
         )
         
         # Link to booking or restoration order
-        if data.get('booking_id'):
-            payment.booking = Booking.objects.get(id=data['booking_id'])
-        if data.get('restoration_order_id'):
-            payment.restoration_order = RestorationOrder.objects.get(id=data['restoration_order_id'])
+        if booking:
+            payment.booking = booking
+        if restoration_order:
+            payment.restoration_order = restoration_order
         payment.save()
         
         return Response({
             'payment_id': str(payment.id),
             'razorpay_order_id': razorpay_order['id'],
             'razorpay_key': settings.RAZORPAY_KEY_ID,
-            'amount': int(float(validated_amount) * 100),  # Amount in paise
+            'amount': int(
+                (validated_amount * 100).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+            ),
             'currency': 'INR',
             'name': 'Studio Management',
             'description': payment_type.replace('_', ' ').title(),
@@ -159,7 +193,18 @@ class VerifyPaymentView(APIView):
         
         # Update payment record
         try:
-            payment = Payment.objects.get(id=data['payment_id'])
+            payment = Payment.objects.get(id=data['payment_id'], user=request.user)
+            if payment.razorpay_order_id != data['razorpay_order_id']:
+                return Response(
+                    {'error': 'Order does not match payment', 'success': False},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            if payment.status == 'completed':
+                return Response({
+                    'success': True,
+                    'message': 'Payment was already verified',
+                    'payment': PaymentSerializer(payment).data,
+                })
             payment.razorpay_payment_id = data['razorpay_payment_id']
             payment.razorpay_signature = data['razorpay_signature']
             payment.status = 'completed'
@@ -220,18 +265,23 @@ class RefundView(APIView):
         data = serializer.validated_data
         
         try:
-            payment = Payment.objects.get(id=data['payment_id'])
+            payment = Payment.objects.get(id=data['payment_id'], user=request.user)
             
-            if payment.status != 'completed':
+            if payment.status != 'completed' or not payment.razorpay_payment_id:
                 return Response(
                     {'error': 'Can only refund completed payments'},
                     status=status.HTTP_400_BAD_REQUEST
+                )
+            if data['amount'] <= 0 or data['amount'] > payment.amount:
+                return Response(
+                    {'error': 'Refund amount must be greater than zero and cannot exceed the payment amount.'},
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
             
             # Process refund via Razorpay
             razorpay_refund = razorpay_client.create_refund(
                 payment.razorpay_payment_id,
-                float(data['amount']),
+                data['amount'],
                 notes={'reason': data['reason']}
             )
             
@@ -290,8 +340,13 @@ class PaymentWebhookView(APIView):
             return False
             
         # Compute expected signature
+        webhook_secret = settings.RAZORPAY_WEBHOOK_SECRET
+        if not webhook_secret:
+            logging.error('RAZORPAY_WEBHOOK_SECRET is not configured')
+            return False
+
         expected_signature = hmac.new(
-            key=settings.RAZORPAY_KEY_SECRET.encode('utf-8'),
+            key=webhook_secret.encode('utf-8'),
             msg=payload.encode('utf-8'),
             digestmod=hashlib.sha256
         ).hexdigest()

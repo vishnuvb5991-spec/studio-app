@@ -18,6 +18,8 @@ class User(AbstractUser):
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True)
+    # Links a Supabase Auth identity to this application's local user record.
+    supabase_user_id = models.UUIDField(null=True, blank=True, unique=True)
     phone = models.CharField(max_length=15, blank=True)
     user_type = models.CharField(max_length=20, choices=USER_TYPE_CHOICES, default='customer')
     profile_picture = models.ImageField(upload_to='profiles/', blank=True, null=True)

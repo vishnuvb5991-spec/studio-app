@@ -32,6 +32,15 @@ class CreateOrderSerializer(serializers.Serializer):
     restoration_order_id = serializers.UUIDField(required=False)
     description = serializers.CharField(required=False, allow_blank=True)
 
+    def validate(self, attrs):
+        booking_id = attrs.get('booking_id')
+        restoration_order_id = attrs.get('restoration_order_id')
+        if booking_id and restoration_order_id:
+            raise serializers.ValidationError(
+                'A payment can be linked to either a booking or a restoration order, not both.'
+            )
+        return attrs
+
 
 class VerifyPaymentSerializer(serializers.Serializer):
     """Serializer for verifying Razorpay payment"""

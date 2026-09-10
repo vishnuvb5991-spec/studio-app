@@ -4,7 +4,7 @@
     "description": "Admin Dashboard for Studio Management",
     "private": true,
     "dependencies": {
-        "@supabase/supabase-js": "^2.112.4",
+        "@supabase/supabase-js": "^2.114.0",
         "axios": "^1.6.3",
         "date-fns": "^3.2.0",
         "lucide-react": "^0.303.0",
