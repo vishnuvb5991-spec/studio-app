@@ -355,6 +355,41 @@ function CustomerPortalView({ user, isOwnerPreview }) {
             });
             localStorage.setItem('studio_custom_bookings', JSON.stringify(stored));
         }
+
+        // ── Save admin notification ──────────────────────────────────────────
+        const notif = {
+            client: user?.first_name || user?.email || 'A client',
+            email: user?.email || '',
+            event_type: bookingForm.event_type,
+            preferred_date: bookingForm.preferred_date,
+            venue: bookingForm.venue,
+            phone: bookingForm.phone,
+            message: bookingForm.message,
+            received_at: new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
+        };
+        try {
+            const existing = JSON.parse(localStorage.getItem('studio_admin_notifications') || '[]');
+            existing.unshift(notif);
+            localStorage.setItem('studio_admin_notifications', JSON.stringify(existing));
+        } catch (_) {}
+
+        // ── Browser push notification (if permission granted) ────────────────
+        if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+            new Notification('📸 New Booking Request!', {
+                body: `${notif.client} wants to book ${notif.event_type} on ${notif.preferred_date}`,
+                icon: '/favicon.ico'
+            });
+        } else if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+            Notification.requestPermission().then(perm => {
+                if (perm === 'granted') {
+                    new Notification('📸 New Booking Request!', {
+                        body: `${notif.client} wants to book ${notif.event_type} on ${notif.preferred_date}`,
+                        icon: '/favicon.ico'
+                    });
+                }
+            });
+        }
+
         setBookingSubmitting(false);
         setBookingSuccess(true);
         setTimeout(() => {
@@ -363,6 +398,7 @@ function CustomerPortalView({ user, isOwnerPreview }) {
             setBookingForm({ event_type: '', preferred_date: '', venue: '', phone: '', message: '' });
         }, 2200);
     };
+
 
     const handlePayNow = async (invoice) => {
         setPayingId(invoice.id);
