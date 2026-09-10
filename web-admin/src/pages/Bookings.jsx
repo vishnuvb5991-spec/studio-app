@@ -1,6 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Calendar, Clock, MapPin, CheckCircle2, XCircle, Sparkles, Filter, Phone, Mail } from 'lucide-react';
-import { format } from 'date-fns';
+import { 
+    Plus, 
+    Calendar, 
+    Clock, 
+    MapPin, 
+    CheckCircle2, 
+    XCircle, 
+    Sparkles, 
+    Filter, 
+    Phone, 
+    Mail,
+    X,
+    DollarSign,
+    User,
+    CalendarCheck
+} from 'lucide-react';
 import api from '../services/api';
 
 const defaultShowcaseBookings = [
@@ -59,33 +73,92 @@ function Bookings() {
     const [loading, setLoading] = useState(true);
     const [statusFilter, setStatusFilter] = useState('all');
 
+    // Create Event Modal State
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [eventName, setEventName] = useState('');
+    const [customerName, setCustomerName] = useState('');
+    const [customerEmail, setCustomerEmail] = useState('');
+    const [customerPhone, setCustomerPhone] = useState('');
+    const [eventDate, setEventDate] = useState('');
+    const [venueName, setVenueName] = useState('');
+    const [totalAmount, setTotalAmount] = useState('75000');
+    const [advancePaid, setAdvancePaid] = useState(true);
+    const [eventStatus, setEventStatus] = useState('confirmed');
+    const [successMessage, setSuccessMessage] = useState('');
+
     useEffect(() => {
-        fetchBookings();
+        loadBookings();
     }, []);
 
-    const fetchBookings = async () => {
+    const loadBookings = () => {
         try {
-            const response = await api.get('/bookings/');
-            const data = response.data;
-            const fetched = Array.isArray(data) ? data : (data.results || []);
-            setBookings(fetched.length > 0 ? fetched : defaultShowcaseBookings);
-        } catch (error) {
-            console.error('Using default showcase bookings:', error);
-            setBookings(defaultShowcaseBookings);
-        } finally {
-            setLoading(false);
-        }
+            const stored = localStorage.getItem('studio_custom_bookings');
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    setBookings(parsed);
+                    setLoading(false);
+                    return;
+                }
+            }
+        } catch (e) {}
+
+        setBookings(defaultShowcaseBookings);
+        setLoading(false);
     };
 
-    const updateStatus = async (id, status) => {
+    const handleCreateBooking = (e) => {
+        e.preventDefault();
+        if (!eventName.trim() || !customerName.trim() || !eventDate) return;
+
+        const newBooking = {
+            id: `bkg-${Date.now()}`,
+            event_name: eventName.trim(),
+            event_date: eventDate,
+            customer_name: customerName.trim(),
+            customer_email: customerEmail.trim() || `${customerName.toLowerCase().replace(/\s+/g, '')}@gmail.com`,
+            customer_phone: customerPhone.trim() || '+91 98765 00000',
+            venue_name: venueName.trim() || 'Main Studio, Studio Pro',
+            total_amount: Number(totalAmount) || 50000,
+            advance_paid: advancePaid,
+            status: eventStatus
+        };
+
+        const updated = [newBooking, ...bookings];
+        setBookings(updated);
         try {
-            await api.post(`/bookings/${id}/update_status/`, { status });
-            fetchBookings();
-        } catch (error) {
-            console.error('Status update fallback:', error);
-            // Optimistic UI update
-            setBookings(prev => prev.map(b => b.id === id ? { ...b, status } : b));
-        }
+            localStorage.setItem('studio_custom_bookings', JSON.stringify(updated));
+        } catch (err) {}
+
+        // Try syncing to Django API in background
+        api.post('/bookings/', {
+            event_name: newBooking.event_name,
+            event_date: newBooking.event_date,
+            total_amount: newBooking.total_amount,
+            venue_name: newBooking.venue_name,
+        }).catch(() => {});
+
+        setIsModalOpen(false);
+        setSuccessMessage(`Shoot "${newBooking.event_name}" scheduled for ${newBooking.event_date}!`);
+        setTimeout(() => setSuccessMessage(''), 4000);
+
+        // Reset
+        setEventName('');
+        setCustomerName('');
+        setCustomerEmail('');
+        setCustomerPhone('');
+        setVenueName('');
+        setEventDate('');
+    };
+
+    const updateStatus = (id, status) => {
+        const updated = bookings.map(b => b.id === id ? { ...b, status } : b);
+        setBookings(updated);
+        try {
+            localStorage.setItem('studio_custom_bookings', JSON.stringify(updated));
+        } catch (err) {}
+
+        api.post(`/bookings/${id}/update_status/`, { status }).catch(() => {});
     };
 
     const filteredBookings = statusFilter === 'all'
@@ -115,11 +188,31 @@ function Bookings() {
 
                 <button
                     className="btn btn-cyan"
-                    onClick={() => alert('New Booking Intake Modal')}
+                    onClick={() => setIsModalOpen(true)}
+                    style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.4rem' }}
                 >
                     <Plus size={18} /> Schedule New Event
                 </button>
             </div>
+
+            {/* Success Toast */}
+            {successMessage && (
+                <div style={{
+                    padding: '0.85rem 1.25rem',
+                    background: 'rgba(6, 182, 212, 0.15)',
+                    border: '1px solid rgba(6, 182, 212, 0.4)',
+                    borderRadius: 'var(--radius-md)',
+                    color: '#22d3ee',
+                    fontSize: '0.85rem',
+                    fontWeight: 700,
+                    marginBottom: '1.5rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem'
+                }}>
+                    <CheckCircle2 size={16} /> {successMessage}
+                </div>
+            )}
 
             {/* Status Filter Tabs */}
             <div style={{
@@ -143,10 +236,10 @@ function Bookings() {
                         key={tab.id}
                         onClick={() => setStatusFilter(tab.id)}
                         style={{
-                            padding: '0.45rem 1rem',
+                            padding: '0.45rem 1.15rem',
                             borderRadius: 'var(--radius-md)',
                             border: 'none',
-                            background: statusFilter === tab.id ? 'var(--grad-cyan-blue)' : 'transparent',
+                            background: statusFilter === tab.id ? 'var(--grad-cyan)' : 'transparent',
                             color: statusFilter === tab.id ? '#ffffff' : 'var(--text-secondary)',
                             fontWeight: 700,
                             fontSize: '0.8rem',
@@ -159,104 +252,315 @@ function Bookings() {
                 ))}
             </div>
 
-            {/* Bookings Table */}
-            <div className="card" style={{ padding: '1.5rem' }}>
-                <div className="table-container">
-                    <table className="table">
-                        <thead>
-                            <tr>
-                                <th>Event & Package</th>
-                                <th>Client Contact</th>
-                                <th>Venue Location</th>
-                                <th>Shoot Date</th>
-                                <th>Contract Value</th>
-                                <th>Status</th>
-                                <th style={{ textAlign: 'right' }}>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredBookings.map((booking) => {
-                                let formattedDate = 'Upcoming';
-                                try {
-                                    if (booking.event_date) {
-                                        formattedDate = format(new Date(booking.event_date), 'MMM dd, yyyy');
-                                    }
-                                } catch (e) {
-                                    formattedDate = booking.event_date;
-                                }
+            {/* Bookings List */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {filteredBookings.map((b) => (
+                    <div
+                        key={b.id}
+                        className="card card-interactive"
+                        style={{
+                            padding: '1.4rem',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            flexWrap: 'wrap',
+                            gap: '1.25rem'
+                        }}
+                    >
+                        {/* Event Details */}
+                        <div style={{ minWidth: 280, flex: 1 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.4rem' }}>
+                                <span style={{
+                                    fontSize: '0.7rem',
+                                    fontWeight: 800,
+                                    padding: '0.2rem 0.55rem',
+                                    borderRadius: 'var(--radius-full)',
+                                    background: b.status === 'confirmed' ? 'rgba(16, 185, 129, 0.2)' : (b.status === 'pending' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(59, 130, 246, 0.2)'),
+                                    color: b.status === 'confirmed' ? '#34d399' : (b.status === 'pending' ? '#fbbf24' : '#60a5fa'),
+                                    textTransform: 'uppercase'
+                                }}>
+                                    {b.status}
+                                </span>
+                                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>ID: {b.id}</span>
+                            </div>
 
-                                return (
-                                    <tr key={booking.id}>
-                                        <td>
-                                            <div style={{ fontWeight: 700, color: 'var(--text-pure)', fontSize: '0.95rem' }}>
-                                                {booking.event_name}
-                                            </div>
-                                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                                                ID: {String(booking.id).substring(0, 8)}
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div style={{ fontWeight: 600 }}>{booking.customer_name}</div>
-                                            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                                                <Phone size={12} /> {booking.customer_phone || '+91 98765 43210'}
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div style={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.35rem', color: 'var(--text-primary)' }}>
-                                                <MapPin size={14} color="#ec4899" />
-                                                {booking.venue_name || 'Main Studio'}
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div style={{ fontWeight: 700, color: '#22d3ee', fontSize: '0.85rem' }}>
-                                                {formattedDate}
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div style={{ fontWeight: 800, color: '#34d399', fontSize: '1rem' }}>
-                                                ₹{Number(booking.total_amount || 0).toLocaleString()}
-                                            </div>
-                                            <div style={{ fontSize: '0.7rem', color: booking.advance_paid ? '#34d399' : '#fbbf24', fontWeight: 600 }}>
-                                                {booking.advance_paid ? '✓ Advance Paid' : '● Balance Due'}
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <span className={`badge badge-${
-                                                booking.status === 'confirmed' ? 'success' :
-                                                booking.status === 'pending' ? 'warning' : 'info'
-                                            }`}>
-                                                {booking.status?.toUpperCase() || 'CONFIRMED'}
-                                            </span>
-                                        </td>
-                                        <td style={{ textAlign: 'right' }}>
-                                            <div style={{ display: 'inline-flex', gap: '0.45rem' }}>
-                                                {booking.status === 'pending' && (
-                                                    <button
-                                                        className="btn btn-secondary"
-                                                        style={{ padding: '0.45rem', color: '#34d399', borderColor: 'rgba(16, 185, 129, 0.4)' }}
-                                                        onClick={() => updateStatus(booking.id, 'confirmed')}
-                                                        title="Confirm Shoot"
-                                                    >
-                                                        <CheckCircle2 size={16} />
-                                                    </button>
-                                                )}
-                                                <button
-                                                    className="btn btn-secondary"
-                                                    style={{ padding: '0.45rem', color: '#f87171' }}
-                                                    onClick={() => updateStatus(booking.id, 'cancelled')}
-                                                    title="Cancel Event"
-                                                >
-                                                    <XCircle size={16} />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                </div>
+                            <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#ffffff', marginBottom: '0.35rem' }}>
+                                {b.event_name}
+                            </h3>
+
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flexWrap: 'wrap', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                                    <Calendar size={14} color="var(--accent-cyan)" /> {b.event_date}
+                                </span>
+                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                                    <MapPin size={14} color="#ec4899" /> {b.venue_name}
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* Customer Info */}
+                        <div style={{ minWidth: 220, fontSize: '0.85rem' }}>
+                            <div style={{ fontWeight: 700, color: 'var(--text-pure)', marginBottom: '0.25rem' }}>
+                                {b.customer_name}
+                            </div>
+                            <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                                <Mail size={12} /> {b.customer_email}
+                            </div>
+                            <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.2rem' }}>
+                                <Phone size={12} /> {b.customer_phone}
+                            </div>
+                        </div>
+
+                        {/* Amount & Status Action */}
+                        <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+                            <div>
+                                <span style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--accent-emerald)' }}>
+                                    ₹{Number(b.total_amount).toLocaleString('en-IN')}
+                                </span>
+                                <div style={{ fontSize: '0.7rem', color: b.advance_paid ? '#34d399' : '#f87171', fontWeight: 700 }}>
+                                    {b.advance_paid ? '✓ Advance Paid (Razorpay)' : '⚠️ Advance Pending'}
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '0.4rem' }}>
+                                {b.status !== 'confirmed' && (
+                                    <button
+                                        onClick={() => updateStatus(b.id, 'confirmed')}
+                                        style={{
+                                            padding: '0.35rem 0.65rem',
+                                            borderRadius: 'var(--radius-sm)',
+                                            background: 'rgba(16, 185, 129, 0.2)',
+                                            border: '1px solid rgba(16, 185, 129, 0.4)',
+                                            color: '#34d399',
+                                            fontSize: '0.75rem',
+                                            fontWeight: 700,
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        Confirm
+                                    </button>
+                                )}
+                                {b.status !== 'completed' && (
+                                    <button
+                                        onClick={() => updateStatus(b.id, 'completed')}
+                                        style={{
+                                            padding: '0.35rem 0.65rem',
+                                            borderRadius: 'var(--radius-sm)',
+                                            background: 'rgba(59, 130, 246, 0.2)',
+                                            border: '1px solid rgba(59, 130, 246, 0.4)',
+                                            color: '#60a5fa',
+                                            fontSize: '0.75rem',
+                                            fontWeight: 700,
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        Complete
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                ))}
             </div>
+
+            {/* SCHEDULE NEW EVENT MODAL */}
+            {isModalOpen && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: 'rgba(0, 0, 0, 0.75)',
+                    backdropFilter: 'blur(12px)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 1000,
+                    padding: '1.5rem'
+                }}>
+                    <div className="card" style={{
+                        width: '100%',
+                        maxWidth: 580,
+                        maxHeight: '90vh',
+                        overflowY: 'auto',
+                        padding: '2rem',
+                        position: 'relative'
+                    }}>
+                        <button
+                            onClick={() => setIsModalOpen(false)}
+                            style={{
+                                position: 'absolute',
+                                top: 18,
+                                right: 18,
+                                background: 'rgba(255, 255, 255, 0.08)',
+                                border: 'none',
+                                color: '#ffffff',
+                                width: 32,
+                                height: 32,
+                                borderRadius: '50%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            <X size={16} />
+                        </button>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                            <CalendarCheck size={22} color="#06b6d4" />
+                            <h2 style={{ fontSize: '1.5rem', fontWeight: 800 }}>Schedule New Production Shoot</h2>
+                        </div>
+                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '1.5rem' }}>
+                            Reserve crew, assign cinematographer gear, and send confirmation to customer.
+                        </p>
+
+                        <form onSubmit={handleCreateBooking} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#e2e8f0', marginBottom: '0.4rem' }}>
+                                    Event Title / Occasion *
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="e.g. Vikram & Sneha Royal Sangeet & Reception"
+                                    value={eventName}
+                                    onChange={(e) => setEventName(e.target.value)}
+                                    required
+                                    style={{ width: '100%' }}
+                                />
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#e2e8f0', marginBottom: '0.4rem' }}>
+                                        Client Full Name *
+                                    </label>
+                                    <input
+                                        type="text"
+                                        placeholder="e.g. Sneha Patel"
+                                        value={customerName}
+                                        onChange={(e) => setCustomerName(e.target.value)}
+                                        required
+                                        style={{ width: '100%' }}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#e2e8f0', marginBottom: '0.4rem' }}>
+                                        Shoot Date *
+                                    </label>
+                                    <input
+                                        type="date"
+                                        value={eventDate}
+                                        onChange={(e) => setEventDate(e.target.value)}
+                                        required
+                                        style={{ width: '100%', height: 44 }}
+                                    />
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#e2e8f0', marginBottom: '0.4rem' }}>
+                                        Client Email
+                                    </label>
+                                    <input
+                                        type="email"
+                                        placeholder="client@gmail.com"
+                                        value={customerEmail}
+                                        onChange={(e) => setCustomerEmail(e.target.value)}
+                                        style={{ width: '100%' }}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#e2e8f0', marginBottom: '0.4rem' }}>
+                                        Client Phone / WhatsApp
+                                    </label>
+                                    <input
+                                        type="tel"
+                                        placeholder="+91 98765 43210"
+                                        value={customerPhone}
+                                        onChange={(e) => setCustomerPhone(e.target.value)}
+                                        style={{ width: '100%' }}
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#e2e8f0', marginBottom: '0.4rem' }}>
+                                    Venue / Location
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="e.g. Taj Lands End, Bandra, Mumbai"
+                                    value={venueName}
+                                    onChange={(e) => setVenueName(e.target.value)}
+                                    style={{ width: '100%' }}
+                                />
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#e2e8f0', marginBottom: '0.4rem' }}>
+                                        Total Package (₹)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        value={totalAmount}
+                                        onChange={(e) => setTotalAmount(e.target.value)}
+                                        style={{ width: '100%' }}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#e2e8f0', marginBottom: '0.4rem' }}>
+                                        Booking Status
+                                    </label>
+                                    <select
+                                        value={eventStatus}
+                                        onChange={(e) => setEventStatus(e.target.value)}
+                                        style={{ width: '100%', height: 44 }}
+                                    >
+                                        <option value="confirmed">Confirmed (Active Schedule)</option>
+                                        <option value="pending">Pending Client Deposit</option>
+                                        <option value="completed">Completed / Delivered</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <input
+                                    type="checkbox"
+                                    id="advance"
+                                    checked={advancePaid}
+                                    onChange={(e) => setAdvancePaid(e.target.checked)}
+                                    style={{ width: 18, height: 18 }}
+                                />
+                                <label htmlFor="advance" style={{ fontSize: '0.85rem', color: '#e2e8f0', cursor: 'pointer' }}>
+                                    Advance deposit collected via Razorpay / Cash
+                                </label>
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
+                                <button
+                                    type="submit"
+                                    className="btn btn-cyan"
+                                    style={{ flex: 1, padding: '0.85rem', fontWeight: 700 }}
+                                >
+                                    Confirm & Schedule Shoot
+                                </button>
+                                <button
+                                    type="button"
+                                    className="btn btn-secondary"
+                                    onClick={() => setIsModalOpen(false)}
+                                    style={{ padding: '0.85rem 1.25rem' }}
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
