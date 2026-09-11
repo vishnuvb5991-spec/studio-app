@@ -319,35 +319,6 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* ── GALLERY GRID ────────────────────────────────────────── */}
-            <section id="gallery" style={{ padding: '0 32px 96px', maxWidth: 1180, margin: '0 auto' }}>
-                <div style={{ marginBottom: '3rem' }}>
-                    <div style={{ fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: '#92400e', marginBottom: '0.65rem' }}>
-                        Recent weddings
-                    </div>
-                    <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 500, letterSpacing: '-0.02em', color: '#111', marginBottom: '0.75rem' }}>
-                        Moments we've been honoured to capture
-                    </h2>
-                    <p style={{ color: '#666', fontSize: '1rem', lineHeight: 1.7, maxWidth: 560 }}>
-                        A selection of the weddings and celebrations we've been trusted to photograph.
-                    </p>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
-                    {GALLERY.map(({ src, couple, caption }) => (
-                        <div key={couple}>
-                            <div style={{ borderRadius: '12px', overflow: 'hidden', aspectRatio: '3/2', background: '#ddd', marginBottom: '0.75rem' }}>
-                                <img src={src} alt={couple} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.4s ease' }}
-                                    onMouseEnter={e => e.target.style.transform = 'scale(1.03)'}
-                                    onMouseLeave={e => e.target.style.transform = 'scale(1)'}
-                                />
-                            </div>
-                            <p style={{ fontWeight: 700, fontSize: '0.92rem', color: '#111', marginBottom: '0.15rem' }}>{couple}</p>
-                            <p style={{ fontSize: '0.8rem', color: '#888' }}>{caption}</p>
-                        </div>
-                    ))}
-                </div>
-            </section>
 
             {/* ── OUR APPROACH ────────────────────────────────────────── */}
             <section style={{
@@ -400,48 +371,124 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* ── CTA BANNER ──────────────────────────────────────────── */}
+            {/* ── CTA BANNER — "Your date is waiting" ─────────────────── */}
             <section style={{
-                background: '#18181b', padding: '88px 32px',
+                background: '#0a0a0a',
+                padding: '120px 32px 140px',
                 textAlign: 'center'
             }}>
-                <div style={{ maxWidth: 600, margin: '0 auto' }}>
+                <div style={{ maxWidth: 680, margin: '0 auto' }}>
+                    {/* Rose tagline */}
+                    <div style={{
+                        fontSize: '0.72rem', fontWeight: 700,
+                        letterSpacing: '0.14em', textTransform: 'uppercase',
+                        color: '#e07070',
+                        marginBottom: '1.25rem'
+                    }}>
+                        Let's plan your day
+                    </div>
+
                     <h2 style={{
                         fontFamily: "'Playfair Display', Georgia, serif",
-                        fontSize: 'clamp(1.8rem, 4vw, 2.5rem)',
-                        fontWeight: 500, color: '#fff',
-                        letterSpacing: '-0.02em', marginBottom: '1rem'
+                        fontSize: 'clamp(2.4rem, 6vw, 3.75rem)',
+                        fontWeight: 700,
+                        lineHeight: 1.1,
+                        letterSpacing: '-0.02em',
+                        color: '#fff',
+                        marginBottom: '1.25rem'
                     }}>
-                        Ready to book your date?
+                        Your date is waiting
                     </h2>
-                    <p style={{ color: '#9ca3af', fontSize: '1rem', lineHeight: 1.7, marginBottom: '2rem' }}>
-                        Limited dates available each season. Reach out and our lead photographer will get back to you within 2 hours.
+
+                    <p style={{
+                        color: '#9ca3af', fontSize: '1rem',
+                        lineHeight: 1.75, marginBottom: '2.5rem',
+                        maxWidth: 520, margin: '0 auto 2.5rem'
+                    }}>
+                        Tell us about your wedding or event. We'll get back to you within two business days to check availability and start planning.
                     </p>
-                    <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-                        <button
-                            onClick={() => setIsBookingModalOpen(true)}
-                            style={{ ...btnPrimary, background: '#fff', color: '#18181b' }}
-                        >
-                            Book your date
-                        </button>
-                        <button
-                            onClick={() => { setAuthMode('login'); setIsAuthModalOpen(true); }}
-                            style={{ ...btnSecondary, borderColor: '#374151', color: '#d1d5db' }}
-                        >
-                            Client portal sign in
-                        </button>
-                    </div>
+
+                    <button
+                        onClick={() => setIsBookingModalOpen(true)}
+                        style={{
+                            background: '#fff', color: '#0a0a0a',
+                            border: '2px solid #fff',
+                            padding: '0.9rem 2.25rem',
+                            borderRadius: '8px',
+                            fontWeight: 700, fontSize: '0.95rem',
+                            cursor: 'pointer', fontFamily: 'inherit'
+                        }}
+                    >
+                        Check availability
+                    </button>
                 </div>
             </section>
 
             {/* ── FOOTER ──────────────────────────────────────────────── */}
-            <footer style={{ borderTop: '1px solid rgba(0,0,0,0.08)', padding: '40px 32px', textAlign: 'center', color: '#888', fontSize: '0.82rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '1.75rem', marginBottom: '0.75rem', fontWeight: 600, flexWrap: 'wrap' }}>
-                    <span onClick={() => { setAuthMode('login'); setIsAuthModalOpen(true); }} style={{ cursor: 'pointer', color: '#444' }}>Studio Login</span>
-                    <span onClick={() => { setAuthMode('register'); setIsAuthModalOpen(true); }} style={{ cursor: 'pointer', color: '#444' }}>Client Sign Up</span>
-                    <span onClick={() => setIsBookingModalOpen(true)} style={{ cursor: 'pointer', color: '#444' }}>Book an Event</span>
+            <footer style={{
+                background: '#0a0a0a',
+                borderTop: '1px solid rgba(255,255,255,0.07)',
+                padding: '64px 32px 40px'
+            }}>
+                <div style={{
+                    maxWidth: 1180, margin: '0 auto',
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                    gap: '2.5rem',
+                    marginBottom: '3rem'
+                }}>
+                    {/* Studio col */}
+                    <div>
+                        <p style={{ fontWeight: 700, color: '#fff', fontSize: '0.9rem', marginBottom: '1.1rem' }}>Studio</p>
+                        {[
+                            { label: 'Gallery', action: () => document.getElementById('gallery')?.scrollIntoView({ behavior: 'smooth' }) },
+                            { label: 'Services', action: () => document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' }) },
+                            { label: 'About', action: () => {} },
+                        ].map(({ label, action }) => (
+                            <p key={label} onClick={action} style={{ color: '#9ca3af', fontSize: '0.875rem', marginBottom: '0.65rem', cursor: 'pointer' }}>{label}</p>
+                        ))}
+                    </div>
+
+                    {/* Services col */}
+                    <div>
+                        <p style={{ fontWeight: 700, color: '#fff', fontSize: '0.9rem', marginBottom: '1.1rem' }}>Services</p>
+                        {['Wedding Photography', 'Engagement & Pre-wedding', 'Events & Celebrations', 'AI Photo Restoration'].map(s => (
+                            <p key={s} style={{ color: '#9ca3af', fontSize: '0.875rem', marginBottom: '0.65rem' }}>{s}</p>
+                        ))}
+                    </div>
+
+                    {/* Get in touch col */}
+                    <div>
+                        <p style={{ fontWeight: 700, color: '#fff', fontSize: '0.9rem', marginBottom: '1.1rem' }}>Get in touch</p>
+                        <p style={{ color: '#9ca3af', fontSize: '0.875rem', marginBottom: '0.65rem' }}>hello@studiopro.in</p>
+                        <p style={{ color: '#9ca3af', fontSize: '0.875rem', marginBottom: '0.65rem' }}>+91 98200 12345</p>
+                        <p style={{ color: '#9ca3af', fontSize: '0.875rem' }}>Mumbai, India</p>
+                    </div>
+
+                    {/* Have a project col */}
+                    <div>
+                        <p style={{ fontWeight: 700, color: '#fff', fontSize: '0.9rem', marginBottom: '0.5rem' }}>Have a project in mind?</p>
+                        <p style={{ color: '#9ca3af', fontSize: '0.82rem', marginBottom: '1.25rem', lineHeight: 1.6 }}>
+                            Let's create something memorable together.
+                        </p>
+                        <button
+                            onClick={() => setIsBookingModalOpen(true)}
+                            style={{
+                                background: '#fff', color: '#0a0a0a',
+                                border: 'none', padding: '0.65rem 1.4rem',
+                                borderRadius: '7px', fontWeight: 700,
+                                fontSize: '0.85rem', cursor: 'pointer',
+                                fontFamily: 'inherit'
+                            }}
+                        >
+                            Book your date
+                        </button>
+                    </div>
                 </div>
-                <p>© 2026 Studio Pro Photography & Films. All rights reserved.</p>
+
+                <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: '1.5rem', textAlign: 'center', color: '#6b7280', fontSize: '0.8rem' }}>
+                    © 2026 Studio Pro Photography &amp; Films. All rights reserved.
+                </div>
             </footer>
 
             {/* ── AUTH MODAL ──────────────────────────────────────────── */}
