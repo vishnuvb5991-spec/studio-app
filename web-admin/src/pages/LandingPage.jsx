@@ -473,9 +473,17 @@ export default function LandingPage() {
                     {/* Get in touch col */}
                     <div>
                         <p style={{ fontWeight: 700, color: '#fff', fontSize: '0.9rem', marginBottom: '1.1rem' }}>Get in touch</p>
-                        <p style={{ color: '#9ca3af', fontSize: '0.875rem', marginBottom: '0.65rem' }}>hello@studiopro.in</p>
-                        <p style={{ color: '#9ca3af', fontSize: '0.875rem', marginBottom: '0.65rem' }}>+91 98200 12345</p>
-                        <p style={{ color: '#9ca3af', fontSize: '0.875rem' }}>Mumbai, India</p>
+                        <p style={{ marginBottom: '0.65rem' }}>
+                            <a href="mailto:StudiofotoFXammadam@Gmail.com" style={{ color: '#9ca3af', fontSize: '0.875rem', textDecoration: 'none', transition: 'color 0.2s ease' }} onMouseEnter={e => e.target.style.color = '#fff'} onMouseLeave={e => e.target.style.color = '#9ca3af'}>
+                                StudiofotoFXammadam@Gmail.com
+                            </a>
+                        </p>
+                        <p style={{ marginBottom: '0.65rem' }}>
+                            <a href="tel:+918129788272" style={{ color: '#9ca3af', fontSize: '0.875rem', textDecoration: 'none', transition: 'color 0.2s ease' }} onMouseEnter={e => e.target.style.color = '#fff'} onMouseLeave={e => e.target.style.color = '#9ca3af'}>
+                                +91 8129788272
+                            </a>
+                        </p>
+                        <p style={{ color: '#9ca3af', fontSize: '0.875rem' }}>Thrissur, Kerala, India</p>
                     </div>
 
                     {/* Have a project col */}

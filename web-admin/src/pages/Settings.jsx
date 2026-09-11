@@ -335,7 +335,7 @@ function OwnerStudioSettings({ user, handleSave, savedNotice }) {
                             </div>
                             <div>
                                 <label>Studio WhatsApp / Phone</label>
-                                <input type="tel" defaultValue="+91 98200 12345" />
+                                <input type="tel" defaultValue="+91 8129788272" />
                             </div>
                         </div>
 
