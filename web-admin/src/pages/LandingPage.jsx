@@ -349,6 +349,57 @@ export default function LandingPage() {
                 </div>
             </section>
 
+            {/* ── OUR APPROACH ────────────────────────────────────────── */}
+            <section style={{
+                background: '#7d4f5b',
+                padding: '100px 32px 0',
+                textAlign: 'center',
+                overflow: 'hidden'
+            }}>
+                <div style={{ maxWidth: 680, margin: '0 auto', paddingBottom: '72px' }}>
+                    {/* Tagline */}
+                    <div style={{
+                        fontSize: '0.7rem', fontWeight: 700,
+                        letterSpacing: '0.14em', textTransform: 'uppercase',
+                        color: 'rgba(255,255,255,0.7)',
+                        marginBottom: '1.1rem'
+                    }}>
+                        Our Approach
+                    </div>
+
+                    {/* Heading */}
+                    <h2 style={{
+                        fontFamily: "'Playfair Display', Georgia, serif",
+                        fontSize: 'clamp(2.2rem, 5vw, 3.25rem)',
+                        fontWeight: 500,
+                        lineHeight: 1.15,
+                        letterSpacing: '-0.02em',
+                        color: '#fff',
+                        marginBottom: '1.5rem'
+                    }}>
+                        We photograph the real moments
+                    </h2>
+
+                    {/* Body */}
+                    <p style={{
+                        fontSize: '1rem', lineHeight: 1.75,
+                        color: 'rgba(255,255,255,0.82)',
+                        maxWidth: 540, margin: '0 auto'
+                    }}>
+                        We believe the best photographs are the ones you didn't pose for. We blend into your day, stay present, and capture the laughter, the tears, and the quiet in-between moments that tell your story.
+                    </p>
+                </div>
+
+                {/* Photo peeking at the bottom */}
+                <div style={{ height: 220, overflow: 'hidden', borderRadius: '16px 16px 0 0', maxWidth: 1000, margin: '0 auto' }}>
+                    <img
+                        src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=1200&auto=format&fit=crop&q=80"
+                        alt="Wedding ceremony in a garden"
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 30%', display: 'block' }}
+                    />
+                </div>
+            </section>
+
             {/* ── CTA BANNER ──────────────────────────────────────────── */}
             <section style={{
                 background: '#18181b', padding: '88px 32px',
