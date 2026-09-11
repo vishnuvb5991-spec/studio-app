@@ -323,11 +323,10 @@ export default function LandingPage() {
             {/* ── OUR APPROACH ────────────────────────────────────────── */}
             <section style={{
                 background: '#7d4f5b',
-                padding: '100px 32px 0',
+                padding: '100px 32px 90px',
                 textAlign: 'center',
-                overflow: 'hidden'
             }}>
-                <div style={{ maxWidth: 680, margin: '0 auto', paddingBottom: '72px' }}>
+                <div style={{ maxWidth: 680, margin: '0 auto', marginBottom: '3.5rem' }}>
                     {/* Tagline */}
                     <div style={{
                         fontSize: '0.7rem', fontWeight: 700,
@@ -353,20 +352,34 @@ export default function LandingPage() {
 
                     {/* Body */}
                     <p style={{
-                        fontSize: '1rem', lineHeight: 1.75,
-                        color: 'rgba(255,255,255,0.82)',
-                        maxWidth: 540, margin: '0 auto'
+                        fontSize: '1.05rem', lineHeight: 1.75,
+                        color: 'rgba(255,255,255,0.85)',
+                        maxWidth: 560, margin: '0 auto'
                     }}>
                         We believe the best photographs are the ones you didn't pose for. We blend into your day, stay present, and capture the laughter, the tears, and the quiet in-between moments that tell your story.
                     </p>
                 </div>
 
-                {/* Photo peeking at the bottom */}
-                <div style={{ height: 220, overflow: 'hidden', borderRadius: '16px 16px 0 0', maxWidth: 1000, margin: '0 auto' }}>
+                {/* Complete, beautiful full photograph */}
+                <div style={{
+                    maxWidth: 1060,
+                    margin: '0 auto',
+                    borderRadius: '16px',
+                    overflow: 'hidden',
+                    boxShadow: '0 24px 48px rgba(0, 0, 0, 0.25)',
+                    aspectRatio: '16 / 9',
+                    background: '#5a343e'
+                }}>
                     <img
-                        src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=1200&auto=format&fit=crop&q=80"
-                        alt="Wedding ceremony in a garden"
-                        style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 30%', display: 'block' }}
+                        src="https://images.unsplash.com/photo-1519741497674-611481863552?w=1400&auto=format&fit=crop&q=80"
+                        alt="Candid wedding celebration moment"
+                        style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            objectPosition: 'center 40%',
+                            display: 'block'
+                        }}
                     />
                 </div>
             </section>
