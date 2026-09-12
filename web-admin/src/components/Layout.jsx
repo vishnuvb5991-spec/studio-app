@@ -17,7 +17,7 @@ function Layout() {
                 background: 'var(--bg-main)'
             }}>
                 <div className="animate-pulse" style={{ color: 'var(--primary)', fontWeight: 700 }}>
-                    Connecting to Studio Pro Cloud...
+                    Connecting to Preetha Studio Cloud...
                 </div>
             </div>
         );

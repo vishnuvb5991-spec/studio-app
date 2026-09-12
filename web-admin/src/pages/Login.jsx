@@ -127,7 +127,7 @@ function Login() {
                     </div>
                     
                     <h1 style={{ fontSize: '1.75rem', marginBottom: '0.25rem' }}>
-                        Studio Pro <span className="gradient-text">Portal</span>
+                        Preetha Studio <span className="gradient-text">Portal</span>
                     </h1>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
                         Access Photos, Bookings & Restorations on Web or Mobile

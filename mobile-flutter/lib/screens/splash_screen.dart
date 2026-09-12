@@ -77,7 +77,7 @@ class _SplashScreenState extends State<SplashScreen> {
               
               // App Name
               Text(
-                'Studio Pro',
+                'Preetha Studio',
                 style: Theme.of(context).textTheme.displayMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                   letterSpacing: 2,

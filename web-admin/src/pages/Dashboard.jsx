@@ -647,7 +647,7 @@ function CustomerPortalView({ user, isOwnerPreview }) {
                     <div>
                         <h3 style={{ fontSize: '1.15rem', marginBottom: '0.25rem' }}>Prefer using your Phone?</h3>
                         <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                            Install the Studio Pro mobile app on Android or iOS. Log in with your same email (<strong>{user?.email}</strong>) to sync your photos instantly!
+                            Install the Preetha Studio mobile app on Android or iOS. Log in with your same email (<strong>{user?.email}</strong>) to sync your photos instantly!
                         </p>
                     </div>
                 </div>

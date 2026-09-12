@@ -138,7 +138,7 @@ function CustomerProfileSettings({ user, handleSave, savedNotice }) {
                             <Bell size={18} color="#ec4899" /> Notification Preferences
                         </h3>
                         <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.75rem' }}>
-                            Choose how Studio Pro contacts you about your bookings and album deliveries.
+                            Choose how Preetha Studio contacts you about your bookings and album deliveries.
                         </p>
 
                         {[
@@ -309,7 +309,7 @@ function OwnerStudioSettings({ user, handleSave, savedNotice }) {
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem', marginBottom: '1.25rem' }}>
                             <div>
                                 <label>Studio Business Name</label>
-                                <input type="text" defaultValue="Studio Pro Photography & Films" />
+                                <input type="text" defaultValue="Preetha Studio Photography & Films" />
                             </div>
                             <div>
                                 <label>GSTIN / Tax ID</label>
@@ -385,7 +385,7 @@ function OwnerStudioSettings({ user, handleSave, savedNotice }) {
 
                         <div style={{ marginBottom: '1.25rem' }}>
                             <label>Default Client Watermark Text</label>
-                            <input type="text" defaultValue="STUDIO PRO © 2026 - PREVIEW ONLY" />
+                            <input type="text" defaultValue="PREETHA STUDIO © 2026 - PREVIEW ONLY" />
                         </div>
 
                         <div style={{ marginBottom: '1.75rem' }}>

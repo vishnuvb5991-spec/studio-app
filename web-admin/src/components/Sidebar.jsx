@@ -74,7 +74,7 @@ function Sidebar() {
                         alignItems: 'center',
                         gap: '0.35rem'
                     }}>
-                        <span className="gradient-text">Studio Pro</span>
+                        <span className="gradient-text">Preetha Studio</span>
                         <Sparkles size={14} color="#ec4899" />
                     </div>
                     <div style={{

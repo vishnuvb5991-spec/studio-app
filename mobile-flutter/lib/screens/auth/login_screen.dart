@@ -93,7 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Sign in to continue to Studio Pro',
+                    'Sign in to continue to Preetha Studio',
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   

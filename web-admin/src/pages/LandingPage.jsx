@@ -122,7 +122,7 @@ export default function LandingPage() {
                     {/* Logo */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontFamily: "'Playfair Display', Georgia, serif", fontWeight: 700, fontSize: '1.1rem', letterSpacing: '-0.01em' }}>
                         <Camera size={18} strokeWidth={2} />
-                        Studio Pro
+                        Preetha Studio
                     </div>
 
                     {/* Links */}
@@ -508,7 +508,7 @@ export default function LandingPage() {
                 </div>
 
                 <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: '1.5rem', textAlign: 'center', color: '#6b7280', fontSize: '0.8rem' }}>
-                    © 2026 Studio Pro Photography &amp; Films. All rights reserved.
+                    © 2026 Preetha Studio Photography &amp; Films. All rights reserved.
                 </div>
             </footer>
 
@@ -544,7 +544,7 @@ export default function LandingPage() {
                                 <Camera size={24} color="#fff" />
                             </div>
                             <h2 style={{ fontSize: '1.5rem', marginBottom: '0.2rem' }}>
-                                Studio Pro <span style={{ background: 'linear-gradient(135deg,#8b5cf6,#ec4899)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Portal</span>
+                                Preetha Studio <span style={{ background: 'linear-gradient(135deg,#8b5cf6,#ec4899)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Portal</span>
                             </h2>
                             <p style={{ color: '#94a3b8', fontSize: '0.82rem' }}>Sign in to access your studio hub</p>
                         </div>
