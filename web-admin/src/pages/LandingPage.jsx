@@ -3,8 +3,11 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import {
     Camera, ArrowRight, X, Eye, EyeOff, Lock, Loader2,
-    Wand2, Image as ImageIcon, Smartphone, CheckCircle2
+    Wand2, Image as ImageIcon, Smartphone, CheckCircle2, Sparkles
 } from 'lucide-react';
+import Hero3DCanvas from '../components/3d/Hero3DCanvas';
+import Tilt3DCard from '../components/3d/Tilt3DCard';
+import Gallery3DCarousel from '../components/3d/Gallery3DCarousel';
 
 /* ─── Unsplash photo tokens (free, no auth needed) ─── */
 const GALLERY = [
@@ -201,35 +204,90 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* ── HERO PHOTO ──────────────────────────────────────────── */}
+            {/* ── 3D HERO SHOWCASE ────────────────────────────────────── */}
             <div style={{ maxWidth: 1180, margin: '0 auto', padding: '0 32px 80px' }}>
                 <div style={{
-                    width: '100%', aspectRatio: '16/7',
-                    borderRadius: '16px', overflow: 'hidden',
-                    background: '#d4c5b0',
-                    position: 'relative'
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+                    gap: '2rem',
+                    alignItems: 'center'
                 }}>
-                    <img
-                        src="https://images.unsplash.com/photo-1519741497674-611481863552?w=1400&auto=format&fit=crop&q=80"
-                        alt="Bride and groom at a beautiful wedding ceremony"
-                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-                        loading="eager"
-                    />
-                    {/* Overlay badge */}
-                    <div style={{
-                        position: 'absolute', bottom: 20, left: 20,
-                        background: 'rgba(255,255,255,0.92)',
-                        backdropFilter: 'blur(12px)',
-                        borderRadius: '10px',
-                        padding: '0.7rem 1.1rem',
-                        display: 'flex', alignItems: 'center', gap: '0.65rem',
-                        boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
-                    }}>
-                        <div style={{ fontSize: '1.4rem' }}>★</div>
-                        <div>
-                            <div style={{ fontWeight: 800, fontSize: '0.88rem', color: '#111' }}>4.9 / 5 Client Rating</div>
-                            <div style={{ fontSize: '0.72rem', color: '#666' }}>1,200+ Shoots & AI Restorations</div>
+                    {/* Left: 3D Tilt Photo Card with Floating Rating Badge */}
+                    <Tilt3DCard
+                        maxTilt={9}
+                        style={{
+                            borderRadius: '20px',
+                            background: '#d4c5b0',
+                            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                            aspectRatio: '4/3',
+                            position: 'relative'
+                        }}
+                    >
+                        <img
+                            src="https://images.unsplash.com/photo-1519741497674-611481863552?w=1400&auto=format&fit=crop&q=80"
+                            alt="Bride and groom at a beautiful wedding ceremony"
+                            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                            loading="eager"
+                        />
+                        {/* 3D Floating Rating Badge */}
+                        <div style={{
+                            position: 'absolute', bottom: 20, left: 20,
+                            background: 'rgba(255,255,255,0.94)',
+                            backdropFilter: 'blur(16px)',
+                            borderRadius: '12px',
+                            padding: '0.8rem 1.2rem',
+                            display: 'flex', alignItems: 'center', gap: '0.75rem',
+                            boxShadow: '0 12px 32px rgba(0,0,0,0.18)',
+                            transform: 'translateZ(30px)',
+                            border: '1px solid rgba(255,255,255,0.6)'
+                        }}>
+                            <div style={{ fontSize: '1.5rem', color: '#d97706' }}>★</div>
+                            <div>
+                                <div style={{ fontWeight: 800, fontSize: '0.9rem', color: '#111' }}>4.9 / 5 Client Rating</div>
+                                <div style={{ fontSize: '0.75rem', color: '#666' }}>1,200+ Shoots &amp; AI Restorations</div>
+                            </div>
                         </div>
+                    </Tilt3DCard>
+
+                    {/* Right: Three.js Interactive 3D Camera Lens Canvas */}
+                    <div style={{
+                        position: 'relative',
+                        background: 'linear-gradient(145deg, #18181b 0%, #0d0d11 100%)',
+                        borderRadius: '20px',
+                        overflow: 'hidden',
+                        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        aspectRatio: '4/3',
+                        display: 'flex',
+                        flexDirection: 'column'
+                    }}>
+                        {/* 3D Indicator Top Banner */}
+                        <div style={{
+                            position: 'absolute', top: 16, left: 18, right: 18,
+                            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                            zIndex: 10, pointerEvents: 'none'
+                        }}>
+                            <div style={{
+                                display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
+                                background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)',
+                                padding: '0.3rem 0.75rem', borderRadius: '999px',
+                                fontSize: '0.7rem', fontWeight: 700, color: '#fde68a',
+                                border: '1px solid rgba(253, 230, 138, 0.25)',
+                                textTransform: 'uppercase', letterSpacing: '0.08em'
+                            }}>
+                                <Sparkles size={12} /> Interactive 3D Lens
+                            </div>
+                            <div style={{
+                                fontSize: '0.68rem', color: '#9ca3af',
+                                background: 'rgba(0,0,0,0.4)', padding: '0.25rem 0.6rem',
+                                borderRadius: '6px'
+                            }}>
+                                Move cursor to rotate
+                            </div>
+                        </div>
+
+                        {/* Three.js WebGL Canvas */}
+                        <Hero3DCanvas />
                     </div>
                 </div>
             </div>
@@ -305,25 +363,34 @@ export default function LandingPage() {
                             bg: '#fffbf0'
                         }
                     ].map(({ icon, title, desc, bg }) => (
-                        <div key={title} style={{
-                            background: bg || '#fff',
-                            border: '1px solid rgba(0,0,0,0.06)',
-                            borderRadius: '14px',
-                            padding: '2rem',
-                        }}>
-                            <div style={{ fontSize: '1.8rem', marginBottom: '1rem' }}>{icon}</div>
-                            <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '0.55rem', color: '#111' }}>{title}</h3>
-                            <p style={{ color: '#666', fontSize: '0.9rem', lineHeight: 1.65 }}>{desc}</p>
-                        </div>
+                        <Tilt3DCard
+                            key={title}
+                            maxTilt={12}
+                            scale={1.03}
+                            glare={true}
+                            style={{
+                                background: bg || '#fff',
+                                border: '1px solid rgba(0,0,0,0.06)',
+                                borderRadius: '16px',
+                                padding: '2.25rem 2rem',
+                                boxShadow: '0 10px 30px rgba(0,0,0,0.04)'
+                            }}
+                        >
+                            <div style={{ fontSize: '2rem', marginBottom: '1.1rem' }}>{icon}</div>
+                            <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.6rem', color: '#111' }}>{title}</h3>
+                            <p style={{ color: '#666', fontSize: '0.92rem', lineHeight: 1.65 }}>{desc}</p>
+                        </Tilt3DCard>
                     ))}
                 </div>
             </section>
 
+            {/* ── 3D SPATIAL GALLERY CAROUSEL ─────────────────────────── */}
+            <Gallery3DCarousel />
 
             {/* ── OUR APPROACH ────────────────────────────────────────── */}
             <section style={{
                 background: '#7d4f5b',
-                padding: '100px 32px 90px',
+                padding: '110px 32px 100px',
                 textAlign: 'center',
             }}>
                 <div style={{ maxWidth: 680, margin: '0 auto', marginBottom: '3.5rem' }}>
@@ -360,16 +427,21 @@ export default function LandingPage() {
                     </p>
                 </div>
 
-                {/* Complete, beautiful full photograph */}
-                <div style={{
-                    maxWidth: 1060,
-                    margin: '0 auto',
-                    borderRadius: '16px',
-                    overflow: 'hidden',
-                    boxShadow: '0 24px 48px rgba(0, 0, 0, 0.25)',
-                    aspectRatio: '16 / 9',
-                    background: '#5a343e'
-                }}>
+                {/* Complete, beautiful full photograph with 3D Tilt */}
+                <Tilt3DCard
+                    maxTilt={7}
+                    scale={1.01}
+                    glare={true}
+                    style={{
+                        maxWidth: 1060,
+                        margin: '0 auto',
+                        borderRadius: '20px',
+                        overflow: 'hidden',
+                        boxShadow: '0 30px 60px rgba(0, 0, 0, 0.3)',
+                        aspectRatio: '16 / 9',
+                        background: '#5a343e'
+                    }}
+                >
                     <img
                         src="https://images.unsplash.com/photo-1519741497674-611481863552?w=1400&auto=format&fit=crop&q=80"
                         alt="Candid wedding celebration moment"
@@ -381,7 +453,7 @@ export default function LandingPage() {
                             display: 'block'
                         }}
                     />
-                </div>
+                </Tilt3DCard>
             </section>
 
             {/* ── CTA BANNER — "Your date is waiting" ─────────────────── */}
