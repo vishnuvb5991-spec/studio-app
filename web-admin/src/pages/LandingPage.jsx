@@ -243,7 +243,7 @@ export default function LandingPage() {
                 }}>
                     {[
                         { num: '500+', label: 'Weddings photographed' },
-                        { num: '12', label: 'Years behind the lens' },
+                        { num: '26+', label: 'Years behind the lens' },
                         { num: '4.9★', label: 'Average couple rating' }
                     ].map(({ num, label }) => (
                         <div key={label}>
