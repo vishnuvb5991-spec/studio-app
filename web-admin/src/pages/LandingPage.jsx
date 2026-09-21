@@ -13,17 +13,17 @@ import Gallery3DCarousel from '../components/3d/Gallery3DCarousel';
 const GALLERY = [
     {
         src: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=900&auto=format&fit=crop&q=80',
-        couple: 'Meera & Arjun',
-        caption: 'A traditional wedding in Jaipur'
+        title: 'Traditional Wedding',
+        caption: 'A traditional wedding celebration'
     },
     {
         src: 'https://images.unsplash.com/photo-1537633552985-df8429e8048b?w=900&auto=format&fit=crop&q=80',
-        couple: 'Sophie & Daniel',
+        title: 'Garden Ceremony',
         caption: 'An intimate garden ceremony'
     },
     {
         src: 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=900&auto=format&fit=crop&q=80',
-        couple: 'Ananya & Vikram',
+        title: 'Coastal Celebration',
         caption: 'A coastal celebration in Goa'
     },
 ];

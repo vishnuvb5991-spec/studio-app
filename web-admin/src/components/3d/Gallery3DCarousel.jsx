@@ -5,7 +5,6 @@ const CAROUSEL_ITEMS = [
     {
         id: 1,
         title: 'Traditional Kerala Wedding',
-        couple: 'Ananya & Vishnu',
         location: 'Thrissur',
         image: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=800&auto=format&fit=crop&q=80',
         tag: 'Wedding'
@@ -13,7 +12,6 @@ const CAROUSEL_ITEMS = [
     {
         id: 2,
         title: 'Sunset Lake Story',
-        couple: 'Rhea & Aditya',
         location: 'Kochi Backwaters',
         image: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800&auto=format&fit=crop&q=80',
         tag: 'Pre-Wedding'
@@ -21,7 +19,6 @@ const CAROUSEL_ITEMS = [
     {
         id: 3,
         title: 'Candid Bridal Moments',
-        couple: 'Meera & Siddharth',
         location: 'Guruvayur',
         image: 'https://images.unsplash.com/photo-1606800052052-a08af7148866?w=800&auto=format&fit=crop&q=80',
         tag: 'Candid'
@@ -29,7 +26,6 @@ const CAROUSEL_ITEMS = [
     {
         id: 4,
         title: 'Temple Vows & Blessings',
-        couple: 'Kavya & Arjun',
         location: 'Palakkad Heritage',
         image: 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=800&auto=format&fit=crop&q=80',
         tag: 'Ceremony'
@@ -37,7 +33,6 @@ const CAROUSEL_ITEMS = [
     {
         id: 5,
         title: 'Grand Palace Reception',
-        couple: 'Pooja & Nikhil',
         location: 'Lulu Convention Centre',
         image: 'https://images.unsplash.com/photo-1532712938310-34cb3982ef74?w=800&auto=format&fit=crop&q=80',
         tag: 'Reception'
@@ -45,7 +40,6 @@ const CAROUSEL_ITEMS = [
     {
         id: 6,
         title: 'Golden Hour Engagement',
-        couple: 'Divya & Rahul',
         location: 'Athirappilly',
         image: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=800&auto=format&fit=crop&q=80',
         tag: 'Engagement'
@@ -256,10 +250,10 @@ export default function Gallery3DCarousel() {
                                         marginBottom: '0.25rem',
                                         lineHeight: 1.25
                                     }}>
-                                        {item.couple}
+                                        {item.title}
                                     </h3>
                                     <p style={{ fontSize: '0.8rem', color: '#71717a', margin: 0, fontWeight: 500 }}>
-                                        {item.title} · <span style={{ color: '#d97706', fontWeight: 600 }}>{item.location}</span>
+                                        <span style={{ color: '#d97706', fontWeight: 600 }}>{item.location}</span>
                                     </p>
                                 </div>
                             </div>
