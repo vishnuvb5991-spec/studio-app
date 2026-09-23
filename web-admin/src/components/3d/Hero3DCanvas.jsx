@@ -24,8 +24,9 @@ export default function Hero3DCanvas() {
         const scene = new THREE.Scene();
 
         // ── Camera ──
-        const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 100);
-        camera.position.set(0, 0, 7.5);
+        const isMobile = width < 520;
+        const camera = new THREE.PerspectiveCamera(isMobile ? 48 : 42, width / height, 0.1, 100);
+        camera.position.set(0, 0, isMobile ? 9.2 : 7.5);
 
         // ── WebGL Renderer ──
         const renderer = new THREE.WebGLRenderer({
@@ -239,6 +240,8 @@ export default function Hero3DCanvas() {
             const w = container.clientWidth;
             const h = container.clientHeight;
             camera.aspect = w / h;
+            camera.position.z = w < 520 ? 9.2 : 7.5;
+            camera.fov = w < 520 ? 48 : 42;
             camera.updateProjectionMatrix();
             renderer.setSize(w, h);
         };
@@ -329,17 +332,17 @@ export default function Hero3DCanvas() {
     };
 
     return (
-        <div style={{ position: 'relative', width: '100%', height: '100%', minHeight: 480 }}>
+        <div style={{ position: 'relative', width: '100%', height: '100%', minHeight: 340 }}>
             {/* 3D WebGL Canvas Container */}
             <div
                 ref={containerRef}
                 style={{
                     width: '100%',
                     height: '100%',
-                    minHeight: 480,
+                    minHeight: 340,
                     cursor: isPlaying ? 'pointer' : 'grab'
                 }}
-                title="Move cursor to tilt 3D lens or click Play to auto-rotate"
+                title="Move cursor or touch to tilt 3D lens"
             />
 
             {/* Bottom Interactive Control Bar */}
@@ -360,10 +363,10 @@ export default function Hero3DCanvas() {
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: '0.45rem',
-                        background: isPlaying ? 'rgba(236, 72, 153, 0.22)' : 'rgba(255, 255, 255, 0.12)',
+                        background: isPlaying ? 'rgba(217, 119, 6, 0.25)' : 'rgba(255, 255, 255, 0.12)',
                         backdropFilter: 'blur(12px)',
-                        border: isPlaying ? '1px solid rgba(236, 72, 153, 0.5)' : '1px solid rgba(255, 255, 255, 0.25)',
-                        color: isPlaying ? '#f472b6' : '#ffffff',
+                        border: isPlaying ? '1px solid rgba(217, 119, 6, 0.5)' : '1px solid rgba(255, 255, 255, 0.25)',
+                        color: isPlaying ? '#fde68a' : '#ffffff',
                         padding: '0.45rem 0.95rem',
                         borderRadius: '999px',
                         fontSize: '0.75rem',

@@ -228,12 +228,7 @@ function Dashboard() {
             </div>
 
             {/* Visual Analytics & Pipeline */}
-            <div style={{
-                display: 'grid',
-                gridTemplateColumns: '2fr 1fr',
-                gap: '1.75rem',
-                marginBottom: '2rem',
-            }}>
+            <div className="dashboard-analytics-grid">
                 <div className="card" style={{ padding: '1.75rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                         <div>
@@ -844,7 +839,7 @@ function PipelineProgress({ label, count, color, percent }) {
             </div>
             <div style={{
                 height: 8,
-                background: 'rgba(255, 255, 255, 0.06)',
+                background: '#e4e4e7',
                 borderRadius: 'var(--radius-full)',
                 overflow: 'hidden'
             }}>

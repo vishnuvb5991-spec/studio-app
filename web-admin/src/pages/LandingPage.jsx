@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import {
     Camera, ArrowRight, X, Eye, EyeOff, Lock, Loader2,
-    Wand2, Image as ImageIcon, Smartphone, CheckCircle2, Sparkles
+    Wand2, Image as ImageIcon, Smartphone, CheckCircle2, Sparkles, Menu
 } from 'lucide-react';
 import Hero3DCanvas from '../components/3d/Hero3DCanvas';
 import Tilt3DCard from '../components/3d/Tilt3DCard';
@@ -35,6 +35,7 @@ export default function LandingPage() {
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const [authMode, setAuthMode] = useState('login');
     const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+    const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
     // Auth form state
     const [email, setEmail] = useState('admin@studio.com');
@@ -111,46 +112,94 @@ export default function LandingPage() {
             {/* ── NAV ─────────────────────────────────────────────────── */}
             <nav style={{
                 position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-                background: 'rgba(245,245,240,0.88)',
+                background: 'rgba(245,245,240,0.92)',
                 backdropFilter: 'blur(14px)',
                 WebkitBackdropFilter: 'blur(14px)',
                 borderBottom: '1px solid rgba(0,0,0,0.07)',
             }}>
-                <div style={{
-                    maxWidth: 1180, margin: '0 auto',
-                    padding: '0 32px',
-                    height: 64,
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between'
-                }}>
+                <div className="landing-nav-container">
                     {/* Logo */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontFamily: "'Playfair Display', Georgia, serif", fontWeight: 700, fontSize: '1.1rem', letterSpacing: '-0.01em' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontFamily: "'Playfair Display', Georgia, serif", fontWeight: 700, fontSize: '1.1rem', letterSpacing: '-0.01em', flexShrink: 0 }}>
                         <Camera size={18} strokeWidth={2} />
                         Preetha Studio
                     </div>
 
-                    {/* Links */}
-                    <div style={{ display: 'flex', gap: '2rem', fontSize: '0.875rem', fontWeight: 500 }}>
+                    {/* Desktop Links */}
+                    <div className="landing-nav-links">
                         {[['#gallery', 'Gallery'], ['#services', 'Services'], ['#about', 'About']].map(([href, label]) => (
                             <a key={href} href={href} style={{ color: '#444', textDecoration: 'none' }}>{label}</a>
                         ))}
                     </div>
 
-                    {/* CTA */}
-                    <div style={{ display: 'flex', gap: '0.65rem' }}>
+                    {/* CTA / Mobile Controls */}
+                    <div className="landing-nav-cta">
                         <button
                             onClick={() => { setAuthMode('login'); setIsAuthModalOpen(true); }}
-                            style={{ ...btnSecondary, padding: '0.55rem 1.25rem', fontSize: '0.85rem', borderRadius: '6px' }}
+                            style={{ ...btnSecondary, padding: '0.45rem 0.95rem', fontSize: '0.825rem', borderRadius: '6px', whiteSpace: 'nowrap' }}
                         >
                             Sign In
                         </button>
                         <button
                             onClick={() => setIsBookingModalOpen(true)}
-                            style={{ ...btnPrimary, padding: '0.55rem 1.25rem', fontSize: '0.85rem', borderRadius: '6px' }}
+                            className="landing-nav-book-btn"
+                            style={{ ...btnPrimary, padding: '0.45rem 1.15rem', fontSize: '0.825rem', borderRadius: '6px', whiteSpace: 'nowrap' }}
+                        >
+                            Book your date
+                        </button>
+                        {/* Hamburger Button for Mobile */}
+                        <button
+                            className="landing-nav-hamburger"
+                            onClick={() => setMobileNavOpen(!mobileNavOpen)}
+                            aria-label="Toggle navigation menu"
+                        >
+                            {mobileNavOpen ? <X size={18} /> : <Menu size={18} />}
+                        </button>
+                    </div>
+                </div>
+
+                {/* Mobile Dropdown Drawer */}
+                {mobileNavOpen && (
+                    <div style={{
+                        background: '#ffffff',
+                        borderBottom: '1px solid #e5e7eb',
+                        padding: '1rem 1.25rem 1.25rem',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '0.75rem',
+                        boxShadow: '0 8px 24px rgba(0,0,0,0.08)'
+                    }}>
+                        {[['#gallery', 'Gallery'], ['#services', 'Services'], ['#about', 'About']].map(([href, label]) => (
+                            <a
+                                key={href}
+                                href={href}
+                                onClick={() => setMobileNavOpen(false)}
+                                style={{
+                                    fontSize: '0.95rem',
+                                    fontWeight: 600,
+                                    color: '#18181b',
+                                    textDecoration: 'none',
+                                    padding: '0.4rem 0'
+                                }}
+                            >
+                                {label}
+                            </a>
+                        ))}
+                        <button
+                            onClick={() => { setMobileNavOpen(false); setIsBookingModalOpen(true); }}
+                            style={{
+                                ...btnPrimary,
+                                width: '100%',
+                                padding: '0.75rem',
+                                fontSize: '0.9rem',
+                                borderRadius: '6px',
+                                textAlign: 'center',
+                                marginTop: '0.35rem'
+                            }}
                         >
                             Book your date
                         </button>
                     </div>
-                </div>
+                )}
             </nav>
 
             {/* ── HERO (centered, vertical) ────────────────────────────── */}
@@ -205,13 +254,8 @@ export default function LandingPage() {
             </section>
 
             {/* ── 3D HERO SHOWCASE ────────────────────────────────────── */}
-            <div style={{ maxWidth: 1180, margin: '0 auto', padding: '0 32px 80px' }}>
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-                    gap: '2rem',
-                    alignItems: 'center'
-                }}>
+            <div className="hero-3d-container">
+                <div className="hero-3d-grid">
                     {/* Left: 3D Tilt Photo Card with Floating Rating Badge */}
                     <Tilt3DCard
                         maxTilt={9}
@@ -231,20 +275,21 @@ export default function LandingPage() {
                         />
                         {/* 3D Floating Rating Badge */}
                         <div style={{
-                            position: 'absolute', bottom: 20, left: 20,
-                            background: 'rgba(255,255,255,0.94)',
+                            position: 'absolute', bottom: 16, left: 16,
+                            background: 'rgba(255,255,255,0.95)',
                             backdropFilter: 'blur(16px)',
                             borderRadius: '12px',
-                            padding: '0.8rem 1.2rem',
-                            display: 'flex', alignItems: 'center', gap: '0.75rem',
+                            padding: '0.65rem 1rem',
+                            display: 'flex', alignItems: 'center', gap: '0.65rem',
                             boxShadow: '0 12px 32px rgba(0,0,0,0.18)',
                             transform: 'translateZ(30px)',
-                            border: '1px solid rgba(255,255,255,0.6)'
+                            border: '1px solid rgba(255,255,255,0.6)',
+                            maxWidth: 'calc(100% - 32px)'
                         }}>
-                            <div style={{ fontSize: '1.5rem', color: '#d97706' }}>★</div>
+                            <div style={{ fontSize: '1.35rem', color: '#d97706' }}>★</div>
                             <div>
-                                <div style={{ fontWeight: 800, fontSize: '0.9rem', color: '#111' }}>4.9 / 5 Client Rating</div>
-                                <div style={{ fontSize: '0.75rem', color: '#666' }}>1,200+ Shoots &amp; AI Restorations</div>
+                                <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#111' }}>4.9 / 5 Client Rating</div>
+                                <div style={{ fontSize: '0.72rem', color: '#666' }}>1,200+ Shoots &amp; AI Restorations</div>
                             </div>
                         </div>
                     </Tilt3DCard>
@@ -263,26 +308,26 @@ export default function LandingPage() {
                     }}>
                         {/* 3D Indicator Top Banner */}
                         <div style={{
-                            position: 'absolute', top: 16, left: 18, right: 18,
+                            position: 'absolute', top: 12, left: 14, right: 14,
                             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                            zIndex: 10, pointerEvents: 'none'
+                            zIndex: 10, pointerEvents: 'none', flexWrap: 'wrap', gap: '0.35rem'
                         }}>
                             <div style={{
                                 display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
                                 background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)',
-                                padding: '0.3rem 0.75rem', borderRadius: '999px',
-                                fontSize: '0.7rem', fontWeight: 700, color: '#fde68a',
+                                padding: '0.25rem 0.65rem', borderRadius: '999px',
+                                fontSize: '0.68rem', fontWeight: 700, color: '#fde68a',
                                 border: '1px solid rgba(253, 230, 138, 0.25)',
                                 textTransform: 'uppercase', letterSpacing: '0.08em'
                             }}>
-                                <Sparkles size={12} /> Interactive 3D Lens
+                                <Sparkles size={11} /> Interactive 3D Lens
                             </div>
                             <div style={{
-                                fontSize: '0.68rem', color: '#9ca3af',
-                                background: 'rgba(0,0,0,0.4)', padding: '0.25rem 0.6rem',
+                                fontSize: '0.65rem', color: '#9ca3af',
+                                background: 'rgba(0,0,0,0.5)', padding: '0.2rem 0.55rem',
                                 borderRadius: '6px'
                             }}>
-                                Move cursor to rotate
+                                Drag to rotate
                             </div>
                         </div>
 
@@ -595,6 +640,7 @@ export default function LandingPage() {
                 }}>
                     <div style={{
                         width: '100%', maxWidth: 440,
+                        maxHeight: '90vh', overflowY: 'auto',
                         background: '#ffffff', color: '#18181b',
                         padding: '2.5rem 2.25rem',
                         borderRadius: '20px',
@@ -704,8 +750,9 @@ export default function LandingPage() {
                 }}>
                     <div style={{
                         width: '100%', maxWidth: 480,
+                        maxHeight: '90vh', overflowY: 'auto',
                         background: '#fff', color: '#18181b',
-                        padding: '2.5rem', borderRadius: '20px',
+                        padding: '2rem 1.75rem', borderRadius: '20px',
                         boxShadow: '0 24px 60px rgba(0,0,0,0.25)',
                         position: 'relative'
                     }}>

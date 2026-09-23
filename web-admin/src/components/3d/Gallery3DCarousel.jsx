@@ -52,11 +52,20 @@ export default function Gallery3DCarousel() {
     const [isDragging, setIsDragging] = useState(false);
     const [dragStartX, setDragStartX] = useState(0);
     const [dragOffset, setDragOffset] = useState(0);
+    const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 640 : false);
     const autoRotateRef = useRef(null);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 640);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const total = CAROUSEL_ITEMS.length;
     const angleStep = 360 / total;
-    const radius = 340; // Cylinder radius in 3D pixels
+    const radius = isMobile ? 230 : 340; // Cylinder radius in 3D pixels (adaptive for mobile)
+    const cardWidth = isMobile ? 210 : 270;
+    const cardHeight = isMobile ? 310 : 370;
 
     // Auto-spin every 4 seconds when not hovered or dragged
     useEffect(() => {
@@ -104,7 +113,7 @@ export default function Gallery3DCarousel() {
         <section
             id="gallery"
             style={{
-                padding: '110px 24px 130px',
+                padding: isMobile ? '60px 16px 80px' : '110px 24px 130px',
                 background: 'linear-gradient(180deg, #f5f5f0 0%, #ebe7dc 100%)',
                 overflow: 'hidden',
                 position: 'relative',
@@ -117,7 +126,7 @@ export default function Gallery3DCarousel() {
             }}
         >
             {/* Header */}
-            <div style={{ maxWidth: 700, margin: '0 auto 3.5rem' }}>
+            <div style={{ maxWidth: 700, margin: isMobile ? '0 auto 2.25rem' : '0 auto 3.5rem' }}>
                 <div style={{
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -138,7 +147,7 @@ export default function Gallery3DCarousel() {
 
                 <h2 style={{
                     fontFamily: "'Playfair Display', Georgia, serif",
-                    fontSize: 'clamp(2rem, 5vw, 3.25rem)',
+                    fontSize: 'clamp(1.75rem, 5vw, 3.25rem)',
                     fontWeight: 500,
                     letterSpacing: '-0.02em',
                     color: '#111',
@@ -147,7 +156,7 @@ export default function Gallery3DCarousel() {
                     Spin Through Our Stories
                 </h2>
 
-                <p style={{ color: '#666', fontSize: '1.02rem', lineHeight: 1.7, maxWidth: 540, margin: '0 auto' }}>
+                <p style={{ color: '#666', fontSize: '0.95rem', lineHeight: 1.6, maxWidth: 540, margin: '0 auto' }}>
                     Drag, swipe, or click arrows to explore recent wedding albums captured across Kerala in full 3D perspective.
                 </p>
             </div>
@@ -155,9 +164,9 @@ export default function Gallery3DCarousel() {
             {/* 3D Scene Viewport */}
             <div
                 style={{
-                    perspective: '1200px',
+                    perspective: isMobile ? '950px' : '1200px',
                     perspectiveOrigin: '50% 48%',
-                    height: 440,
+                    height: isMobile ? 350 : 440,
                     maxWidth: 1100,
                     margin: '0 auto',
                     position: 'relative',
@@ -195,10 +204,10 @@ export default function Gallery3DCarousel() {
                                     position: 'absolute',
                                     left: '50%',
                                     top: '50%',
-                                    width: 270,
-                                    height: 370,
-                                    marginLeft: -135,
-                                    marginTop: -185,
+                                    width: cardWidth,
+                                    height: cardHeight,
+                                    marginLeft: -cardWidth / 2,
+                                    marginTop: -cardHeight / 2,
                                     transform: `rotateY(${itemAngle}deg) translateZ(${radius}px)`,
                                     transformStyle: 'preserve-3d',
                                     borderRadius: '16px',
