@@ -14,7 +14,8 @@ import {
     Smartphone,
     Eye,
     Repeat,
-    Crown
+    Crown,
+    X,
 } from 'lucide-react';
 
 const studioOwnerNav = [
@@ -36,14 +37,14 @@ const customerNav = [
     { icon: Settings, label: 'Profile Settings', path: '/settings', badge: null },
 ];
 
-function Sidebar() {
+function Sidebar({ isOpen, onClose }) {
     const { user, isStudioOwner, viewMode, toggleViewMode } = useAuth();
     const isCustomerView = viewMode === 'customer';
     const navItems = isCustomerView ? customerNav : studioOwnerNav;
 
     return (
-        <aside className="sidebar">
-            {/* Brand Logo */}
+        <aside className={`sidebar${isOpen ? ' open' : ''}`}>
+            {/* Brand Logo + Mobile Close */}
             <div style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -51,6 +52,7 @@ function Sidebar() {
                 marginBottom: '2rem',
                 padding: '0 0.5rem'
             }}>
+
                 <div style={{
                     width: 44,
                     height: 44,
@@ -87,6 +89,28 @@ function Sidebar() {
                         {isCustomerView ? (isStudioOwner ? '👤 Customer View (Owner)' : '👤 Client Portal') : '👑 Studio Suite'}
                     </div>
                 </div>
+
+                {/* Mobile close button — only visible ≤1024px via CSS */}
+                <button
+                    onClick={onClose}
+                    style={{
+                        marginLeft: 'auto',
+                        width: 34,
+                        height: 34,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        background: '#f4f4f5',
+                        border: '1px solid #e4e4e7',
+                        borderRadius: 'var(--radius-md)',
+                        cursor: 'pointer',
+                        color: '#18181b',
+                        flexShrink: 0,
+                    }}
+                    aria-label="Close sidebar"
+                >
+                    <X size={16} />
+                </button>
             </div>
 
             {/* Navigation Menu */}
@@ -107,6 +131,7 @@ function Sidebar() {
                         key={item.path}
                         to={item.path}
                         end={item.path === '/dashboard'}
+                        onClick={onClose}
                         style={({ isActive }) => ({
                             display: 'flex',
                             alignItems: 'center',
