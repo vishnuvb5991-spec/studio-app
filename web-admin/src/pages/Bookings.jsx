@@ -220,10 +220,10 @@ function Bookings() {
                 gap: '0.5rem',
                 marginBottom: '1.75rem',
                 flexWrap: 'wrap',
-                background: 'rgba(20, 24, 48, 0.6)',
+                background: '#fafaf9',
                 padding: '0.35rem',
                 borderRadius: 'var(--radius-lg)',
-                border: '1px solid var(--border-subtle)',
+                border: '1px solid #e5e7eb',
                 width: 'fit-content'
             }}>
                 {[
@@ -239,8 +239,8 @@ function Bookings() {
                             padding: '0.45rem 1.15rem',
                             borderRadius: 'var(--radius-md)',
                             border: 'none',
-                            background: statusFilter === tab.id ? 'var(--grad-cyan)' : 'transparent',
-                            color: statusFilter === tab.id ? '#ffffff' : 'var(--text-secondary)',
+                            background: statusFilter === tab.id ? '#18181b' : 'transparent',
+                            color: statusFilter === tab.id ? '#ffffff' : '#52525b',
                             fontWeight: 700,
                             fontSize: '0.8rem',
                             cursor: 'pointer',
@@ -275,8 +275,9 @@ function Bookings() {
                                     fontWeight: 800,
                                     padding: '0.2rem 0.55rem',
                                     borderRadius: 'var(--radius-full)',
-                                    background: b.status === 'confirmed' ? 'rgba(16, 185, 129, 0.2)' : (b.status === 'pending' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(59, 130, 246, 0.2)'),
-                                    color: b.status === 'confirmed' ? '#34d399' : (b.status === 'pending' ? '#fbbf24' : '#60a5fa'),
+                                    background: b.status === 'confirmed' ? '#ecfdf5' : (b.status === 'pending' ? '#fef3c7' : '#f4f4f5'),
+                                    color: b.status === 'confirmed' ? '#065f46' : (b.status === 'pending' ? '#92400e' : '#18181b'),
+                                    border: `1px solid ${b.status === 'confirmed' ? '#a7f3d0' : (b.status === 'pending' ? '#fde68a' : '#e4e4e7')}`,
                                     textTransform: 'uppercase'
                                 }}>
                                     {b.status}
@@ -284,16 +285,16 @@ function Bookings() {
                                 <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>ID: {b.id}</span>
                             </div>
 
-                            <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#ffffff', marginBottom: '0.35rem' }}>
+                            <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#18181b', marginBottom: '0.35rem' }}>
                                 {b.event_name}
                             </h3>
 
                             <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flexWrap: 'wrap', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
                                 <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                                    <Calendar size={14} color="var(--accent-cyan)" /> {b.event_date}
+                                    <Calendar size={14} color="#d97706" /> {b.event_date}
                                 </span>
                                 <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                                    <MapPin size={14} color="#ec4899" /> {b.venue_name}
+                                    <MapPin size={14} color="#d97706" /> {b.venue_name}
                                 </span>
                             </div>
                         </div>

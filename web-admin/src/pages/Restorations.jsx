@@ -77,7 +77,7 @@ function Restorations() {
                 <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
                         <h1 className="gradient-text">AI Photo Restoration Lab</h1>
-                        <Sparkles size={20} color="#ec4899" />
+                        <Sparkles size={20} color="#d97706" />
                     </div>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
                         Colorize, repair torn physical prints, and upscale heritage memories.

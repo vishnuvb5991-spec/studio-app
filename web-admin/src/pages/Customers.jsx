@@ -113,7 +113,7 @@ function Customers() {
                 <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
                         <h1 className="gradient-text">Client Relationship CRM</h1>
-                        <Sparkles size={20} color="#ec4899" />
+                        <Sparkles size={20} color="#d97706" />
                     </div>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
                         Manage customer accounts, family registries, and shoot history.
@@ -184,14 +184,14 @@ function Customers() {
                                                 <span>{customer.email}</span>
                                             </div>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', color: 'var(--text-secondary)' }}>
-                                                <Phone size={13} color="#22d3ee" />
+                                                <Phone size={13} color="#d97706" />
                                                 <span>{customer.phone}</span>
                                             </div>
                                         </div>
                                     </td>
                                     <td>
                                         <div style={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                                            <MapPin size={14} color="#ec4899" />
+                                            <MapPin size={14} color="#d97706" />
                                             <span>{customer.city}, {customer.state}</span>
                                         </div>
                                     </td>
@@ -206,7 +206,7 @@ function Customers() {
                                         </div>
                                     </td>
                                     <td>
-                                        <div style={{ fontWeight: 800, color: '#34d399', fontSize: '1rem' }}>
+                                        <div style={{ fontWeight: 800, color: '#059669', fontSize: '1rem' }}>
                                             {customer.lifetimeValue}
                                         </div>
                                     </td>

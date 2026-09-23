@@ -203,12 +203,12 @@ function AdminPaymentsView() {
 
             {/* Admin Booking Notifications */}
             {adminNotifications.length > 0 && (
-                <div className="card" style={{ padding: '1.25rem', marginBottom: '1.75rem', border: '1px solid rgba(236, 72, 153, 0.35)', background: 'rgba(236, 72, 153, 0.06)' }}>
+                <div className="card" style={{ padding: '1.25rem', marginBottom: '1.75rem', border: '1px solid rgba(217, 119, 6, 0.25)', background: '#fffbeb' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                        <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1rem' }}>
-                            <Bell size={18} color="#ec4899" />
+                        <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1rem', color: '#92400e' }}>
+                            <Bell size={18} color="#d97706" />
                             New Booking Requests
-                            <span style={{ background: '#ec4899', color: '#fff', borderRadius: '999px', padding: '0.1rem 0.55rem', fontSize: '0.72rem', fontWeight: 800 }}>
+                            <span style={{ background: '#d97706', color: '#fff', borderRadius: '999px', padding: '0.1rem 0.55rem', fontSize: '0.72rem', fontWeight: 800 }}>
                                 {adminNotifications.length}
                             </span>
                         </h3>
@@ -226,8 +226,8 @@ function AdminPaymentsView() {
                                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                                 flexWrap: 'wrap', gap: '0.5rem',
                                 padding: '0.75rem 1rem',
-                                background: 'rgba(255,255,255,0.04)',
-                                border: '1px solid rgba(255,255,255,0.08)',
+                                background: '#ffffff',
+                                border: '1px solid rgba(217, 119, 6, 0.2)',
                                 borderRadius: 'var(--radius-md)'
                             }}>
                                 <div>
@@ -477,7 +477,7 @@ function CustomerInvoicesView({ user }) {
             <div style={{ marginBottom: '2rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
                     <h1 className="gradient-text">My Invoices & Receipts</h1>
-                    <IndianRupee size={20} color="#ec4899" />
+                    <IndianRupee size={20} color="#d97706" />
                 </div>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
                     Your personal payment history and outstanding balances — only your transactions are shown here.
@@ -491,14 +491,14 @@ function CustomerInvoicesView({ user }) {
                     <p style={{ fontSize: '1.8rem', fontWeight: 800, color: '#10b981' }}>₹{totalPaid.toLocaleString()}</p>
                     <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Across {myInvoices.filter(i => i.status === 'success' || i._paid).length} settled invoice(s)</p>
                 </div>
-                <div className="card" style={{ padding: '1.25rem', borderLeft: '3px solid #f59e0b' }}>
+                <div className="card" style={{ padding: '1.25rem', borderLeft: '3px solid #d97706' }}>
                     <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '0.3rem' }}>Outstanding Balance</p>
-                    <p style={{ fontSize: '1.8rem', fontWeight: 800, color: '#f59e0b' }}>₹{totalDue.toLocaleString()}</p>
+                    <p style={{ fontSize: '1.8rem', fontWeight: 800, color: '#d97706' }}>₹{totalDue.toLocaleString()}</p>
                     <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{totalDue > 0 ? 'Pay now to confirm your booking' : 'All clear! 🎉'}</p>
                 </div>
-                <div className="card" style={{ padding: '1.25rem', borderLeft: '3px solid #8b5cf6' }}>
+                <div className="card" style={{ padding: '1.25rem', borderLeft: '3px solid #18181b' }}>
                     <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '0.3rem' }}>Total Invoices</p>
-                    <p style={{ fontSize: '1.8rem', fontWeight: 800, color: '#c084fc' }}>{myInvoices.length}</p>
+                    <p style={{ fontSize: '1.8rem', fontWeight: 800, color: '#18181b' }}>{myInvoices.length}</p>
                     <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>🔒 Secured by Razorpay</p>
                 </div>
             </div>

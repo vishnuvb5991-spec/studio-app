@@ -11,9 +11,7 @@ import {
     Settings,
     Camera,
     Sparkles,
-    UserCheck,
     Smartphone,
-    Download,
     Eye,
     Repeat,
     Crown
@@ -56,31 +54,33 @@ function Sidebar() {
                 <div style={{
                     width: 44,
                     height: 44,
-                    background: 'var(--grad-cosmic)',
+                    background: '#18181b',
                     borderRadius: 'var(--radius-md)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    boxShadow: '0 0 24px var(--primary-glow)',
+                    boxShadow: '0 4px 14px rgba(24, 24, 27, 0.25)',
                 }}>
-                    <Camera size={24} color="white" />
+                    <Camera size={22} color="#fde68a" />
                 </div>
                 <div>
                     <div style={{
-                        fontSize: '1.25rem',
-                        fontWeight: 800,
-                        letterSpacing: '-0.02em',
+                        fontFamily: "'Playfair Display', Georgia, serif",
+                        fontSize: '1.2rem',
+                        fontWeight: 700,
+                        letterSpacing: '-0.01em',
+                        color: '#18181b',
                         display: 'flex',
                         alignItems: 'center',
                         gap: '0.35rem'
                     }}>
-                        <span className="gradient-text">Preetha Studio</span>
-                        <Sparkles size={14} color="#ec4899" />
+                        <span>Preetha Studio</span>
+                        <Sparkles size={14} color="#d97706" />
                     </div>
                     <div style={{
-                        fontSize: '0.7rem',
+                        fontSize: '0.68rem',
                         fontWeight: 700,
-                        color: isCustomerView ? 'var(--accent-cyan)' : '#a78bfa',
+                        color: isCustomerView ? '#d97706' : '#71717a',
                         textTransform: 'uppercase',
                         letterSpacing: '0.08em'
                     }}>
@@ -92,11 +92,11 @@ function Sidebar() {
             {/* Navigation Menu */}
             <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                 <div style={{
-                    fontSize: '0.7rem',
+                    fontSize: '0.68rem',
                     fontWeight: 700,
                     textTransform: 'uppercase',
                     letterSpacing: '0.08em',
-                    color: 'var(--text-muted)',
+                    color: '#71717a',
                     padding: '0.5rem 0.75rem 0.25rem'
                 }}>
                     {isCustomerView ? 'Customer Space' : 'Studio Management'}
@@ -113,14 +113,14 @@ function Sidebar() {
                             justifyContent: 'space-between',
                             padding: '0.75rem 0.95rem',
                             borderRadius: 'var(--radius-md)',
-                            color: isActive ? '#ffffff' : 'var(--text-secondary)',
+                            color: isActive ? '#92400e' : '#52525b',
                             background: isActive
-                                ? 'linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(236, 72, 153, 0.15))'
+                                ? '#fef3c7'
                                 : 'transparent',
                             border: isActive
-                                ? '1px solid rgba(139, 92, 246, 0.35)'
+                                ? '1px solid #fde68a'
                                 : '1px solid transparent',
-                            boxShadow: isActive ? '0 0 20px rgba(139, 92, 246, 0.2)' : 'none',
+                            boxShadow: isActive ? '0 2px 8px rgba(217, 119, 6, 0.12)' : 'none',
                             textDecoration: 'none',
                             transition: 'all var(--transition-fast)',
                             cursor: 'pointer',
@@ -128,7 +128,7 @@ function Sidebar() {
                     >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
                             <item.icon size={19} />
-                            <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{item.label}</span>
+                            <span style={{ fontWeight: 600, fontSize: '0.875rem' }}>{item.label}</span>
                         </div>
 
                         {item.badge && (
@@ -137,13 +137,21 @@ function Sidebar() {
                                 fontWeight: 700,
                                 padding: '0.15rem 0.45rem',
                                 borderRadius: 'var(--radius-full)',
-                                background: item.badge === 'AI' 
-                                    ? 'var(--grad-primary)' 
-                                    : item.badge === 'Live'
-                                    ? 'rgba(16, 185, 129, 0.2)'
-                                    : 'rgba(255, 255, 255, 0.1)',
-                                color: item.badge === 'Live' ? '#34d399' : '#ffffff',
-                                border: item.badge === 'Live' ? '1px solid rgba(16, 185, 129, 0.4)' : 'none'
+                                background: item.badge === 'Live'
+                                    ? '#ecfdf5'
+                                    : item.badge === 'AI'
+                                    ? '#fef3c7'
+                                    : '#f4f4f5',
+                                color: item.badge === 'Live' 
+                                    ? '#065f46' 
+                                    : item.badge === 'AI'
+                                    ? '#92400e'
+                                    : '#18181b',
+                                border: item.badge === 'Live' 
+                                    ? '1px solid #a7f3d0' 
+                                    : item.badge === 'AI'
+                                    ? '1px solid #fde68a'
+                                    : '1px solid #e4e4e7'
                             }}>
                                 {item.badge}
                             </span>
@@ -158,8 +166,8 @@ function Sidebar() {
                     marginTop: 'auto',
                     marginBottom: '1rem',
                     padding: '0.85rem 1rem',
-                    background: isCustomerView ? 'rgba(6, 182, 212, 0.1)' : 'rgba(139, 92, 246, 0.1)',
-                    border: `1px solid ${isCustomerView ? 'rgba(6, 182, 212, 0.3)' : 'rgba(139, 92, 246, 0.3)'}`,
+                    background: isCustomerView ? '#fef3c7' : '#f4f4f5',
+                    border: `1px solid ${isCustomerView ? '#fde68a' : '#e4e4e7'}`,
                     borderRadius: 'var(--radius-md)',
                     cursor: 'pointer'
                 }}
@@ -168,12 +176,12 @@ function Sidebar() {
                 >
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            {isCustomerView ? <Crown size={16} color="#ec4899" /> : <Eye size={16} color="#22d3ee" />}
-                            <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-pure)' }}>
+                            {isCustomerView ? <Crown size={16} color="#d97706" /> : <Eye size={16} color="#18181b" />}
+                            <span style={{ fontSize: '0.78rem', fontWeight: 700, color: isCustomerView ? '#92400e' : '#18181b' }}>
                                 {isCustomerView ? 'Switch to Owner Mode' : 'Preview Customer Mode'}
                             </span>
                         </div>
-                        <Repeat size={14} color="var(--text-muted)" />
+                        <Repeat size={14} color="#71717a" />
                     </div>
                 </div>
             )}
@@ -182,23 +190,23 @@ function Sidebar() {
             <div style={{
                 marginTop: isStudioOwner ? 0 : 'auto',
                 padding: '1.15rem',
-                background: 'linear-gradient(135deg, rgba(20, 24, 48, 0.9), rgba(15, 17, 35, 0.95))',
+                background: '#fafaf9',
                 borderRadius: 'var(--radius-lg)',
-                border: '1px solid var(--border-highlight)',
-                boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
+                border: '1px solid #e5e7eb',
+                boxShadow: 'var(--shadow-sm)',
                 position: 'relative',
                 overflow: 'hidden'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.45rem' }}>
-                    <Smartphone size={16} color="var(--accent-cyan)" />
-                    <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-pure)' }}>
+                    <Smartphone size={16} color="#d97706" />
+                    <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#18181b' }}>
                         Mobile App Sync
                     </span>
                 </div>
 
                 <p style={{
-                    fontSize: '0.75rem',
-                    color: 'var(--text-secondary)',
+                    fontSize: '0.74rem',
+                    color: '#52525b',
                     marginBottom: '0.65rem',
                     lineHeight: 1.35
                 }}>
@@ -210,7 +218,7 @@ function Sidebar() {
                     alignItems: 'center',
                     gap: '0.35rem',
                     fontSize: '0.7rem',
-                    color: '#34d399',
+                    color: '#059669',
                     fontWeight: 700
                 }}>
                     <div className="pulse-dot" />

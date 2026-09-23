@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Camera, Eye, EyeOff, Sparkles, ShieldCheck, ArrowRight, Lock, User, Mail, Phone, CheckCircle2 } from 'lucide-react';
+import { Camera, Eye, EyeOff, Sparkles, ShieldCheck, ArrowRight, Lock } from 'lucide-react';
 
 function Login() {
     const [mode, setMode] = useState('login'); // 'login' | 'register'
@@ -72,14 +72,14 @@ function Login() {
             position: 'relative',
             overflow: 'hidden',
             padding: '1.5rem',
-            background: 'var(--bg-main)'
+            background: 'linear-gradient(180deg, #f5f5f0 0%, #ebe7dc 100%)'
         }}>
-            {/* Ambient Background Lights */}
+            {/* Ambient Background Warm Glows */}
             <div style={{
                 position: 'absolute',
                 width: 500,
                 height: 500,
-                background: 'radial-gradient(circle, rgba(139, 92, 246, 0.28) 0%, transparent 70%)',
+                background: 'radial-gradient(circle, rgba(217, 119, 6, 0.12) 0%, transparent 70%)',
                 top: '-10%',
                 left: '-10%',
                 filter: 'blur(90px)',
@@ -89,7 +89,7 @@ function Login() {
                 position: 'absolute',
                 width: 500,
                 height: 500,
-                background: 'radial-gradient(circle, rgba(236, 72, 153, 0.22) 0%, transparent 70%)',
+                background: 'radial-gradient(circle, rgba(180, 83, 9, 0.08) 0%, transparent 70%)',
                 bottom: '-10%',
                 right: '-10%',
                 filter: 'blur(90px)',
@@ -101,35 +101,39 @@ function Login() {
                 width: '100%',
                 maxWidth: 480,
                 padding: '2.5rem 2.25rem',
-                background: 'rgba(20, 24, 48, 0.8)',
-                backdropFilter: 'blur(28px)',
-                WebkitBackdropFilter: 'blur(28px)',
+                background: '#ffffff',
                 borderRadius: 'var(--radius-xl)',
-                border: '1px solid var(--border-highlight)',
-                boxShadow: 'var(--shadow-lg), 0 0 50px rgba(139, 92, 246, 0.25)',
+                border: '1px solid #e5e7eb',
+                boxShadow: '0 20px 45px rgba(0, 0, 0, 0.08), 0 0 25px rgba(217, 119, 6, 0.06)',
                 position: 'relative',
                 zIndex: 10
             }}>
                 {/* Brand Logo & Title */}
                 <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
                     <div style={{
-                        width: 58,
-                        height: 58,
-                        background: 'var(--grad-cosmic)',
+                        width: 56,
+                        height: 56,
+                        background: '#18181b',
                         borderRadius: 'var(--radius-lg)',
                         display: 'inline-flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         marginBottom: '1rem',
-                        boxShadow: '0 0 28px var(--primary-glow)',
+                        boxShadow: '0 4px 16px rgba(24, 24, 27, 0.25)',
                     }}>
-                        <Camera size={30} color="#ffffff" />
+                        <Camera size={28} color="#fde68a" />
                     </div>
                     
-                    <h1 style={{ fontSize: '1.75rem', marginBottom: '0.25rem' }}>
-                        Preetha Studio <span className="gradient-text">Portal</span>
+                    <h1 style={{
+                        fontFamily: "'Playfair Display', Georgia, serif",
+                        fontSize: '1.75rem',
+                        fontWeight: 600,
+                        color: '#18181b',
+                        marginBottom: '0.25rem'
+                    }}>
+                        Preetha Studio <span style={{ color: '#d97706' }}>Portal</span>
                     </h1>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                    <p style={{ color: '#52525b', fontSize: '0.85rem' }}>
                         Access Photos, Bookings & Restorations on Web or Mobile
                     </p>
                 </div>
@@ -137,10 +141,10 @@ function Login() {
                 {/* Mode Selector Tabs (Sign In vs New Client Register) */}
                 <div style={{
                     display: 'flex',
-                    background: 'rgba(15, 17, 35, 0.8)',
+                    background: '#f4f4f5',
                     padding: '0.3rem',
                     borderRadius: 'var(--radius-md)',
-                    border: '1px solid var(--border-subtle)',
+                    border: '1px solid #e4e4e7',
                     marginBottom: '1.5rem'
                 }}>
                     <button
@@ -151,8 +155,8 @@ function Login() {
                             padding: '0.6rem',
                             border: 'none',
                             borderRadius: 'var(--radius-sm)',
-                            background: mode === 'login' ? 'var(--grad-primary)' : 'transparent',
-                            color: mode === 'login' ? '#ffffff' : 'var(--text-secondary)',
+                            background: mode === 'login' ? '#18181b' : 'transparent',
+                            color: mode === 'login' ? '#ffffff' : '#52525b',
                             fontWeight: 700,
                             fontSize: '0.825rem',
                             cursor: 'pointer',
@@ -169,8 +173,8 @@ function Login() {
                             padding: '0.6rem',
                             border: 'none',
                             borderRadius: 'var(--radius-sm)',
-                            background: mode === 'register' ? 'var(--grad-primary)' : 'transparent',
-                            color: mode === 'register' ? '#ffffff' : 'var(--text-secondary)',
+                            background: mode === 'register' ? '#18181b' : 'transparent',
+                            color: mode === 'register' ? '#ffffff' : '#52525b',
                             fontWeight: 700,
                             fontSize: '0.825rem',
                             cursor: 'pointer',
@@ -185,10 +189,10 @@ function Login() {
                 {error && (
                     <div style={{
                         padding: '0.75rem 1rem',
-                        background: 'rgba(239, 68, 68, 0.15)',
-                        border: '1px solid rgba(239, 68, 68, 0.35)',
+                        background: '#fef2f2',
+                        border: '1px solid #fecaca',
                         borderRadius: 'var(--radius-md)',
-                        color: '#f87171',
+                        color: '#991b1b',
                         marginBottom: '1.25rem',
                         fontSize: '0.85rem',
                         display: 'flex',
@@ -206,50 +210,54 @@ function Login() {
                         <>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem', marginBottom: '1rem' }}>
                                 <div>
-                                    <label>First Name</label>
+                                    <label style={{ color: '#52525b', fontSize: '0.75rem' }}>First Name</label>
                                     <input
                                         type="text"
                                         placeholder="Priya"
                                         value={firstName}
                                         onChange={(e) => setFirstName(e.target.value)}
                                         required
+                                        style={{ background: '#f8fafc', borderColor: '#e2e8f0', color: '#18181b' }}
                                     />
                                 </div>
                                 <div>
-                                    <label>Last Name</label>
+                                    <label style={{ color: '#52525b', fontSize: '0.75rem' }}>Last Name</label>
                                     <input
                                         type="text"
                                         placeholder="Patel"
                                         value={lastName}
                                         onChange={(e) => setLastName(e.target.value)}
+                                        style={{ background: '#f8fafc', borderColor: '#e2e8f0', color: '#18181b' }}
                                     />
                                 </div>
                             </div>
                             <div style={{ marginBottom: '1rem' }}>
-                                <label>Phone / WhatsApp Number</label>
+                                <label style={{ color: '#52525b', fontSize: '0.75rem' }}>Phone / WhatsApp Number</label>
                                 <input
                                     type="tel"
                                     placeholder="+91 98765 43210"
                                     value={phone}
                                     onChange={(e) => setPhone(e.target.value)}
+                                    style={{ background: '#f8fafc', borderColor: '#e2e8f0', color: '#18181b' }}
                                 />
                             </div>
                         </>
                     )}
 
                     <div style={{ marginBottom: '1rem' }}>
-                        <label>Email Address</label>
+                        <label style={{ color: '#52525b', fontSize: '0.75rem' }}>Email Address</label>
                         <input
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="name@gmail.com"
                             required
+                            style={{ background: '#f8fafc', borderColor: '#e2e8f0', color: '#18181b' }}
                         />
                     </div>
 
                     <div style={{ marginBottom: '1.5rem' }}>
-                        <label>Password</label>
+                        <label style={{ color: '#52525b', fontSize: '0.75rem' }}>Password</label>
                         <div style={{ position: 'relative' }}>
                             <input
                                 type={showPassword ? 'text' : 'password'}
@@ -257,7 +265,7 @@ function Login() {
                                 onChange={(e) => setPassword(e.target.value)}
                                 placeholder="••••••••••••"
                                 required
-                                style={{ paddingRight: 48 }}
+                                style={{ paddingRight: 48, background: '#f8fafc', borderColor: '#e2e8f0', color: '#18181b' }}
                             />
                             <button
                                 type="button"
@@ -269,7 +277,7 @@ function Login() {
                                     transform: 'translateY(-50%)',
                                     background: 'none',
                                     border: 'none',
-                                    color: 'var(--text-muted)',
+                                    color: '#71717a',
                                     cursor: 'pointer',
                                 }}
                             >
@@ -282,7 +290,15 @@ function Login() {
                         type="submit"
                         className="btn btn-primary"
                         disabled={loading}
-                        style={{ width: '100%', padding: '0.85rem', fontSize: '0.95rem', marginBottom: '1.25rem' }}
+                        style={{
+                            width: '100%',
+                            padding: '0.85rem',
+                            fontSize: '0.95rem',
+                            marginBottom: '1.25rem',
+                            background: '#18181b',
+                            color: '#ffffff',
+                            borderRadius: '8px'
+                        }}
                     >
                         {loading ? (
                             <span>Authenticating...</span>
@@ -298,12 +314,12 @@ function Login() {
                 {mode === 'login' && (
                     <div style={{
                         padding: '0.85rem',
-                        background: 'rgba(255, 255, 255, 0.03)',
+                        background: '#fafaf9',
                         borderRadius: 'var(--radius-md)',
-                        border: '1px solid var(--border-subtle)',
+                        border: '1px solid #e5e7eb',
                         marginBottom: '1.25rem'
                     }}>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.5rem', fontWeight: 600 }}>
+                        <div style={{ fontSize: '0.75rem', color: '#71717a', marginBottom: '0.5rem', fontWeight: 600 }}>
                             Quick Fill Test Accounts:
                         </div>
                         <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -312,11 +328,11 @@ function Login() {
                                 onClick={() => handleQuickRole('admin')}
                                 style={{
                                     flex: 1,
-                                    padding: '0.4rem',
+                                    padding: '0.45rem',
                                     borderRadius: 'var(--radius-xs)',
-                                    background: 'rgba(139, 92, 246, 0.15)',
-                                    border: '1px solid rgba(139, 92, 246, 0.3)',
-                                    color: '#c084fc',
+                                    background: '#fef3c7',
+                                    border: '1px solid #fde68a',
+                                    color: '#92400e',
                                     fontSize: '0.75rem',
                                     fontWeight: 700,
                                     cursor: 'pointer'
@@ -329,11 +345,11 @@ function Login() {
                                 onClick={() => handleQuickRole('customer')}
                                 style={{
                                     flex: 1,
-                                    padding: '0.4rem',
+                                    padding: '0.45rem',
                                     borderRadius: 'var(--radius-xs)',
-                                    background: 'rgba(6, 182, 212, 0.15)',
-                                    border: '1px solid rgba(6, 182, 212, 0.3)',
-                                    color: '#22d3ee',
+                                    background: '#f4f4f5',
+                                    border: '1px solid #e4e4e7',
+                                    color: '#18181b',
                                     fontSize: '0.75rem',
                                     fontWeight: 700,
                                     cursor: 'pointer'
@@ -352,9 +368,9 @@ function Login() {
                     justifyContent: 'center',
                     gap: '0.45rem',
                     fontSize: '0.75rem',
-                    color: 'var(--text-muted)'
+                    color: '#71717a'
                 }}>
-                    <ShieldCheck size={16} color="#34d399" />
+                    <ShieldCheck size={16} color="#059669" />
                     <span>Works with Mobile App & Web Browser</span>
                 </div>
             </div>

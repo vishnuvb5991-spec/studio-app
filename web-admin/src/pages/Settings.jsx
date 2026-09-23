@@ -18,7 +18,7 @@ function CustomerProfileSettings({ user, handleSave, savedNotice }) {
                 <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
                         <h1 className="gradient-text">Profile Settings</h1>
-                        <User size={20} color="#8b5cf6" />
+                        <User size={20} color="#d97706" />
                     </div>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
                         Manage your personal details, notifications and account security.
@@ -31,7 +31,7 @@ function CustomerProfileSettings({ user, handleSave, savedNotice }) {
                         background: 'rgba(16, 185, 129, 0.15)',
                         border: '1px solid rgba(16, 185, 129, 0.4)',
                         borderRadius: 'var(--radius-md)',
-                        color: '#34d399', fontWeight: 700, fontSize: '0.85rem'
+                        color: '#059669', fontWeight: 700, fontSize: '0.85rem'
                     }}>
                         <CheckCircle2 size={16} /> Saved successfully!
                     </div>
@@ -41,8 +41,8 @@ function CustomerProfileSettings({ user, handleSave, savedNotice }) {
             {/* Tabs */}
             <div style={{
                 display: 'flex', gap: '0.5rem', marginBottom: '2rem', flexWrap: 'wrap',
-                background: 'rgba(20, 24, 48, 0.6)', padding: '0.35rem',
-                borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-subtle)',
+                background: '#fafaf9', padding: '0.35rem',
+                borderRadius: 'var(--radius-lg)', border: '1px solid #e5e7eb',
                 width: 'fit-content'
             }}>
                 {[
@@ -135,7 +135,7 @@ function CustomerProfileSettings({ user, handleSave, savedNotice }) {
                 {activeTab === 'notifications' && (
                     <form onSubmit={handleSave} className="card" style={{ padding: '2rem' }}>
                         <h3 style={{ marginBottom: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <Bell size={18} color="#ec4899" /> Notification Preferences
+                            <Bell size={18} color="#d97706" /> Notification Preferences
                         </h3>
                         <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.75rem' }}>
                             Choose how Preetha Studio contacts you about your bookings and album deliveries.
@@ -185,7 +185,7 @@ function CustomerProfileSettings({ user, handleSave, savedNotice }) {
                 {activeTab === 'security' && (
                     <form onSubmit={handleSave} className="card" style={{ padding: '2rem' }}>
                         <h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <Lock size={18} color="#ec4899" /> Change Password
+                            <Lock size={18} color="#d97706" /> Change Password
                         </h3>
 
                         <div style={{ marginBottom: '1.25rem' }}>
@@ -250,7 +250,7 @@ function OwnerStudioSettings({ user, handleSave, savedNotice }) {
                 <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
                         <h1 className="gradient-text">Studio Configurations</h1>
-                        <Sparkles size={20} color="#8b5cf6" />
+                        <Sparkles size={20} color="#d97706" />
                     </div>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
                         Configure payment gateways, studio branding, watermarks &amp; API webhooks.
@@ -263,7 +263,7 @@ function OwnerStudioSettings({ user, handleSave, savedNotice }) {
                         background: 'rgba(16, 185, 129, 0.15)',
                         border: '1px solid rgba(16, 185, 129, 0.4)',
                         borderRadius: 'var(--radius-md)',
-                        color: '#34d399', fontWeight: 700, fontSize: '0.85rem'
+                        color: '#059669', fontWeight: 700, fontSize: '0.85rem'
                     }}>
                         <CheckCircle2 size={16} /> Changes saved successfully to live environment!
                     </div>
@@ -273,8 +273,8 @@ function OwnerStudioSettings({ user, handleSave, savedNotice }) {
             {/* Tabs */}
             <div style={{
                 display: 'flex', gap: '0.5rem', marginBottom: '2rem', flexWrap: 'wrap',
-                background: 'rgba(20, 24, 48, 0.6)', padding: '0.35rem',
-                borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-subtle)',
+                background: '#fafaf9', padding: '0.35rem',
+                borderRadius: 'var(--radius-lg)', border: '1px solid #e5e7eb',
                 width: 'fit-content'
             }}>
                 {[
@@ -406,7 +406,7 @@ function OwnerStudioSettings({ user, handleSave, savedNotice }) {
                 {activeTab === 'security' && (
                     <form onSubmit={handleSave} className="card" style={{ padding: '2rem' }}>
                         <h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <Lock size={18} color="#ec4899" /> Security &amp; Access Controls
+                            <Lock size={18} color="#d97706" /> Security &amp; Access Controls
                         </h3>
 
                         <div style={{ marginBottom: '1.25rem' }}>

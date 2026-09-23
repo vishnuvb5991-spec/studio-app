@@ -209,7 +209,7 @@ function Albums() {
                 <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
                         <h1 className="gradient-text">Client Gallery Hub</h1>
-                        <Sparkles size={20} color="#8b5cf6" />
+                        <Sparkles size={20} color="#d97706" />
                     </div>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
                         Ultra-HD client portals with pin-protected downloads & guest sharing.
@@ -229,10 +229,10 @@ function Albums() {
             {successMessage && (
                 <div style={{
                     padding: '0.85rem 1.25rem',
-                    background: 'rgba(16, 185, 129, 0.15)',
-                    border: '1px solid rgba(16, 185, 129, 0.4)',
+                    background: '#ecfdf5',
+                    border: '1px solid #a7f3d0',
                     borderRadius: 'var(--radius-md)',
-                    color: '#34d399',
+                    color: '#065f46',
                     fontSize: '0.85rem',
                     fontWeight: 700,
                     marginBottom: '1.5rem',
@@ -250,10 +250,10 @@ function Albums() {
                 gap: '0.5rem',
                 marginBottom: '2rem',
                 flexWrap: 'wrap',
-                background: 'rgba(20, 24, 48, 0.6)',
-                padding: '0.4rem',
+                background: '#fafaf9',
+                padding: '0.35rem',
                 borderRadius: 'var(--radius-lg)',
-                border: '1px solid var(--border-subtle)',
+                border: '1px solid #e5e7eb',
                 width: 'fit-content'
             }}>
                 {[
@@ -270,8 +270,8 @@ function Albums() {
                             padding: '0.5rem 1.15rem',
                             borderRadius: 'var(--radius-md)',
                             border: 'none',
-                            background: activeTab === tab.id ? 'var(--grad-primary)' : 'transparent',
-                            color: activeTab === tab.id ? '#ffffff' : 'var(--text-secondary)',
+                            background: activeTab === tab.id ? '#18181b' : 'transparent',
+                            color: activeTab === tab.id ? '#ffffff' : '#52525b',
                             fontWeight: 700,
                             fontSize: '0.8rem',
                             cursor: 'pointer',
@@ -353,12 +353,12 @@ function Albums() {
                                 gap: '0.35rem',
                                 padding: '0.25rem 0.6rem',
                                 borderRadius: 'var(--radius-full)',
-                                background: 'rgba(20, 24, 48, 0.8)',
+                                background: 'rgba(24, 24, 27, 0.85)',
                                 backdropFilter: 'blur(8px)',
-                                color: 'var(--accent-cyan)',
+                                color: '#f59e0b',
                                 fontSize: '0.7rem',
                                 fontWeight: 700,
-                                border: '1px solid rgba(6, 182, 212, 0.4)'
+                                border: '1px solid rgba(217, 119, 6, 0.35)'
                             }}>
                                 <FolderLock size={12} />
                                 <span>PIN: {album.pin || '4921'}</span>
@@ -371,7 +371,7 @@ function Albums() {
                                 left: 0,
                                 right: 0,
                                 padding: '1rem',
-                                background: 'linear-gradient(to top, rgba(15, 17, 35, 0.95), transparent)',
+                                background: 'linear-gradient(to top, rgba(24, 24, 27, 0.95), transparent)',
                                 display: 'flex',
                                 justifyContent: 'space-between',
                                 alignItems: 'flex-end'
@@ -478,7 +478,7 @@ function Albums() {
                         </button>
 
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                            <Camera size={22} color="#8b5cf6" />
+                            <Camera size={22} color="#d97706" />
                             <h2 style={{ fontSize: '1.5rem', fontWeight: 800 }}>Create New Client Gallery</h2>
                         </div>
                         <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '1.5rem' }}>
@@ -577,7 +577,7 @@ function Albums() {
                                                 borderRadius: '8px',
                                                 overflow: 'hidden',
                                                 cursor: 'pointer',
-                                                border: coverImage === preset.url ? '2px solid #8b5cf6' : '1px solid var(--border-subtle)',
+                                                border: coverImage === preset.url ? '2px solid #d97706' : '1px solid var(--border-subtle)',
                                                 opacity: coverImage === preset.url ? 1 : 0.6,
                                                 transition: 'all 0.2s'
                                             }}
@@ -666,7 +666,7 @@ function Albums() {
 
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
                             <div>
-                                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8b5cf6', textTransform: 'uppercase' }}>
+                                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#d97706', textTransform: 'uppercase' }}>
                                     {viewingAlbum.album_type?.replace('_', ' ')}
                                 </span>
                                 <h2 style={{ fontSize: '1.6rem', fontWeight: 800, marginTop: '0.2rem' }}>

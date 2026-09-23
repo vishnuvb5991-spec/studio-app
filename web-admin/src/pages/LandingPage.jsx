@@ -588,46 +588,46 @@ export default function LandingPage() {
             {isAuthModalOpen && (
                 <div style={{
                     position: 'fixed', inset: 0, zIndex: 1000,
-                    background: 'rgba(0,0,0,0.6)',
+                    background: 'rgba(0,0,0,0.5)',
                     backdropFilter: 'blur(10px)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     padding: '1.5rem'
                 }}>
                     <div style={{
                         width: '100%', maxWidth: 440,
-                        background: '#121629', color: '#fff',
+                        background: '#ffffff', color: '#18181b',
                         padding: '2.5rem 2.25rem',
                         borderRadius: '20px',
-                        border: '1px solid rgba(139,92,246,0.3)',
-                        boxShadow: '0 24px 60px rgba(0,0,0,0.6), 0 0 40px rgba(139,92,246,0.2)',
+                        border: '1px solid #e5e7eb',
+                        boxShadow: '0 24px 60px rgba(0,0,0,0.18), 0 0 30px rgba(217,119,6,0.06)',
                         position: 'relative'
                     }}>
                         <button onClick={() => setIsAuthModalOpen(false)} style={{
                             position: 'absolute', top: 18, right: 18,
-                            background: 'rgba(255,255,255,0.08)', border: 'none',
-                            color: '#fff', width: 32, height: 32, borderRadius: '50%',
+                            background: '#f4f4f5', border: 'none',
+                            color: '#71717a', width: 32, height: 32, borderRadius: '50%',
                             display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer'
                         }}>
                             <X size={16} />
                         </button>
 
                         <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
-                            <div style={{ width: 48, height: 48, background: 'linear-gradient(135deg,#8b5cf6,#ec4899)', borderRadius: '12px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.8rem' }}>
-                                <Camera size={24} color="#fff" />
+                            <div style={{ width: 48, height: 48, background: '#18181b', borderRadius: '12px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.8rem', boxShadow: '0 4px 14px rgba(24,24,27,0.2)' }}>
+                                <Camera size={24} color="#fde68a" />
                             </div>
-                            <h2 style={{ fontSize: '1.5rem', marginBottom: '0.2rem' }}>
-                                Preetha Studio <span style={{ background: 'linear-gradient(135deg,#8b5cf6,#ec4899)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Portal</span>
+                            <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '1.55rem', fontWeight: 600, color: '#18181b', marginBottom: '0.2rem' }}>
+                                Preetha Studio <span style={{ color: '#d97706' }}>Portal</span>
                             </h2>
-                            <p style={{ color: '#94a3b8', fontSize: '0.82rem' }}>Sign in to access your studio hub</p>
+                            <p style={{ color: '#52525b', fontSize: '0.82rem' }}>Sign in to access your studio hub</p>
                         </div>
 
                         {/* Mode Switcher */}
-                        <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', padding: '0.25rem', borderRadius: '10px', marginBottom: '1.25rem' }}>
+                        <div style={{ display: 'flex', background: '#f4f4f5', padding: '0.25rem', borderRadius: '10px', marginBottom: '1.25rem', border: '1px solid #e4e4e7' }}>
                             {['login', 'register'].map(mode => (
                                 <button key={mode} onClick={() => { setAuthMode(mode); setAuthError(''); }} style={{
                                     flex: 1, padding: '0.5rem', borderRadius: '8px', border: 'none',
-                                    background: authMode === mode ? 'linear-gradient(135deg,#8b5cf6,#ec4899)' : 'transparent',
-                                    color: '#fff', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer', fontFamily: 'inherit'
+                                    background: authMode === mode ? '#18181b' : 'transparent',
+                                    color: authMode === mode ? '#ffffff' : '#52525b', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer', fontFamily: 'inherit'
                                 }}>
                                     {mode === 'login' ? 'Sign In' : 'New Customer'}
                                 </button>
@@ -635,7 +635,7 @@ export default function LandingPage() {
                         </div>
 
                         {authError && (
-                            <div style={{ padding: '0.7rem', background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.35)', borderRadius: '8px', color: '#f87171', fontSize: '0.8rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <div style={{ padding: '0.7rem', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', color: '#991b1b', fontSize: '0.8rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                 <Lock size={13} />{authError}
                             </div>
                         )}
@@ -645,46 +645,46 @@ export default function LandingPage() {
                                 <>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.65rem', marginBottom: '0.75rem' }}>
                                         <div>
-                                            <label style={{ color: '#94a3b8', fontSize: '0.72rem', display: 'block', marginBottom: '0.3rem' }}>First Name</label>
-                                            <input type="text" placeholder="Priya" value={firstName} onChange={e => setFirstName(e.target.value)} required />
+                                            <label style={{ color: '#52525b', fontSize: '0.72rem', display: 'block', marginBottom: '0.3rem' }}>First Name</label>
+                                            <input type="text" placeholder="Priya" value={firstName} onChange={e => setFirstName(e.target.value)} required style={{ background: '#f8fafc', borderColor: '#e2e8f0', color: '#18181b' }} />
                                         </div>
                                         <div>
-                                            <label style={{ color: '#94a3b8', fontSize: '0.72rem', display: 'block', marginBottom: '0.3rem' }}>Last Name</label>
-                                            <input type="text" placeholder="Patel" value={lastName} onChange={e => setLastName(e.target.value)} />
+                                            <label style={{ color: '#52525b', fontSize: '0.72rem', display: 'block', marginBottom: '0.3rem' }}>Last Name</label>
+                                            <input type="text" placeholder="Patel" value={lastName} onChange={e => setLastName(e.target.value)} style={{ background: '#f8fafc', borderColor: '#e2e8f0', color: '#18181b' }} />
                                         </div>
                                     </div>
                                     <div style={{ marginBottom: '0.75rem' }}>
-                                        <label style={{ color: '#94a3b8', fontSize: '0.72rem', display: 'block', marginBottom: '0.3rem' }}>Phone / WhatsApp</label>
-                                        <input type="tel" placeholder="+91 98765 43210" value={phone} onChange={e => setPhone(e.target.value)} />
+                                        <label style={{ color: '#52525b', fontSize: '0.72rem', display: 'block', marginBottom: '0.3rem' }}>Phone / WhatsApp</label>
+                                        <input type="tel" placeholder="+91 98765 43210" value={phone} onChange={e => setPhone(e.target.value)} style={{ background: '#f8fafc', borderColor: '#e2e8f0', color: '#18181b' }} />
                                     </div>
                                 </>
                             )}
                             <div style={{ marginBottom: '0.75rem' }}>
-                                <label style={{ color: '#94a3b8', fontSize: '0.72rem', display: 'block', marginBottom: '0.3rem' }}>Email Address</label>
-                                <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="name@gmail.com" required />
+                                <label style={{ color: '#52525b', fontSize: '0.72rem', display: 'block', marginBottom: '0.3rem' }}>Email Address</label>
+                                <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="name@gmail.com" required style={{ background: '#f8fafc', borderColor: '#e2e8f0', color: '#18181b' }} />
                             </div>
                             <div style={{ marginBottom: '1.25rem' }}>
-                                <label style={{ color: '#94a3b8', fontSize: '0.72rem', display: 'block', marginBottom: '0.3rem' }}>Password</label>
+                                <label style={{ color: '#52525b', fontSize: '0.72rem', display: 'block', marginBottom: '0.3rem' }}>Password</label>
                                 <div style={{ position: 'relative' }}>
-                                    <input type={showPassword ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required style={{ paddingRight: 44 }} />
-                                    <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#64748b', cursor: 'pointer' }}>
+                                    <input type={showPassword ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required style={{ paddingRight: 44, background: '#f8fafc', borderColor: '#e2e8f0', color: '#18181b' }} />
+                                    <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#71717a', cursor: 'pointer' }}>
                                         {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                                     </button>
                                 </div>
                             </div>
-                            <button type="submit" className="btn btn-primary" disabled={authLoading} style={{ width: '100%', padding: '0.85rem', fontSize: '0.9rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                            <button type="submit" className="btn btn-primary" disabled={authLoading} style={{ width: '100%', padding: '0.85rem', fontSize: '0.9rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', background: '#18181b', color: '#ffffff' }}>
                                 {authLoading ? <><Loader2 size={16} className="animate-spin" /><span>Authenticating…</span></> : (authMode === 'login' ? 'Sign In to Portal' : 'Create My Account')}
                             </button>
                         </form>
 
                         {authMode === 'login' && (
-                            <div style={{ padding: '0.7rem', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.07)' }}>
-                                <p style={{ fontSize: '0.72rem', color: '#94a3b8', marginBottom: '0.4rem', fontWeight: 600 }}>1-Click Demo Accounts:</p>
+                            <div style={{ padding: '0.75rem', background: '#fafaf9', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+                                <p style={{ fontSize: '0.72rem', color: '#71717a', marginBottom: '0.4rem', fontWeight: 600 }}>1-Click Demo Accounts:</p>
                                 <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                    <button type="button" onClick={() => handleQuickRole('admin')} style={{ flex: 1, padding: '0.35rem', borderRadius: '6px', background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.35)', color: '#c084fc', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+                                    <button type="button" onClick={() => handleQuickRole('admin')} style={{ flex: 1, padding: '0.4rem', borderRadius: '6px', background: '#fef3c7', border: '1px solid #fde68a', color: '#92400e', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
                                         👑 Studio Owner
                                     </button>
-                                    <button type="button" onClick={() => handleQuickRole('customer')} style={{ flex: 1, padding: '0.35rem', borderRadius: '6px', background: 'rgba(6,182,212,0.15)', border: '1px solid rgba(6,182,212,0.35)', color: '#22d3ee', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+                                    <button type="button" onClick={() => handleQuickRole('customer')} style={{ flex: 1, padding: '0.4rem', borderRadius: '6px', background: '#f4f4f5', border: '1px solid #e4e4e7', color: '#18181b', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
                                         👤 Client / Customer
                                     </button>
                                 </div>

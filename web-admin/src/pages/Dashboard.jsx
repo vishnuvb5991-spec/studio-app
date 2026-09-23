@@ -77,8 +77,8 @@ function Dashboard() {
             title: 'Gross Revenue',
             value: `₹${(stats?.total_revenue || 238500).toLocaleString()}`,
             icon: CreditCard,
-            gradient: 'var(--grad-sunset)',
-            glow: 'var(--accent-amber-glow)',
+            gradient: 'linear-gradient(135deg, #d97706 0%, #b45309 100%)',
+            glow: 'rgba(217, 119, 6, 0.25)',
             badge: '+28.4%',
             subtext: 'vs last week'
         },
@@ -86,8 +86,8 @@ function Dashboard() {
             title: 'Total Bookings',
             value: stats?.total_bookings || 42,
             icon: Calendar,
-            gradient: 'var(--grad-cyan-blue)',
-            glow: 'var(--accent-cyan-glow)',
+            gradient: 'linear-gradient(135deg, #18181b 0%, #3f3f46 100%)',
+            glow: 'rgba(24, 24, 27, 0.25)',
             badge: '+14%',
             subtext: '9 confirmed today'
         },
@@ -95,8 +95,8 @@ function Dashboard() {
             title: 'Albums Delivered',
             value: 86,
             icon: Image,
-            gradient: 'var(--grad-primary)',
-            glow: 'var(--primary-glow)',
+            gradient: 'linear-gradient(135deg, #059669 0%, #0d9488 100%)',
+            glow: 'rgba(5, 150, 105, 0.25)',
             badge: '4.9★',
             subtext: '12 pending review'
         },
@@ -104,8 +104,8 @@ function Dashboard() {
             title: 'Active Customers',
             value: 218,
             icon: Users,
-            gradient: 'var(--grad-emerald-teal)',
-            glow: 'var(--accent-emerald-glow)',
+            gradient: 'linear-gradient(135deg, #7d4f5b 0%, #5a343e 100%)',
+            glow: 'rgba(125, 79, 91, 0.25)',
             badge: '+18 new',
             subtext: 'High retention'
         },
@@ -124,8 +124,8 @@ function Dashboard() {
             }}>
                 <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
-                        <h1 className="gradient-text">Studio Command Center</h1>
-                        <Sparkles size={20} color="#ec4899" />
+                        <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '2rem', fontWeight: 600, color: '#18181b' }}>Studio Command Center</h1>
+                        <Sparkles size={20} color="#d97706" />
                     </div>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
                         Real-time overview of photography shoots, client galleries & revenue.
@@ -170,7 +170,7 @@ function Dashboard() {
                             background: stat.gradient,
                             borderRadius: '50%',
                             filter: 'blur(35px)',
-                            opacity: 0.4
+                            opacity: 0.15
                         }} />
 
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
@@ -195,11 +195,11 @@ function Dashboard() {
                                 fontWeight: 700,
                                 padding: '0.25rem 0.6rem',
                                 borderRadius: 'var(--radius-full)',
-                                background: 'rgba(255, 255, 255, 0.08)',
-                                color: '#ffffff',
-                                border: '1px solid rgba(255, 255, 255, 0.12)'
+                                background: '#f4f4f5',
+                                color: '#18181b',
+                                border: '1px solid #e4e4e7'
                             }}>
-                                <TrendingUp size={12} color="#34d399" />
+                                <TrendingUp size={12} color="#059669" />
                                 {stat.badge}
                             </span>
                         </div>
@@ -239,7 +239,7 @@ function Dashboard() {
                         <div>
                             <h3 style={{ marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                 Weekly Revenue Velocity
-                                <Activity size={18} color="var(--accent-pink)" />
+                                <Activity size={18} color="#d97706" />
                             </h3>
                             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
                                 Peak income generated during weekend wedding shoots
@@ -252,14 +252,14 @@ function Dashboard() {
                         <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                             <defs>
                                 <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#ec4899" stopOpacity={0.4} />
-                                    <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.0} />
+                                    <stop offset="5%" stopColor="#d97706" stopOpacity={0.3} />
+                                    <stop offset="95%" stopColor="#d97706" stopOpacity={0.0} />
                                 </linearGradient>
                             </defs>
-                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12, fontWeight: 600 }} />
-                            <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
-                            <Tooltip contentStyle={{ background: 'rgba(15, 17, 35, 0.95)', border: '1px solid rgba(139, 92, 246, 0.4)', borderRadius: '12px', color: '#ffffff' }} />
-                            <Area type="monotone" dataKey="revenue" stroke="#ec4899" strokeWidth={3} fillOpacity={1} fill="url(#colorRev)" />
+                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#71717a', fontSize: 12, fontWeight: 600 }} />
+                            <YAxis axisLine={false} tickLine={false} tick={{ fill: '#a1a1aa', fontSize: 12 }} />
+                            <Tooltip contentStyle={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', color: '#18181b', boxShadow: '0 4px 16px rgba(0,0,0,0.08)' }} />
+                            <Area type="monotone" dataKey="revenue" stroke="#d97706" strokeWidth={3} fillOpacity={1} fill="url(#colorRev)" />
                         </AreaChart>
                     </ResponsiveContainer>
                 </div>
@@ -273,12 +273,12 @@ function Dashboard() {
                     </div>
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                        <PipelineProgress label="Pending Confirmation" count={stats?.pending_bookings || 7} color="#f59e0b" percent="25%" />
-                        <PipelineProgress label="Confirmed & In Production" count={stats?.confirmed_bookings || 19} color="#06b6d4" percent="60%" />
-                        <PipelineProgress label="Completed & Delivered" count={stats?.completed_bookings || 16} color="#10b981" percent="90%" />
+                        <PipelineProgress label="Pending Confirmation" count={stats?.pending_bookings || 7} color="#d97706" percent="25%" />
+                        <PipelineProgress label="Confirmed & In Production" count={stats?.confirmed_bookings || 19} color="#18181b" percent="60%" />
+                        <PipelineProgress label="Completed & Delivered" count={stats?.completed_bookings || 16} color="#059669" percent="90%" />
                     </div>
 
-                    <a href="/bookings" style={{ marginTop: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 1rem', background: 'rgba(255, 255, 255, 0.04)', borderRadius: 'var(--radius-md)', fontSize: '0.85rem', fontWeight: 600, color: 'var(--primary-light)' }}>
+                    <a href="/bookings" style={{ marginTop: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 1rem', background: '#fafaf9', border: '1px solid #e5e7eb', borderRadius: 'var(--radius-md)', fontSize: '0.85rem', fontWeight: 600, color: '#d97706', textDecoration: 'none' }}>
                         <span>Open Schedule Matrix</span>
                         <ArrowUpRight size={16} />
                     </a>
@@ -446,22 +446,22 @@ function CustomerPortalView({ user, isOwnerPreview }) {
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     padding: '0.85rem 1.25rem',
-                    background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(139, 92, 246, 0.15))',
-                    border: '1px solid rgba(6, 182, 212, 0.4)',
+                    background: '#fef3c7',
+                    border: '1px solid #fde68a',
                     borderRadius: 'var(--radius-md)',
                     marginBottom: '1.5rem'
                 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                        <Crown size={18} color="#ec4899" />
+                        <Crown size={18} color="#d97706" />
                         <div>
-                            <span style={{ fontWeight: 800, fontSize: '0.85rem', color: '#ffffff' }}>Studio Owner Customer Preview: </span>
-                            <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>You are currently viewing the platform as your clients experience it.</span>
+                            <span style={{ fontWeight: 800, fontSize: '0.85rem', color: '#92400e' }}>Studio Owner Customer Preview: </span>
+                            <span style={{ fontSize: '0.8rem', color: '#78350f' }}>You are currently viewing the platform as your clients experience it.</span>
                         </div>
                     </div>
                     <button
                         onClick={toggleViewMode}
                         className="btn btn-secondary"
-                        style={{ padding: '0.4rem 0.85rem', fontSize: '0.75rem', fontWeight: 700 }}
+                        style={{ padding: '0.4rem 0.85rem', fontSize: '0.75rem', fontWeight: 700, background: '#ffffff', borderColor: '#fde68a', color: '#92400e' }}
                     >
                         Back to Command Center →
                     </button>
@@ -472,39 +472,41 @@ function CustomerPortalView({ user, isOwnerPreview }) {
             <div className="card" style={{
                 padding: '2.5rem',
                 marginBottom: '2rem',
-                background: 'linear-gradient(135deg, rgba(30, 35, 71, 0.8), rgba(15, 17, 35, 0.95))',
-                border: '1px solid var(--border-highlight)',
+                background: '#18181b',
+                color: '#ffffff',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                boxShadow: '0 16px 40px rgba(0, 0, 0, 0.12)',
                 position: 'relative',
                 overflow: 'hidden'
             }}>
                 <div style={{
                     position: 'absolute', top: -50, right: -50,
                     width: 200, height: 200,
-                    background: 'var(--grad-primary)',
+                    background: 'linear-gradient(135deg, #d97706, #b45309)',
                     borderRadius: '50%',
-                    filter: 'blur(80px)', opacity: 0.3
+                    filter: 'blur(80px)', opacity: 0.25
                 }} />
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem', position: 'relative', zIndex: 1 }}>
                     <div>
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', padding: '0.35rem 0.85rem', borderRadius: 'var(--radius-full)', background: 'rgba(6, 182, 212, 0.15)', border: '1px solid rgba(6, 182, 212, 0.35)', color: '#22d3ee', fontSize: '0.75rem', fontWeight: 800, marginBottom: '0.75rem' }}>
-                            <Sparkles size={13} /> CLIENT PORTAL & GALLERY ACCESS
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', padding: '0.35rem 0.85rem', borderRadius: 'var(--radius-full)', background: '#fef3c7', border: '1px solid #fde68a', color: '#92400e', fontSize: '0.75rem', fontWeight: 800, marginBottom: '0.75rem' }}>
+                            <Sparkles size={13} /> CLIENT PORTAL &amp; GALLERY ACCESS
                         </div>
-                        <h1 style={{ fontSize: '2.1rem', marginBottom: '0.5rem' }}>
-                            Welcome, <span className="gradient-text">{user?.first_name || 'Valued Client'}</span>!
+                        <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '2.2rem', marginBottom: '0.5rem', color: '#ffffff' }}>
+                            Welcome, <span style={{ color: '#fde68a' }}>{user?.first_name || 'Valued Client'}</span>!
                         </h1>
-                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', maxWidth: 600 }}>
+                        <p style={{ color: '#a1a1aa', fontSize: '0.95rem', maxWidth: 600 }}>
                             Browse your Ultra-HD event galleries, download high-res photos, track wedding dates, or request AI restorations right here.
                         </p>
                     </div>
                     <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                         <button
                             className="btn btn-primary"
-                            style={{ padding: '0.85rem 1.4rem' }}
+                            style={{ padding: '0.85rem 1.4rem', background: 'linear-gradient(135deg, #d97706 0%, #b45309 100%)', color: '#ffffff' }}
                             onClick={() => setShowBookingModal(true)}
                         >
                             <Plus size={17} /> Book a New Shoot
                         </button>
-                        <a href="/albums" className="btn btn-secondary" style={{ padding: '0.85rem 1.4rem' }}>
+                        <a href="/albums" className="btn btn-secondary" style={{ padding: '0.85rem 1.4rem', background: 'rgba(255,255,255,0.08)', color: '#ffffff', borderColor: 'rgba(255,255,255,0.2)' }}>
                             <Image size={17} /> View My Photos
                         </a>
                     </div>
@@ -515,8 +517,8 @@ function CustomerPortalView({ user, isOwnerPreview }) {
             <div className="card" style={{ padding: '1.75rem', marginBottom: '2rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.75rem' }}>
                     <div>
-                        <h3 style={{ marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <IndianRupee size={20} color="#ec4899" /> My Payments & Invoices
+                        <h3 style={{ marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#18181b' }}>
+                            <IndianRupee size={20} color="#d97706" /> My Payments &amp; Invoices
                         </h3>
                         <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
                             Pay outstanding shoot balances securely via Razorpay
@@ -534,20 +536,20 @@ function CustomerPortalView({ user, isOwnerPreview }) {
                                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                                 flexWrap: 'wrap', gap: '0.75rem',
                                 padding: '1rem 1.25rem',
-                                background: isPaid ? 'rgba(16, 185, 129, 0.06)' : 'rgba(255, 255, 255, 0.04)',
-                                border: `1px solid ${isPaid ? 'rgba(16, 185, 129, 0.3)' : 'rgba(255, 255, 255, 0.08)'}`,
+                                background: isPaid ? '#ecfdf5' : '#fafaf9',
+                                border: `1px solid ${isPaid ? '#a7f3d0' : '#e5e7eb'}`,
                                 borderRadius: 'var(--radius-md)',
                             }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
                                     <div style={{
                                         width: 40, height: 40, borderRadius: 'var(--radius-md)',
-                                        background: isPaid ? 'rgba(16, 185, 129, 0.2)' : 'rgba(236, 72, 153, 0.15)',
+                                        background: isPaid ? '#d1fae5' : '#fef3c7',
                                         display: 'flex', alignItems: 'center', justifyContent: 'center'
                                     }}>
-                                        {isPaid ? <CheckCircle2 size={20} color="#10b981" /> : <FileText size={20} color="#ec4899" />}
+                                        {isPaid ? <CheckCircle2 size={20} color="#059669" /> : <FileText size={20} color="#d97706" />}
                                     </div>
                                     <div>
-                                        <p style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-pure)', marginBottom: '0.15rem' }}>
+                                        <p style={{ fontWeight: 700, fontSize: '0.9rem', color: '#18181b', marginBottom: '0.15rem' }}>
                                             {inv.event_name}
                                         </p>
                                         <p style={{ fontSize: '0.76rem', color: 'var(--text-secondary)' }}>
@@ -557,17 +559,17 @@ function CustomerPortalView({ user, isOwnerPreview }) {
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flexWrap: 'wrap' }}>
                                     <div style={{ textAlign: 'right' }}>
-                                        <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                                        <p style={{ fontSize: '0.75rem', color: '#71717a' }}>
                                             Total: ₹{Number(inv.amount).toLocaleString()}
                                         </p>
-                                        <p style={{ fontWeight: 800, fontSize: '1rem', color: isPaid ? '#10b981' : '#f59e0b' }}>
+                                        <p style={{ fontWeight: 800, fontSize: '1rem', color: isPaid ? '#059669' : '#d97706' }}>
                                             {isPaid ? '✓ Paid' : `Due: ₹${outstanding.toLocaleString()}`}
                                         </p>
                                     </div>
                                     {!isPaid && (
                                         <button
                                             className="btn btn-primary"
-                                            style={{ padding: '0.55rem 1.1rem', fontSize: '0.825rem', fontWeight: 700 }}
+                                            style={{ padding: '0.55rem 1.1rem', fontSize: '0.825rem', fontWeight: 700, background: '#18181b', color: '#ffffff' }}
                                             disabled={payingId === inv.id}
                                             onClick={() => handlePayNow(inv)}
                                         >
@@ -593,42 +595,42 @@ function CustomerPortalView({ user, isOwnerPreview }) {
                     style={{ cursor: 'pointer', display: 'flex', gap: '1.25rem', alignItems: 'center' }}
                     onClick={() => setShowBookingModal(true)}
                 >
-                    <div style={{ width: 54, height: 54, borderRadius: 'var(--radius-md)', background: 'var(--grad-emerald-teal)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 20px var(--accent-emerald-glow)' }}>
+                    <div style={{ width: 54, height: 54, borderRadius: 'var(--radius-md)', background: 'linear-gradient(135deg, #059669 0%, #0d9488 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 14px rgba(5,150,105,0.2)' }}>
                         <Plus size={26} color="#ffffff" />
                     </div>
                     <div>
-                        <h3 style={{ fontSize: '1.1rem', marginBottom: '0.2rem', color: 'var(--text-pure)' }}>Book a New Shoot</h3>
+                        <h3 style={{ fontSize: '1.05rem', marginBottom: '0.2rem', color: '#18181b' }}>Book a New Shoot</h3>
                         <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Request wedding, birthday, or portrait session</p>
                     </div>
                 </div>
 
                 <a href="/albums" className="card card-interactive" style={{ textDecoration: 'none', display: 'flex', gap: '1.25rem', alignItems: 'center' }}>
-                    <div style={{ width: 54, height: 54, borderRadius: 'var(--radius-md)', background: 'var(--grad-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 20px var(--primary-glow)' }}>
+                    <div style={{ width: 54, height: 54, borderRadius: 'var(--radius-md)', background: 'linear-gradient(135deg, #18181b 0%, #3f3f46 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 14px rgba(24,24,27,0.2)' }}>
                         <Image size={26} color="#ffffff" />
                     </div>
                     <div>
-                        <h3 style={{ fontSize: '1.1rem', marginBottom: '0.2rem', color: 'var(--text-pure)' }}>Photo Albums</h3>
-                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>View, favorite & download original quality</p>
+                        <h3 style={{ fontSize: '1.05rem', marginBottom: '0.2rem', color: '#18181b' }}>Photo Albums</h3>
+                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>View, favorite &amp; download original quality</p>
                     </div>
                 </a>
 
                 <a href="/bookings" className="card card-interactive" style={{ textDecoration: 'none', display: 'flex', gap: '1.25rem', alignItems: 'center' }}>
-                    <div style={{ width: 54, height: 54, borderRadius: 'var(--radius-md)', background: 'var(--grad-cyan-blue)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 20px var(--accent-cyan-glow)' }}>
+                    <div style={{ width: 54, height: 54, borderRadius: 'var(--radius-md)', background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 14px rgba(2,132,199,0.2)' }}>
                         <Calendar size={26} color="#ffffff" />
                     </div>
                     <div>
-                        <h3 style={{ fontSize: '1.1rem', marginBottom: '0.2rem', color: 'var(--text-pure)' }}>My Bookings</h3>
-                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Check shoot schedule & venue details</p>
+                        <h3 style={{ fontSize: '1.05rem', marginBottom: '0.2rem', color: '#18181b' }}>My Bookings</h3>
+                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Check shoot schedule &amp; venue details</p>
                     </div>
                 </a>
 
                 <a href="/restorations" className="card card-interactive" style={{ textDecoration: 'none', display: 'flex', gap: '1.25rem', alignItems: 'center' }}>
-                    <div style={{ width: 54, height: 54, borderRadius: 'var(--radius-md)', background: 'var(--grad-sunset)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 20px var(--accent-amber-glow)' }}>
+                    <div style={{ width: 54, height: 54, borderRadius: 'var(--radius-md)', background: 'linear-gradient(135deg, #d97706 0%, #b45309 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 14px rgba(217,119,6,0.2)' }}>
                         <Wand2 size={26} color="#ffffff" />
                     </div>
                     <div>
-                        <h3 style={{ fontSize: '1.1rem', marginBottom: '0.2rem', color: 'var(--text-pure)' }}>Restore Old Photos</h3>
-                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Upload torn/black & white photos for AI repair</p>
+                        <h3 style={{ fontSize: '1.05rem', marginBottom: '0.2rem', color: '#18181b' }}>Restore Old Photos</h3>
+                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Upload torn/black &amp; white photos for AI repair</p>
                     </div>
                 </a>
             </div>
@@ -636,23 +638,24 @@ function CustomerPortalView({ user, isOwnerPreview }) {
             {/* Mobile App Synergy Card */}
             <div className="card" style={{
                 padding: '2rem',
-                background: 'rgba(20, 24, 48, 0.65)',
+                background: '#fafaf9',
+                border: '1px solid #e5e7eb',
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                 flexWrap: 'wrap', gap: '1.5rem'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-                    <div style={{ width: 52, height: 52, borderRadius: 'var(--radius-md)', background: 'rgba(6, 182, 212, 0.15)', border: '1px solid rgba(6, 182, 212, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Smartphone size={28} color="#22d3ee" />
+                    <div style={{ width: 52, height: 52, borderRadius: 'var(--radius-md)', background: '#fef3c7', border: '1px solid #fde68a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Smartphone size={28} color="#d97706" />
                     </div>
                     <div>
-                        <h3 style={{ fontSize: '1.15rem', marginBottom: '0.25rem' }}>Prefer using your Phone?</h3>
+                        <h3 style={{ fontSize: '1.15rem', marginBottom: '0.25rem', color: '#18181b' }}>Prefer using your Phone?</h3>
                         <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
                             Install the Preetha Studio mobile app on Android or iOS. Log in with your same email (<strong>{user?.email}</strong>) to sync your photos instantly!
                         </p>
                     </div>
                 </div>
                 <div style={{ display: 'flex', gap: '0.75rem' }}>
-                    <button className="btn btn-secondary" onClick={() => alert('Download link sent to registered email & phone!')}>
+                    <button className="btn btn-secondary" onClick={() => alert('Download link sent to registered email & phone!')} style={{ background: '#ffffff', borderColor: '#e5e7eb', color: '#18181b' }}>
                         <Download size={16} /> Get Mobile App Link
                     </button>
                 </div>
@@ -668,21 +671,22 @@ function CustomerPortalView({ user, isOwnerPreview }) {
                 }}>
                     <div className="card" style={{
                         width: '100%', maxWidth: 520, padding: '2rem',
-                        position: 'relative', border: '1px solid var(--border-highlight)',
+                        position: 'relative', background: '#ffffff', border: '1px solid #e5e7eb',
+                        boxShadow: '0 20px 45px rgba(0,0,0,0.15)',
                         maxHeight: '90vh', overflowY: 'auto'
                     }}>
                         <button
                             onClick={() => { setShowBookingModal(false); setBookingSuccess(false); }}
-                            style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}
+                            style={{ position: 'absolute', top: '1rem', right: '1rem', background: '#f4f4f5', border: 'none', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#71717a' }}
                         >
-                            <X size={22} />
+                            <X size={18} />
                         </button>
 
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.4rem' }}>
-                            <div style={{ width: 40, height: 40, borderRadius: 'var(--radius-md)', background: 'var(--grad-emerald-teal)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <div style={{ width: 40, height: 40, borderRadius: 'var(--radius-md)', background: 'linear-gradient(135deg, #059669 0%, #0d9488 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                 <Calendar size={20} color="#fff" />
                             </div>
-                            <h3>Book a New Shoot</h3>
+                            <h3 style={{ color: '#18181b', fontFamily: "'Playfair Display', Georgia, serif", fontSize: '1.4rem' }}>Book a New Shoot</h3>
                         </div>
                         <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
                             Fill in the details and the studio will confirm your booking shortly.
@@ -691,19 +695,19 @@ function CustomerPortalView({ user, isOwnerPreview }) {
                         {bookingSuccess ? (
                             <div style={{
                                 textAlign: 'center', padding: '2rem',
-                                background: 'rgba(16, 185, 129, 0.1)', borderRadius: 'var(--radius-md)',
-                                border: '1px solid rgba(16, 185, 129, 0.35)'
+                                background: '#ecfdf5', borderRadius: 'var(--radius-md)',
+                                border: '1px solid #a7f3d0'
                             }}>
-                                <CheckCircle2 size={48} color="#10b981" style={{ marginBottom: '0.75rem' }} />
-                                <h3 style={{ color: '#10b981', marginBottom: '0.5rem' }}>Booking Request Sent!</h3>
-                                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                <CheckCircle2 size={48} color="#059669" style={{ marginBottom: '0.75rem' }} />
+                                <h3 style={{ color: '#059669', marginBottom: '0.5rem' }}>Booking Request Sent!</h3>
+                                <p style={{ fontSize: '0.85rem', color: '#065f46' }}>
                                     The studio will review your request and call/WhatsApp you to confirm within 24 hours.
                                 </p>
                             </div>
                         ) : (
                             <form onSubmit={handleBookingSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                                 <div>
-                                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.4rem', color: 'var(--text-secondary)' }}>
+                                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.4rem', color: '#52525b' }}>
                                         Event Type *
                                     </label>
                                     <select
@@ -713,26 +717,26 @@ function CustomerPortalView({ user, isOwnerPreview }) {
                                         required
                                         style={{
                                             width: '100%', padding: '0.65rem 0.9rem',
-                                            background: 'rgba(255,255,255,0.05)',
-                                            border: '1px solid rgba(255,255,255,0.12)',
+                                            background: '#f8fafc',
+                                            border: '1px solid #e2e8f0',
                                             borderRadius: 'var(--radius-md)',
-                                            color: 'var(--text-pure)', fontSize: '0.875rem'
+                                            color: '#18181b', fontSize: '0.875rem'
                                         }}
                                     >
-                                        <option value="" disabled style={{ background: '#1a1f3e' }}>Select event type...</option>
-                                        <option value="Wedding Photography" style={{ background: '#1a1f3e' }}>💒 Wedding Photography</option>
-                                        <option value="Pre-Wedding Shoot" style={{ background: '#1a1f3e' }}>💑 Pre-Wedding Shoot</option>
-                                        <option value="Birthday Portraits" style={{ background: '#1a1f3e' }}>🎂 Birthday Portraits</option>
-                                        <option value="Maternity Shoot" style={{ background: '#1a1f3e' }}>🤰 Maternity Shoot</option>
-                                        <option value="Baby/Newborn Photography" style={{ background: '#1a1f3e' }}>👶 Baby / Newborn Photography</option>
-                                        <option value="Corporate Event" style={{ background: '#1a1f3e' }}>🏢 Corporate Event</option>
-                                        <option value="Product Photography" style={{ background: '#1a1f3e' }}>📦 Product Photography</option>
-                                        <option value="Other" style={{ background: '#1a1f3e' }}>✨ Other</option>
+                                        <option value="" disabled>Select event type...</option>
+                                        <option value="Wedding Photography">💒 Wedding Photography</option>
+                                        <option value="Pre-Wedding Shoot">💑 Pre-Wedding Shoot</option>
+                                        <option value="Birthday Portraits">🎂 Birthday Portraits</option>
+                                        <option value="Maternity Shoot">🤰 Maternity Shoot</option>
+                                        <option value="Baby/Newborn Photography">👶 Baby / Newborn Photography</option>
+                                        <option value="Corporate Event">🏢 Corporate Event</option>
+                                        <option value="Product Photography">📦 Product Photography</option>
+                                        <option value="Other">✨ Other</option>
                                     </select>
                                 </div>
 
                                 <div>
-                                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.4rem', color: 'var(--text-secondary)' }}>
+                                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.4rem', color: '#52525b' }}>
                                         Preferred Date *
                                     </label>
                                     <input
@@ -744,17 +748,16 @@ function CustomerPortalView({ user, isOwnerPreview }) {
                                         min={new Date().toISOString().split('T')[0]}
                                         style={{
                                             width: '100%', padding: '0.65rem 0.9rem',
-                                            background: 'rgba(255,255,255,0.05)',
-                                            border: '1px solid rgba(255,255,255,0.12)',
+                                            background: '#f8fafc',
+                                            border: '1px solid #e2e8f0',
                                             borderRadius: 'var(--radius-md)',
-                                            color: 'var(--text-pure)', fontSize: '0.875rem',
-                                            colorScheme: 'dark'
+                                            color: '#18181b', fontSize: '0.875rem',
                                         }}
                                     />
                                 </div>
 
                                 <div>
-                                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.4rem', color: 'var(--text-secondary)' }}>
+                                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.4rem', color: '#52525b' }}>
                                         Venue / Location
                                     </label>
                                     <input
@@ -765,16 +768,16 @@ function CustomerPortalView({ user, isOwnerPreview }) {
                                         placeholder="e.g. Taj Palace, Hyderabad"
                                         style={{
                                             width: '100%', padding: '0.65rem 0.9rem',
-                                            background: 'rgba(255,255,255,0.05)',
-                                            border: '1px solid rgba(255,255,255,0.12)',
+                                            background: '#f8fafc',
+                                            border: '1px solid #e2e8f0',
                                             borderRadius: 'var(--radius-md)',
-                                            color: 'var(--text-pure)', fontSize: '0.875rem'
+                                            color: '#18181b', fontSize: '0.875rem'
                                         }}
                                     />
                                 </div>
 
                                 <div>
-                                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.4rem', color: 'var(--text-secondary)' }}>
+                                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.4rem', color: '#52525b' }}>
                                         WhatsApp / Phone *
                                     </label>
                                     <input
@@ -786,16 +789,16 @@ function CustomerPortalView({ user, isOwnerPreview }) {
                                         placeholder="+91 98765 43210"
                                         style={{
                                             width: '100%', padding: '0.65rem 0.9rem',
-                                            background: 'rgba(255,255,255,0.05)',
-                                            border: '1px solid rgba(255,255,255,0.12)',
+                                            background: '#f8fafc',
+                                            border: '1px solid #e2e8f0',
                                             borderRadius: 'var(--radius-md)',
-                                            color: 'var(--text-pure)', fontSize: '0.875rem'
+                                            color: '#18181b', fontSize: '0.875rem'
                                         }}
                                     />
                                 </div>
 
                                 <div>
-                                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.4rem', color: 'var(--text-secondary)' }}>
+                                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.4rem', color: '#52525b' }}>
                                         Message / Special Requirements
                                     </label>
                                     <textarea
@@ -806,10 +809,10 @@ function CustomerPortalView({ user, isOwnerPreview }) {
                                         placeholder="e.g. Outdoor morning shoot preferred, need 2 photographers..."
                                         style={{
                                             width: '100%', padding: '0.65rem 0.9rem',
-                                            background: 'rgba(255,255,255,0.05)',
-                                            border: '1px solid rgba(255,255,255,0.12)',
+                                            background: '#f8fafc',
+                                            border: '1px solid #e2e8f0',
                                             borderRadius: 'var(--radius-md)',
-                                            color: 'var(--text-pure)', fontSize: '0.875rem',
+                                            color: '#18181b', fontSize: '0.875rem',
                                             resize: 'vertical', fontFamily: 'inherit'
                                         }}
                                     />
@@ -819,7 +822,7 @@ function CustomerPortalView({ user, isOwnerPreview }) {
                                     type="submit"
                                     className="btn btn-primary"
                                     disabled={bookingSubmitting}
-                                    style={{ padding: '0.85rem', fontSize: '0.9rem', fontWeight: 700, marginTop: '0.5rem' }}
+                                    style={{ padding: '0.85rem', fontSize: '0.9rem', fontWeight: 700, marginTop: '0.5rem', background: '#18181b', color: '#ffffff' }}
                                 >
                                     {bookingSubmitting ? '⏳ Sending Request…' : <><Send size={16} /> Send Booking Request</>}
                                 </button>
