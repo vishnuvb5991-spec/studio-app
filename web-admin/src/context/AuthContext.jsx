@@ -278,11 +278,11 @@ export function AuthProvider({ children }) {
         }
     };
 
-    // Verify Owner Master PIN (default: 5991, 8272, 2026, or custom set by owner)
+    // Verify Owner Master PIN (private owner key: 8272, or custom set by owner)
     const verifyOwnerPin = async (enteredPin, trustDevice = true) => {
         const cleanPin = (enteredPin || '').trim();
-        const storedPin = localStorage.getItem('studio_owner_pin') || '5991';
-        const validPins = [storedPin, '5991', '8272', '2026', 'StudioPro2024!'];
+        const storedPin = localStorage.getItem('studio_owner_pin') || '8272';
+        const validPins = [storedPin, '8272'];
 
         if (validPins.includes(cleanPin)) {
             if (trustDevice) {
@@ -433,7 +433,7 @@ export function AuthProvider({ children }) {
         if (isOwnerEmail) {
             const storedOwnerPass = localStorage.getItem('studio_owner_password') || 'Preetha@2026';
 
-            if (cleanPassword === storedOwnerPass || cleanPassword === 'StudioFX@2026' || cleanPassword === 'PreethaAdmin2026' || cleanPassword === '5991') {
+            if (cleanPassword === storedOwnerPass || cleanPassword === 'StudioFX@2026' || cleanPassword === 'PreethaAdmin2026' || cleanPassword === '8272') {
                 const ownerUser = {
                     id: 'owner-preetha',
                     email: cleanEmail,

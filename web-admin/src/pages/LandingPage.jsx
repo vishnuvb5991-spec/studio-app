@@ -800,7 +800,7 @@ export default function LandingPage() {
                                             }}
                                         />
                                         <p style={{ fontSize: '0.7rem', color: '#71717a', marginTop: '0.35rem', textAlign: 'center' }}>
-                                            Default Owner PIN: <strong>5991</strong> or <strong>8272</strong>
+                                            Private Security Gate • Studio Owner Authorization Only
                                         </p>
                                     </div>
 
@@ -1008,7 +1008,7 @@ export default function LandingPage() {
                                             </button>
                                         </div>
                                         <div style={{ marginTop: '0.45rem', fontSize: '0.67rem', color: '#94a3b8' }}>
-                                            Protected by Owner PIN (5991) on untrusted devices
+                                            Protected by Owner Master PIN on unrecognized devices
                                         </div>
                                     </div>
                                 )}
