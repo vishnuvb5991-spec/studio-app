@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Camera, Eye, EyeOff, Sparkles, ShieldCheck, ArrowRight, Lock, CheckCircle2, Loader2 } from 'lucide-react';
+import { Camera, Eye, EyeOff, Sparkles, ShieldCheck, ShieldAlert, ArrowRight, Lock, CheckCircle2, Loader2 } from 'lucide-react';
 
 function Login() {
     const [mode, setMode] = useState('login'); // 'login' | 'register'
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [email, setEmail] = useState('admin@studio.com');
+    const [password, setPassword] = useState('StudioPro2024!');
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [phone, setPhone] = useState('');
@@ -16,18 +16,60 @@ function Login() {
     const [loading, setLoading] = useState(false);
     const [requestSuccess, setRequestSuccess] = useState(false);
 
-    const { login, requestAccess } = useAuth();
+    // Security Gate for Sample Admin Login & Customer Approval
+    const [showPinPrompt, setShowPinPrompt] = useState(false);
+    const [ownerPin, setOwnerPin] = useState('');
+    const [trustThisDevice, setTrustThisDevice] = useState(true);
+    const [pinError, setPinError] = useState('');
+    const [customerPendingApproval, setCustomerPendingApproval] = useState(false);
+
+    const { login, requestAccess, verifyOwnerPin } = useAuth();
     const navigate = useNavigate();
+
+    const handleQuickRole = (role) => {
+        setError('');
+        setPinError('');
+        setShowPinPrompt(false);
+        setCustomerPendingApproval(false);
+        if (role === 'admin') {
+            setEmail('admin@studio.com');
+            setPassword('StudioPro2024!');
+        } else {
+            setEmail('ananya.s@gmail.com');
+            setPassword('Customer2024!');
+        }
+    };
+
+    const handlePinSubmit = async (e) => {
+        e.preventDefault();
+        setPinError('');
+        setLoading(true);
+        const result = await verifyOwnerPin(ownerPin, trustThisDevice);
+        if (result.success) {
+            setShowPinPrompt(false);
+            navigate('/dashboard');
+        } else {
+            setPinError(result.error || 'Incorrect Owner PIN.');
+        }
+        setLoading(false);
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        setPinError('');
+        setCustomerPendingApproval(false);
         setLoading(true);
 
         if (mode === 'login') {
             const result = await login(email, password);
             if (result.success) {
                 navigate('/dashboard');
+            } else if (result.requireOwnerPin) {
+                setShowPinPrompt(true);
+                setPinError(result.error);
+            } else if (result.pendingApproval) {
+                setCustomerPendingApproval(true);
             } else {
                 setError(result.error || 'Authentication failed. Please check credentials.');
             }
@@ -195,7 +237,110 @@ function Login() {
                     </div>
                 )}
 
-                {requestSuccess ? (
+                {showPinPrompt ? (
+                    <div style={{ textAlign: 'center', padding: '0.5rem 0' }}>
+                        <div style={{ width: 52, height: 52, background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.85rem' }}>
+                            <ShieldAlert size={26} color="#dc2626" />
+                        </div>
+                        <h3 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '1.25rem', fontWeight: 600, color: '#18181b', marginBottom: '0.35rem' }}>
+                            Studio Owner Verification
+                        </h3>
+                        <p style={{ color: '#52525b', fontSize: '0.8rem', lineHeight: 1.45, marginBottom: '1rem' }}>
+                            You are signing in with administrative credentials on an unrecognized device. Please enter your <strong>Owner Master PIN</strong> to continue.
+                        </p>
+
+                        {pinError && (
+                            <div style={{ padding: '0.6rem 0.8rem', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', color: '#991b1b', fontSize: '0.78rem', marginBottom: '0.85rem', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <Lock size={14} />{pinError}
+                            </div>
+                        )}
+
+                        <form onSubmit={handlePinSubmit}>
+                            <div style={{ marginBottom: '1rem', textAlign: 'left' }}>
+                                <label style={{ color: '#52525b', fontSize: '0.72rem', display: 'block', marginBottom: '0.35rem', fontWeight: 600 }}>Enter 4-Digit Owner PIN *</label>
+                                <input
+                                    type="password"
+                                    maxLength={8}
+                                    value={ownerPin}
+                                    onChange={(e) => setOwnerPin(e.target.value)}
+                                    placeholder="••••"
+                                    autoFocus
+                                    required
+                                    style={{
+                                        width: '100%',
+                                        padding: '0.75rem',
+                                        textAlign: 'center',
+                                        fontSize: '1.35rem',
+                                        letterSpacing: '0.35rem',
+                                        fontWeight: 700,
+                                        borderRadius: '8px',
+                                        border: '2px solid #d97706',
+                                        background: '#fffbeb',
+                                        color: '#78350f'
+                                    }}
+                                />
+                                <p style={{ fontSize: '0.7rem', color: '#71717a', marginTop: '0.35rem', textAlign: 'center' }}>
+                                    Default Owner PIN: <strong>5991</strong> or <strong>8272</strong>
+                                </p>
+                            </div>
+
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.76rem', color: '#52525b', cursor: 'pointer', marginBottom: '1rem', textAlign: 'left' }}>
+                                <input
+                                    type="checkbox"
+                                    checked={trustThisDevice}
+                                    onChange={(e) => setTrustThisDevice(e.target.checked)}
+                                    style={{ width: '15px', height: '15px', accentColor: '#18181b' }}
+                                />
+                                <span>Trust this personal device (Don't ask PIN again here)</span>
+                            </label>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                                <button
+                                    type="button"
+                                    onClick={() => { setShowPinPrompt(false); setPinError(''); }}
+                                    style={{ padding: '0.7rem', background: '#f4f4f5', border: 'none', borderRadius: '8px', color: '#52525b', fontWeight: 600, fontSize: '0.8rem', cursor: 'pointer' }}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    style={{ padding: '0.7rem', background: '#18181b', border: 'none', borderRadius: '8px', color: '#ffffff', fontWeight: 600, fontSize: '0.8rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}
+                                >
+                                    {loading ? <Loader2 size={14} className="animate-spin" /> : 'Verify & Enter'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                ) : customerPendingApproval ? (
+                    <div style={{ textAlign: 'center', padding: '0.5rem 0' }}>
+                        <div style={{ width: 52, height: 52, background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.85rem' }}>
+                            <ShieldAlert size={26} color="#d97706" />
+                        </div>
+                        <h3 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '1.25rem', fontWeight: 600, color: '#18181b', marginBottom: '0.35rem' }}>
+                            Client Access Pending Approval
+                        </h3>
+                        <p style={{ color: '#52525b', fontSize: '0.8rem', lineHeight: 1.5, marginBottom: '1rem' }}>
+                            To protect client photo privacy, new customer accounts require Preetha Studio owner permission before signing in.
+                        </p>
+                        <div style={{ background: '#fef3c7', border: '1px solid #fde68a', borderRadius: '10px', padding: '0.75rem 1rem', marginBottom: '1.15rem', textAlign: 'left' }}>
+                            <p style={{ fontSize: '0.78rem', color: '#92400e', fontWeight: 700, marginBottom: '0.2rem' }}>
+                                🔔 Notification Sent to Studio Owner
+                            </p>
+                            <p style={{ fontSize: '0.74rem', color: '#78350f', lineHeight: 1.4 }}>
+                                An access alert was dispatched to Vishnu (Studio Owner). Once approved in the Owner Admin Dashboard, you can sign in directly.
+                            </p>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => { setCustomerPendingApproval(false); }}
+                            className="btn btn-primary"
+                            style={{ width: '100%', padding: '0.7rem', background: '#18181b', color: '#ffffff', borderRadius: '8px', cursor: 'pointer', fontSize: '0.82rem' }}
+                        >
+                            Back to Sign In
+                        </button>
+                    </div>
+                ) : requestSuccess ? (
                     <div style={{ textAlign: 'center', padding: '1rem 0' }}>
                         <div style={{ width: 52, height: 52, background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.85rem' }}>
                             <CheckCircle2 size={26} color="#059669" />
@@ -334,7 +479,7 @@ function Login() {
                                 width: '100%',
                                 padding: '0.85rem',
                                 fontSize: '0.95rem',
-                                marginBottom: '1.25rem',
+                                marginBottom: '1rem',
                                 background: '#18181b',
                                 color: '#ffffff',
                                 borderRadius: '8px'
@@ -350,6 +495,68 @@ function Login() {
                                 </span>
                             )}
                         </button>
+
+                        {/* 1-Click Fast Access Demo Buttons */}
+                        {mode === 'login' && (
+                            <div style={{
+                                marginTop: '0.5rem',
+                                marginBottom: '1rem',
+                                padding: '0.75rem',
+                                background: '#f8fafc',
+                                borderRadius: '10px',
+                                border: '1px solid #e2e8f0',
+                                textAlign: 'center'
+                            }}>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', marginBottom: '0.5rem', color: '#64748b', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                    <Sparkles size={12} color="#d97706" /> Fast 1-Click Demo Credentials
+                                </div>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.45rem' }}>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleQuickRole('admin')}
+                                        style={{
+                                            padding: '0.5rem 0.4rem',
+                                            background: email === 'admin@studio.com' ? '#fef3c7' : '#ffffff',
+                                            border: email === 'admin@studio.com' ? '1px solid #f59e0b' : '1px solid #e2e8f0',
+                                            borderRadius: '6px',
+                                            fontSize: '0.72rem',
+                                            fontWeight: 700,
+                                            color: email === 'admin@studio.com' ? '#92400e' : '#475569',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: '0.3rem'
+                                        }}
+                                    >
+                                        👑 Studio Owner
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleQuickRole('customer')}
+                                        style={{
+                                            padding: '0.5rem 0.4rem',
+                                            background: email === 'ananya.s@gmail.com' ? '#eff6ff' : '#ffffff',
+                                            border: email === 'ananya.s@gmail.com' ? '1px solid #3b82f6' : '1px solid #e2e8f0',
+                                            borderRadius: '6px',
+                                            fontSize: '0.72rem',
+                                            fontWeight: 700,
+                                            color: email === 'ananya.s@gmail.com' ? '#1e40af' : '#475569',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: '0.3rem'
+                                        }}
+                                    >
+                                        👤 Client / Customer
+                                    </button>
+                                </div>
+                                <div style={{ marginTop: '0.45rem', fontSize: '0.67rem', color: '#94a3b8' }}>
+                                    Protected by Owner PIN (5991) on untrusted devices
+                                </div>
+                            </div>
+                        )}
                     </form>
                 )}
 

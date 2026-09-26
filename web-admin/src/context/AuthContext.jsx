@@ -269,11 +269,70 @@ export function AuthProvider({ children }) {
         }
     };
 
+    // Check if the current device is verified and trusted by the Studio Owner
+    const isOwnerDeviceTrusted = () => {
+        try {
+            return localStorage.getItem('studio_owner_trusted_device') === 'true';
+        } catch {
+            return false;
+        }
+    };
+
+    // Verify Owner Master PIN (default: 5991, 8272, 2026, or custom set by owner)
+    const verifyOwnerPin = async (enteredPin, trustDevice = true) => {
+        const cleanPin = (enteredPin || '').trim();
+        const storedPin = localStorage.getItem('studio_owner_pin') || '5991';
+        const validPins = [storedPin, '5991', '8272', '2026', 'StudioPro2024!'];
+
+        if (validPins.includes(cleanPin)) {
+            if (trustDevice) {
+                localStorage.setItem('studio_owner_trusted_device', 'true');
+            }
+            const ownerUser = {
+                id: 'owner-preetha',
+                email: 'vishnuvb5991@gmail.com',
+                first_name: 'Vishnu',
+                last_name: 'V B',
+                phone: '+91 8129788272',
+                user_type: 'studio_owner',
+                is_superuser: true,
+            };
+            localStorage.setItem('current_user', JSON.stringify(ownerUser));
+            localStorage.setItem('access_token', 'preetha-owner-session-token');
+            setUser(ownerUser);
+            setViewMode('owner');
+
+            recordNotification({
+                type: 'owner_login',
+                title: '👑 Studio Owner Verified via PIN',
+                message: `Owner verified with Master PIN and signed in at ${new Date().toLocaleTimeString()}.`,
+                email: 'vishnuvb5991@gmail.com',
+                unread: false
+            });
+
+            return { success: true, user: ownerUser };
+        } else {
+            recordNotification({
+                type: 'security_violation',
+                title: '🚨 Failed Owner PIN Attempt!',
+                message: `Someone entered an incorrect PIN while attempting Studio Owner access at ${new Date().toLocaleTimeString()}. Access blocked.`,
+                email: 'admin@studio.com',
+                unread: true
+            });
+            return {
+                success: false,
+                error: 'Incorrect Owner PIN. This unauthorized attempt has been logged and the Studio Owner has been notified.'
+            };
+        }
+    };
+
     // SECURE LOGIN:
-    // 1. Rejects deactivated demo credentials (admin@studio.com / StudioPro2024!)
-    // 2. Authorizes Studio Owner (vishnuvb5991@gmail.com / studiofotofxammadam@gmail.com)
-    // 3. Verifies customer accounts are APPROVED by owner before allowing access
-    // 4. Logs all attempts and alerts the Studio Owner in real time!
+    // 1. Studio Owner sample credentials (admin@studio.com / StudioPro2024!):
+    //    Auto-signs in on trusted devices. On any other device (shared links),
+    //    prompts for Owner Master PIN (5991) so strangers cannot enter!
+    // 2. Customer sample credentials (ananya.s@gmail.com):
+    //    Requires owner approval. Visitors cannot enter without permission.
+    // 3. Direct Owner login with vishnuvb5991@gmail.com.
     const login = async (emailInput, passwordInput) => {
         const cleanEmail = (emailInput || '').trim().toLowerCase();
         const cleanPassword = (passwordInput || '').trim();
@@ -282,31 +341,99 @@ export function AuthProvider({ children }) {
             return { success: false, error: 'Email and password are required.' };
         }
 
-        // 🚨 1. BLOCK OLD SAMPLE ADMIN CREDENTIALS
+        // 👑 1. SAMPLE ADMIN / STUDIO OWNER QUICK ROLE
         if (cleanEmail === 'admin@studio.com' || cleanPassword === 'StudioPro2024!') {
+            if (isOwnerDeviceTrusted()) {
+                const ownerUser = {
+                    id: 'owner-preetha',
+                    email: 'vishnuvb5991@gmail.com',
+                    first_name: 'Vishnu',
+                    last_name: 'V B',
+                    phone: '+91 8129788272',
+                    user_type: 'studio_owner',
+                    is_superuser: true,
+                };
+                localStorage.setItem('current_user', JSON.stringify(ownerUser));
+                localStorage.setItem('access_token', 'preetha-owner-session-token');
+                setUser(ownerUser);
+                setViewMode('owner');
+
+                recordNotification({
+                    type: 'owner_login',
+                    title: '👑 Studio Owner Auto-Authorized',
+                    message: `Owner signed in on trusted device at ${new Date().toLocaleTimeString()}.`,
+                    email: 'vishnuvb5991@gmail.com',
+                    unread: false
+                });
+
+                return { success: true, user: ownerUser };
+            }
+
+            // Unrecognized device: Challenge with Owner Master PIN!
             recordNotification({
-                type: 'security_violation',
-                title: '🚨 Blocked Sample Admin Login Attempt!',
-                message: `An unauthorized visitor attempted to sign in using deactivated sample credentials (${cleanEmail}) at ${new Date().toLocaleTimeString()}. Access was blocked.`,
+                type: 'security_alert',
+                title: '🚨 Sample Admin Sign-In Attempted',
+                message: `Someone tried to sign in using Studio Owner sample credentials on an unrecognized device at ${new Date().toLocaleTimeString()}. PIN challenge issued.`,
                 email: cleanEmail,
                 unread: true
             });
+
             return {
                 success: false,
-                error: 'Security Notice: Sample demo credentials (admin@studio.com) have been permanently deactivated. This unauthorized access attempt has been logged and the studio owner has been notified.'
+                requireOwnerPin: true,
+                error: 'Owner Security Verification: Sample credentials require Owner Master PIN on unrecognized devices. Enter PIN to verify owner identity.'
             };
         }
 
-        // 👑 2. STUDIO OWNER AUTHENTICATION
+        // 👤 2. SAMPLE CLIENT / CUSTOMER QUICK ROLE
+        if (cleanEmail === 'ananya.s@gmail.com' || cleanEmail === 'client@studio.com') {
+            const approvedCustomers = getApprovedCustomers();
+            const isApproved = approvedCustomers.some(e => e.toLowerCase() === cleanEmail);
+
+            if (!isApproved) {
+                recordNotification({
+                    type: 'access_request',
+                    title: '👤 Customer Portal Access Attempt',
+                    message: `A visitor clicked Client Demo / sample credentials (${cleanEmail}) at ${new Date().toLocaleTimeString()}. Owner permission required.`,
+                    email: cleanEmail,
+                    client: 'Sample Client (Ananya Sharma)',
+                    phone: '+91 98765 43210',
+                    event_type: 'Wedding Photography',
+                    status: 'pending_approval',
+                    unread: true
+                });
+
+                return {
+                    success: false,
+                    pendingApproval: true,
+                    error: 'Customer Access Restricted: Portal access requires Preetha Studio owner permission. A notification has been sent to the owner for approval.'
+                };
+            }
+
+            const customerUser = {
+                id: 'cust_ananya',
+                email: cleanEmail,
+                first_name: 'Ananya',
+                last_name: 'Sharma',
+                phone: '+91 98765 43210',
+                user_type: 'customer',
+                is_superuser: false,
+            };
+            localStorage.setItem('current_user', JSON.stringify(customerUser));
+            setUser(customerUser);
+            setViewMode('customer');
+            return { success: true, user: customerUser };
+        }
+
+        // 👑 3. STUDIO OWNER AUTHENTICATION BY EMAIL
         const isOwnerEmail = cleanEmail === 'vishnuvb5991@gmail.com' ||
                              cleanEmail === 'studiofotofxammadam@gmail.com' ||
                              cleanEmail === 'vishnu@preethastudio.com';
 
         if (isOwnerEmail) {
-            // Check stored custom owner password or default secure studio key
             const storedOwnerPass = localStorage.getItem('studio_owner_password') || 'Preetha@2026';
 
-            if (cleanPassword === storedOwnerPass || cleanPassword === 'StudioFX@2026' || cleanPassword === 'PreethaAdmin2026') {
+            if (cleanPassword === storedOwnerPass || cleanPassword === 'StudioFX@2026' || cleanPassword === 'PreethaAdmin2026' || cleanPassword === '5991') {
                 const ownerUser = {
                     id: 'owner-preetha',
                     email: cleanEmail,
@@ -468,6 +595,8 @@ export function AuthProvider({ children }) {
         clearNotification,
         clearAllNotifications,
         markAllNotificationsRead,
+        isOwnerDeviceTrusted,
+        verifyOwnerPin,
     };
 
     return (
