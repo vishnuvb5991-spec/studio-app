@@ -25,7 +25,11 @@ import {
     IndianRupee,
     FileText,
     Phone,
-    MapPin
+    MapPin,
+    ShieldAlert,
+    UserCheck,
+    Check,
+    Lock
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import api from '../services/api';
@@ -42,18 +46,38 @@ const chartData = [
 ];
 
 function Dashboard() {
-    const { user, isStudioOwner, viewMode } = useAuth();
+    const {
+        user, isStudioOwner, viewMode,
+        getAccessRequests, approveCustomerAccess, rejectCustomerAccess, getNotifications
+    } = useAuth();
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [accessRequests, setAccessRequests] = useState([]);
+    const [securityAlerts, setSecurityAlerts] = useState([]);
 
     const isCustomerView = viewMode === 'customer';
+
+    const loadAccessAndSecurity = () => {
+        if (getAccessRequests) setAccessRequests(getAccessRequests());
+        if (getNotifications) {
+            const list = getNotifications();
+            setSecurityAlerts(list.filter(n => n.type?.includes('security') || n.type?.includes('unapproved') || n.type?.includes('violation')));
+        }
+    };
 
     useEffect(() => {
         if (!isCustomerView) {
             fetchStats();
+            loadAccessAndSecurity();
         } else {
             setLoading(false);
         }
+
+        const handleNotifUpdate = () => {
+            loadAccessAndSecurity();
+        };
+        window.addEventListener('studio_notification_update', handleNotifUpdate);
+        return () => window.removeEventListener('studio_notification_update', handleNotifUpdate);
     }, [isCustomerView]);
 
     const fetchStats = async () => {
@@ -226,6 +250,134 @@ function Dashboard() {
                     </div>
                 ))}
             </div>
+
+            {/* 🛡️ Customer Access Requests & Security Alerts */}
+            {(() => {
+                const pendingRequests = accessRequests.filter(r => r.status === 'pending');
+                return (
+                    <div style={{ marginBottom: '2rem' }}>
+                        {pendingRequests.length > 0 && (
+                            <div className="card" style={{
+                                padding: '1.5rem',
+                                marginBottom: '1.25rem',
+                                border: '1px solid #fde68a',
+                                background: 'linear-gradient(180deg, #fffbeb 0%, #ffffff 100%)',
+                                boxShadow: '0 8px 24px rgba(217, 119, 6, 0.08)'
+                            }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                                        <div style={{ width: 36, height: 36, borderRadius: '10px', background: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d97706' }}>
+                                            <UserCheck size={20} />
+                                        </div>
+                                        <div>
+                                            <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#92400e', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                Pending Customer Access Requests
+                                                <span style={{ background: '#d97706', color: '#fff', fontSize: '0.72rem', padding: '0.15rem 0.55rem', borderRadius: '999px', fontWeight: 800 }}>
+                                                    {pendingRequests.length} Waiting
+                                                </span>
+                                            </h3>
+                                            <p style={{ fontSize: '0.78rem', color: '#78350f', margin: '0.2rem 0 0 0' }}>
+                                                To protect client gallery privacy, customers cannot access the portal without your approval.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '0.85rem' }}>
+                                    {pendingRequests.map((req) => (
+                                        <div key={req.id} style={{
+                                            padding: '1rem 1.15rem',
+                                            background: '#ffffff',
+                                            border: '1px solid #fde68a',
+                                            borderRadius: '12px',
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            justifyContent: 'space-between',
+                                            boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
+                                        }}>
+                                            <div>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.4rem' }}>
+                                                    <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#18181b', margin: 0 }}>
+                                                        {req.firstName} {req.lastName}
+                                                    </h4>
+                                                    <span style={{ fontSize: '0.7rem', color: '#d97706', background: '#fef3c7', padding: '0.1rem 0.45rem', borderRadius: '6px', fontWeight: 700 }}>
+                                                        {req.eventType || 'Client'}
+                                                    </span>
+                                                </div>
+                                                <p style={{ fontSize: '0.76rem', color: '#4b5563', margin: '0 0 0.25rem 0' }}>
+                                                    ✉️ {req.email} &nbsp;|&nbsp; 📞 {req.phone}
+                                                </p>
+                                                {req.message && (
+                                                    <p style={{ fontSize: '0.74rem', color: '#71717a', margin: '0.25rem 0 0.5rem 0', fontStyle: 'italic', background: '#fafaf9', padding: '0.35rem 0.6rem', borderRadius: '6px' }}>
+                                                        "{req.message}"
+                                                    </p>
+                                                )}
+                                                <p style={{ fontSize: '0.68rem', color: '#9ca3af', margin: '0.25rem 0 0.75rem 0' }}>
+                                                    Requested on: {req.requestedAt}
+                                                </p>
+                                            </div>
+
+                                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                                <button
+                                                    onClick={() => {
+                                                        approveCustomerAccess(req.id || req.email);
+                                                        loadAccessAndSecurity();
+                                                    }}
+                                                    className="btn btn-primary"
+                                                    style={{ flex: 1, padding: '0.45rem 0.75rem', fontSize: '0.76rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem', background: '#059669', color: '#ffffff', borderRadius: '8px' }}
+                                                >
+                                                    <Check size={13} /> Approve Access
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        rejectCustomerAccess(req.id || req.email);
+                                                        loadAccessAndSecurity();
+                                                    }}
+                                                    className="btn btn-secondary"
+                                                    style={{ padding: '0.45rem 0.75rem', fontSize: '0.76rem', borderRadius: '8px' }}
+                                                >
+                                                    Decline
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {securityAlerts.length > 0 && (
+                            <div className="card" style={{
+                                padding: '1rem 1.25rem',
+                                border: '1px solid #fecdd3',
+                                background: '#fff1f2',
+                                borderRadius: '12px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                flexWrap: 'wrap',
+                                gap: '0.75rem'
+                            }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                    <div style={{ width: 34, height: 34, borderRadius: '8px', background: '#ffe4e6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#e11d48' }}>
+                                        <ShieldAlert size={18} />
+                                    </div>
+                                    <div>
+                                        <p style={{ fontSize: '0.82rem', fontWeight: 700, color: '#9f1239', margin: 0 }}>
+                                            Security Watchdog: {securityAlerts[0]?.title || 'Access Attempt Logged'}
+                                        </p>
+                                        <p style={{ fontSize: '0.74rem', color: '#881337', margin: '0.15rem 0 0 0' }}>
+                                            {securityAlerts[0]?.message} ({securityAlerts.length} total security events recorded)
+                                        </p>
+                                    </div>
+                                </div>
+                                <span style={{ fontSize: '0.72rem', color: '#9f1239', fontWeight: 600, background: '#ffe4e6', padding: '0.2rem 0.55rem', borderRadius: '999px' }}>
+                                    Protected • Sample logins deactivated
+                                </span>
+                            </div>
+                        )}
+                    </div>
+                );
+            })()}
 
             {/* Visual Analytics & Pipeline */}
             <div className="dashboard-analytics-grid">

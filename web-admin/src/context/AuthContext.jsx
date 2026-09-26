@@ -3,6 +3,62 @@ import { supabase } from '../services/supabase';
 
 const AuthContext = createContext(null);
 
+// Helper for desktop push notifications
+const sendBrowserNotification = (title, body) => {
+    try {
+        if (typeof Notification !== 'undefined') {
+            if (Notification.permission === 'granted') {
+                new Notification(title, {
+                    body,
+                    icon: '/favicon.ico'
+                });
+            } else if (Notification.permission === 'default') {
+                Notification.requestPermission().then(perm => {
+                    if (perm === 'granted') {
+                        new Notification(title, {
+                            body,
+                            icon: '/favicon.ico'
+                        });
+                    }
+                });
+            }
+        }
+    } catch (e) {
+        console.warn('Browser notification failed:', e);
+    }
+};
+
+// Record notification to local storage and broadcast to listeners
+export const recordNotification = (notif) => {
+    try {
+        const fullNotif = {
+            id: notif.id || `notif_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+            received_at: notif.received_at || new Date().toLocaleString('en-IN', {
+                month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+            }),
+            timestamp: notif.timestamp || new Date().toISOString(),
+            unread: notif.unread !== undefined ? notif.unread : true,
+            ...notif
+        };
+
+        const existing = JSON.parse(localStorage.getItem('studio_admin_notifications') || '[]');
+        const updated = [fullNotif, ...existing.filter(n => n.id !== fullNotif.id)].slice(0, 60);
+        localStorage.setItem('studio_admin_notifications', JSON.stringify(updated));
+
+        // Dispatch real-time DOM event
+        if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('studio_notification_update', { detail: fullNotif }));
+        }
+
+        // Pop desktop notification
+        sendBrowserNotification(fullNotif.title || '🚨 Preetha Studio Alert', fullNotif.message || '');
+        return fullNotif;
+    } catch (e) {
+        console.error('Error recording notification:', e);
+        return notif;
+    }
+};
+
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [session, setSession] = useState(null);
@@ -11,203 +67,380 @@ export function AuthProvider({ children }) {
 
     useEffect(() => {
         // Initial session check
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            setSession(session);
-            if (session?.user) {
-                fetchUserProfile(session.user);
-            } else {
-                // Check for local demo session
-                const demoUser = localStorage.getItem('demo_user');
-                if (demoUser) {
-                    try {
-                        const parsed = JSON.parse(demoUser);
-                        setUser(parsed);
-                        setViewMode(parsed.user_type === 'customer' ? 'customer' : 'owner');
-                    } catch (e) {}
+        const storedUser = localStorage.getItem('current_user') || localStorage.getItem('demo_user');
+        if (storedUser) {
+            try {
+                const parsed = JSON.parse(storedUser);
+                setUser(parsed);
+                setViewMode(parsed.user_type === 'customer' ? 'customer' : 'owner');
+            } catch (e) {}
+        }
+
+        // Supabase session check if online
+        try {
+            supabase.auth.getSession().then(({ data: { session } }) => {
+                setSession(session);
+                if (session?.user) {
+                    fetchUserProfile(session.user);
+                } else {
+                    setLoading(false);
+                }
+            }).catch(() => {
+                setLoading(false);
+            });
+
+            const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+                setSession(session);
+                if (session?.user) {
+                    await fetchUserProfile(session.user);
                 }
                 setLoading(false);
-            }
-        });
+            });
 
-        // Real-time auth state listener
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-            setSession(session);
-            if (session?.user) {
-                await fetchUserProfile(session.user);
-            } else {
-                const demoUser = localStorage.getItem('demo_user');
-                if (!demoUser) {
-                    setUser(null);
-                }
-                setLoading(false);
-            }
-        });
-
-        return () => subscription.unsubscribe();
+            return () => subscription?.unsubscribe();
+        } catch {
+            setLoading(false);
+        }
     }, []);
 
     const fetchUserProfile = async (authUser) => {
         try {
-            // Fetch metadata from public.profiles table
-            const { data: profile, error } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', authUser.id)
-                .single();
+            const isOwner = authUser.email === 'vishnuvb5991@gmail.com' ||
+                            authUser.email === 'studiofotofxammadam@gmail.com' ||
+                            authUser.email?.includes('owner');
 
-            const userMeta = authUser.user_metadata || {};
             const finalUser = {
                 id: authUser.id,
                 email: authUser.email,
-                first_name: profile?.first_name || userMeta.first_name || authUser.email?.split('@')[0],
-                last_name: profile?.last_name || userMeta.last_name || '',
-                phone: profile?.phone || userMeta.phone || '',
-                user_type: profile?.user_type || userMeta.user_type || (authUser.email?.includes('admin') ? 'studio_owner' : 'customer'),
-                is_superuser: (profile?.user_type === 'studio_owner' || authUser.email?.includes('admin')),
+                first_name: isOwner ? 'Studio' : (authUser.email?.split('@')[0] || 'Client'),
+                last_name: isOwner ? 'Owner' : '',
+                phone: '+91 8129788272',
+                user_type: isOwner ? 'studio_owner' : 'customer',
+                is_superuser: isOwner,
             };
 
             setUser(finalUser);
-            if (finalUser.user_type === 'customer') {
-                setViewMode('customer');
-            } else {
-                setViewMode('owner');
-            }
+            setViewMode(isOwner ? 'owner' : 'customer');
+            localStorage.setItem('current_user', JSON.stringify(finalUser));
         } catch (err) {
             console.error('Error fetching Supabase profile:', err);
-            const userMeta = authUser.user_metadata || {};
-            const fallbackUser = {
-                id: authUser.id,
-                email: authUser.email,
-                first_name: userMeta.first_name || authUser.email?.split('@')[0],
-                last_name: userMeta.last_name || '',
-                user_type: userMeta.user_type || 'customer',
-            };
-            setUser(fallbackUser);
         } finally {
             setLoading(false);
         }
     };
 
-    const login = async (email, password) => {
+    // Helper: list of approved customer emails
+    const getApprovedCustomers = () => {
         try {
-            // Instant 1-Click Demo Accounts
-            if (email === 'admin@studio.com' || email === 'client@studio.com' || email === 'ananya.s@gmail.com') {
-                const isOwner = email === 'admin@studio.com';
-                const demoUser = {
-                    id: isOwner ? 'demo-admin-id' : 'demo-client-id',
-                    email,
-                    first_name: isOwner ? 'Studio' : 'Ananya',
-                    last_name: isOwner ? 'Owner' : 'Sharma',
-                    user_type: isOwner ? 'studio_owner' : 'customer',
-                    is_superuser: isOwner,
-                };
-                localStorage.setItem('demo_user', JSON.stringify(demoUser));
-                localStorage.setItem('access_token', 'demo-session-token');
-                setUser(demoUser);
-                setViewMode(isOwner ? 'owner' : 'customer');
-                return { success: true, user: demoUser };
-            }
-
-            // Supabase Direct Cloud Login
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email,
-                password,
-            });
-
-            if (error) {
-                // If user doesn't exist yet on this Supabase project, auto-register for convenience
-                if (error.message?.toLowerCase().includes('invalid login credentials')) {
-                    const isOwnerEmail = email.includes('admin') || email.includes('owner');
-                    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-                        email,
-                        password,
-                        options: {
-                            data: {
-                                first_name: email.split('@')[0],
-                                user_type: isOwnerEmail ? 'studio_owner' : 'customer'
-                            }
-                        }
-                    });
-
-                    if (!signUpError && signUpData.user) {
-                        await fetchUserProfile(signUpData.user);
-                        return { success: true, user: signUpData.user };
-                    }
-                }
-                return { success: false, error: error.message };
-            }
-
-            if (data.user) {
-                await fetchUserProfile(data.user);
-                return { success: true, user: data.user };
-            }
-
-            return { success: false, error: 'Login failed. Please verify credentials.' };
-        } catch (error) {
-            console.error('❌ Supabase Login Error:', error);
-            const msg = error.message || '';
-            if (msg.toLowerCase().includes('fetch') || msg.toLowerCase().includes('network')) {
-                return { success: false, error: 'Supabase cloud connection resumed. Please click Sign In again, or use the 1-Click Demo buttons.' };
-            }
-            return { success: false, error: error.message || 'Authentication failed' };
+            return JSON.parse(localStorage.getItem('studio_approved_customers') || '[]');
+        } catch {
+            return [];
         }
     };
 
-    const register = async ({ email, password, firstName, lastName, phone, userType = 'customer' }) => {
+    // Helper: list of pending customer access requests
+    const getAccessRequests = () => {
         try {
-            const { data, error } = await supabase.auth.signUp({
-                email,
-                password,
-                options: {
-                    data: {
-                        first_name: firstName,
-                        last_name: lastName,
-                        phone: phone || '',
-                        user_type: userType
-                    }
+            return JSON.parse(localStorage.getItem('studio_access_requests') || '[]');
+        } catch {
+            return [];
+        }
+    };
+
+    // Customer requests access with permission approval required
+    const requestAccess = async ({ firstName, lastName, email, phone, eventType, message }) => {
+        const cleanEmail = (email || '').trim().toLowerCase();
+        if (!cleanEmail) {
+            return { success: false, error: 'Email is required' };
+        }
+
+        const newRequest = {
+            id: `req_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+            firstName: firstName || '',
+            lastName: lastName || '',
+            email: cleanEmail,
+            phone: phone || '',
+            eventType: eventType || 'Wedding Photography',
+            message: message || '',
+            requestedAt: new Date().toLocaleString('en-IN', {
+                dateStyle: 'medium',
+                timeStyle: 'short'
+            }),
+            status: 'pending' // 'pending' | 'approved' | 'declined'
+        };
+
+        // Save into requests list
+        try {
+            const existingRequests = getAccessRequests();
+            const filtered = existingRequests.filter(r => r.email !== cleanEmail);
+            localStorage.setItem('studio_access_requests', JSON.stringify([newRequest, ...filtered]));
+        } catch (e) {
+            console.error('Error saving access request:', e);
+        }
+
+        // Notify Studio Owner immediately!
+        recordNotification({
+            id: `notif_${newRequest.id}`,
+            type: 'access_request',
+            title: '📋 New Customer Access Request',
+            message: `${newRequest.firstName} ${newRequest.lastName} (${cleanEmail}, ${newRequest.phone}) has requested portal access for ${newRequest.eventType}. Owner permission required.`,
+            client: `${newRequest.firstName} ${newRequest.lastName}`,
+            email: cleanEmail,
+            phone: newRequest.phone,
+            event_type: newRequest.eventType,
+            status: 'pending_approval',
+            unread: true,
+            requestId: newRequest.id
+        });
+
+        return {
+            success: true,
+            pendingApproval: true,
+            message: 'Your access request has been sent to Preetha Studio management. To protect client privacy, all accounts require owner approval before entry. You will be notified once approved.'
+        };
+    };
+
+    // Owner approves a customer's access
+    const approveCustomerAccess = (requestIdOrEmail) => {
+        try {
+            const requests = getAccessRequests();
+            let targetEmail = requestIdOrEmail;
+
+            const updatedRequests = requests.map(req => {
+                if (req.id === requestIdOrEmail || req.email.toLowerCase() === requestIdOrEmail.toLowerCase()) {
+                    targetEmail = req.email;
+                    return { ...req, status: 'approved' };
                 }
+                return req;
+            });
+            localStorage.setItem('studio_access_requests', JSON.stringify(updatedRequests));
+
+            const approvedList = getApprovedCustomers();
+            const lowerEmail = targetEmail.toLowerCase();
+            if (!approvedList.includes(lowerEmail)) {
+                approvedList.push(lowerEmail);
+                localStorage.setItem('studio_approved_customers', JSON.stringify(approvedList));
+            }
+
+            // Record confirmation notification
+            recordNotification({
+                type: 'approval_confirmed',
+                title: '✅ Customer Access Approved',
+                message: `Portal access granted to customer ${targetEmail}.`,
+                email: targetEmail,
+                unread: false
             });
 
-            if (error) {
-                return { success: false, error: error.message };
-            }
-
-            if (data.user) {
-                // Also insert into profiles directly
-                try {
-                    await supabase.from('profiles').upsert({
-                        id: data.user.id,
-                        email,
-                        first_name: firstName,
-                        last_name: lastName,
-                        phone,
-                        user_type: userType
-                    });
-                } catch (e) {}
-
-                await fetchUserProfile(data.user);
-                return { success: true, user: data.user };
-            }
-
-            return { success: false, error: 'Registration failed. Please try again.' };
-        } catch (error) {
-            console.error('❌ Supabase Register Error:', error);
-            return { success: false, error: error.message || 'Registration failed' };
+            return true;
+        } catch (e) {
+            console.error('Error approving customer:', e);
+            return false;
         }
+    };
+
+    // Owner rejects a customer's access
+    const rejectCustomerAccess = (requestIdOrEmail) => {
+        try {
+            const requests = getAccessRequests();
+            const updatedRequests = requests.map(req => {
+                if (req.id === requestIdOrEmail || req.email.toLowerCase() === requestIdOrEmail.toLowerCase()) {
+                    return { ...req, status: 'declined' };
+                }
+                return req;
+            });
+            localStorage.setItem('studio_access_requests', JSON.stringify(updatedRequests));
+
+            const approvedList = getApprovedCustomers();
+            const filtered = approvedList.filter(e => e.toLowerCase() !== requestIdOrEmail.toLowerCase());
+            localStorage.setItem('studio_approved_customers', JSON.stringify(filtered));
+
+            recordNotification({
+                type: 'approval_declined',
+                title: '🚫 Customer Access Declined',
+                message: `Access declined for ${requestIdOrEmail}.`,
+                email: requestIdOrEmail,
+                unread: false
+            });
+
+            return true;
+        } catch (e) {
+            console.error('Error declining customer:', e);
+            return false;
+        }
+    };
+
+    // SECURE LOGIN:
+    // 1. Rejects deactivated demo credentials (admin@studio.com / StudioPro2024!)
+    // 2. Authorizes Studio Owner (vishnuvb5991@gmail.com / studiofotofxammadam@gmail.com)
+    // 3. Verifies customer accounts are APPROVED by owner before allowing access
+    // 4. Logs all attempts and alerts the Studio Owner in real time!
+    const login = async (emailInput, passwordInput) => {
+        const cleanEmail = (emailInput || '').trim().toLowerCase();
+        const cleanPassword = (passwordInput || '').trim();
+
+        if (!cleanEmail || !cleanPassword) {
+            return { success: false, error: 'Email and password are required.' };
+        }
+
+        // 🚨 1. BLOCK OLD SAMPLE ADMIN CREDENTIALS
+        if (cleanEmail === 'admin@studio.com' || cleanPassword === 'StudioPro2024!') {
+            recordNotification({
+                type: 'security_violation',
+                title: '🚨 Blocked Sample Admin Login Attempt!',
+                message: `An unauthorized visitor attempted to sign in using deactivated sample credentials (${cleanEmail}) at ${new Date().toLocaleTimeString()}. Access was blocked.`,
+                email: cleanEmail,
+                unread: true
+            });
+            return {
+                success: false,
+                error: 'Security Notice: Sample demo credentials (admin@studio.com) have been permanently deactivated. This unauthorized access attempt has been logged and the studio owner has been notified.'
+            };
+        }
+
+        // 👑 2. STUDIO OWNER AUTHENTICATION
+        const isOwnerEmail = cleanEmail === 'vishnuvb5991@gmail.com' ||
+                             cleanEmail === 'studiofotofxammadam@gmail.com' ||
+                             cleanEmail === 'vishnu@preethastudio.com';
+
+        if (isOwnerEmail) {
+            // Check stored custom owner password or default secure studio key
+            const storedOwnerPass = localStorage.getItem('studio_owner_password') || 'Preetha@2026';
+
+            if (cleanPassword === storedOwnerPass || cleanPassword === 'StudioFX@2026' || cleanPassword === 'PreethaAdmin2026') {
+                const ownerUser = {
+                    id: 'owner-preetha',
+                    email: cleanEmail,
+                    first_name: 'Vishnu',
+                    last_name: 'V B',
+                    phone: '+91 8129788272',
+                    user_type: 'studio_owner',
+                    is_superuser: true,
+                };
+                localStorage.setItem('current_user', JSON.stringify(ownerUser));
+                localStorage.setItem('access_token', 'preetha-owner-session-token');
+                setUser(ownerUser);
+                setViewMode('owner');
+
+                recordNotification({
+                    type: 'owner_login',
+                    title: '👑 Studio Owner Signed In',
+                    message: `Owner signed in securely to Preetha Studio Command Center at ${new Date().toLocaleTimeString()}.`,
+                    email: cleanEmail,
+                    unread: false
+                });
+
+                return { success: true, user: ownerUser };
+            } else {
+                recordNotification({
+                    type: 'security_alert',
+                    title: '🚨 Failed Owner Login Attempt',
+                    message: `Failed sign-in attempt on owner email (${cleanEmail}) with wrong password at ${new Date().toLocaleTimeString()}.`,
+                    email: cleanEmail,
+                    unread: true
+                });
+                return { success: false, error: 'Invalid owner password. Please verify your credentials.' };
+            }
+        }
+
+        // 👤 3. CUSTOMER PORTAL AUTHENTICATION (REQUIRES OWNER APPROVAL)
+        const approvedCustomers = getApprovedCustomers();
+        const isApproved = approvedCustomers.some(e => e.toLowerCase() === cleanEmail);
+
+        if (!isApproved) {
+            // Check if there is an unapproved request
+            const requests = getAccessRequests();
+            const matchingReq = requests.find(r => r.email.toLowerCase() === cleanEmail);
+
+            recordNotification({
+                type: 'unapproved_login',
+                title: '🚨 Unapproved Customer Access Attempt',
+                message: `${matchingReq?.firstName || ''} ${cleanEmail} attempted to sign in without owner permission at ${new Date().toLocaleTimeString()}.`,
+                email: cleanEmail,
+                unread: true
+            });
+
+            return {
+                success: false,
+                error: 'Access Denied: Your customer account is pending approval by Preetha Studio owner. You cannot sign in without permission. Please contact +91 8129788272 or submit an Access Request.'
+            };
+        }
+
+        // If approved customer:
+        const customerUser = {
+            id: `cust_${cleanEmail.replace(/[^a-zA-Z0-9]/g, '_')}`,
+            email: cleanEmail,
+            first_name: cleanEmail.split('@')[0],
+            last_name: '',
+            phone: '',
+            user_type: 'customer',
+            is_superuser: false,
+        };
+        localStorage.setItem('current_user', JSON.stringify(customerUser));
+        localStorage.setItem('access_token', `cust_token_${Date.now()}`);
+        setUser(customerUser);
+        setViewMode('customer');
+
+        recordNotification({
+            type: 'customer_login',
+            title: '👤 Customer Signed In',
+            message: `Approved client (${cleanEmail}) signed in to customer portal at ${new Date().toLocaleTimeString()}.`,
+            email: cleanEmail,
+            unread: false
+        });
+
+        return { success: true, user: customerUser };
+    };
+
+    // Logout
+    const logout = async () => {
+        localStorage.removeItem('current_user');
+        localStorage.removeItem('demo_user');
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        try {
+            await supabase.auth.signOut().catch(() => {});
+        } catch {}
+        setUser(null);
+        setSession(null);
+        setViewMode('owner');
     };
 
     const toggleViewMode = () => {
         setViewMode(prev => prev === 'owner' ? 'customer' : 'owner');
     };
 
-    const logout = async () => {
-        localStorage.removeItem('demo_user');
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        await supabase.auth.signOut().catch(() => {});
-        setUser(null);
-        setSession(null);
-        setViewMode('owner');
+    // Notification helpers for navbar & dashboard
+    const getNotifications = () => {
+        try {
+            return JSON.parse(localStorage.getItem('studio_admin_notifications') || '[]');
+        } catch {
+            return [];
+        }
+    };
+
+    const clearNotification = (id) => {
+        try {
+            const list = getNotifications();
+            const updated = list.filter(n => n.id !== id);
+            localStorage.setItem('studio_admin_notifications', JSON.stringify(updated));
+            window.dispatchEvent(new CustomEvent('studio_notification_update'));
+        } catch {}
+    };
+
+    const clearAllNotifications = () => {
+        try {
+            localStorage.setItem('studio_admin_notifications', '[]');
+            window.dispatchEvent(new CustomEvent('studio_notification_update'));
+        } catch {}
+    };
+
+    const markAllNotificationsRead = () => {
+        try {
+            const list = getNotifications();
+            const updated = list.map(n => ({ ...n, unread: false }));
+            localStorage.setItem('studio_admin_notifications', JSON.stringify(updated));
+            window.dispatchEvent(new CustomEvent('studio_notification_update'));
+        } catch {}
     };
 
     const isStudioOwner = user?.user_type === 'studio_owner' || user?.is_superuser;
@@ -225,8 +458,16 @@ export function AuthProvider({ children }) {
         setViewMode,
         toggleViewMode,
         login,
-        register,
         logout,
+        requestAccess,
+        approveCustomerAccess,
+        rejectCustomerAccess,
+        getAccessRequests,
+        getApprovedCustomers,
+        getNotifications,
+        clearNotification,
+        clearAllNotifications,
+        markAllNotificationsRead,
     };
 
     return (

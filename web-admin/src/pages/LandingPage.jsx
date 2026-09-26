@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import {
     Camera, ArrowRight, X, Eye, EyeOff, Lock, Loader2,
-    Wand2, Image as ImageIcon, Smartphone, CheckCircle2, Sparkles, Menu
+    Wand2, Image as ImageIcon, Smartphone, CheckCircle2, Sparkles, Menu, ShieldCheck
 } from 'lucide-react';
 import Hero3DCanvas from '../components/3d/Hero3DCanvas';
 import Tilt3DCard from '../components/3d/Tilt3DCard';
@@ -29,23 +29,26 @@ const GALLERY = [
 ];
 
 export default function LandingPage() {
-    const { isAuthenticated, isCustomer, login, register } = useAuth();
+    const { isAuthenticated, isCustomer, login, requestAccess } = useAuth();
     const navigate = useNavigate();
 
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-    const [authMode, setAuthMode] = useState('login');
+    const [authMode, setAuthMode] = useState('login'); // 'login' | 'register'
     const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
     const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
-    // Auth form state
-    const [email, setEmail] = useState('admin@studio.com');
-    const [password, setPassword] = useState('StudioPro2024!');
+    // Auth form state — clean credentials, no demo defaults
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [phone, setPhone] = useState('');
+    const [eventType, setEventType] = useState('Wedding Photography');
+    const [accessMessage, setAccessMessage] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [authError, setAuthError] = useState('');
     const [authLoading, setAuthLoading] = useState(false);
+    const [requestSuccess, setRequestSuccess] = useState(false);
 
     // Warm-up Render backend
     useEffect(() => {
@@ -59,28 +62,40 @@ export default function LandingPage() {
         if (isAuthenticated) navigate('/dashboard');
     }, [isAuthenticated]);
 
-    const handleQuickRole = (role) => {
-        if (role === 'admin') { setEmail('admin@studio.com'); setPassword('StudioPro2024!'); }
-        else { setEmail('ananya.s@gmail.com'); setPassword('Customer2024!'); }
-    };
-
     const handleAuthSubmit = async (e) => {
         e.preventDefault();
         setAuthError('');
         setAuthLoading(true);
+
         if (authMode === 'login') {
             const result = await login(email, password);
-            if (result.success) { setIsAuthModalOpen(false); navigate('/dashboard'); }
-            else setAuthError(result.error || 'Invalid credentials');
+            if (result.success) {
+                setIsAuthModalOpen(false);
+                navigate('/dashboard');
+            } else {
+                setAuthError(result.error || 'Authentication failed. Please verify credentials.');
+            }
         } else {
-            if (!firstName || !email || !password) {
-                setAuthError('Please fill all required fields');
+            // Customer Access Request requiring studio owner approval
+            if (!firstName.trim() || !email.trim() || !phone.trim()) {
+                setAuthError('Please provide your name, email, and phone/WhatsApp number.');
                 setAuthLoading(false);
                 return;
             }
-            const result = await register({ email, password, firstName, lastName, phone, userType: 'customer' });
-            if (result.success) { setIsAuthModalOpen(false); navigate('/dashboard'); }
-            else setAuthError(result.error || 'Registration failed');
+            const result = await requestAccess({
+                firstName: firstName.trim(),
+                lastName: lastName.trim(),
+                email: email.trim(),
+                phone: phone.trim(),
+                eventType,
+                message: accessMessage.trim()
+            });
+
+            if (result.success) {
+                setRequestSuccess(true);
+            } else {
+                setAuthError(result.error || 'Failed to submit access request. Please try again.');
+            }
         }
         setAuthLoading(false);
     };
@@ -669,15 +684,28 @@ export default function LandingPage() {
 
                         {/* Mode Switcher */}
                         <div style={{ display: 'flex', background: '#f4f4f5', padding: '0.25rem', borderRadius: '10px', marginBottom: '1.25rem', border: '1px solid #e4e4e7' }}>
-                            {['login', 'register'].map(mode => (
-                                <button key={mode} onClick={() => { setAuthMode(mode); setAuthError(''); }} style={{
+                            <button
+                                type="button"
+                                onClick={() => { setAuthMode('login'); setAuthError(''); setRequestSuccess(false); }}
+                                style={{
                                     flex: 1, padding: '0.5rem', borderRadius: '8px', border: 'none',
-                                    background: authMode === mode ? '#18181b' : 'transparent',
-                                    color: authMode === mode ? '#ffffff' : '#52525b', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer', fontFamily: 'inherit'
-                                }}>
-                                    {mode === 'login' ? 'Sign In' : 'New Customer'}
-                                </button>
-                            ))}
+                                    background: authMode === 'login' ? '#18181b' : 'transparent',
+                                    color: authMode === 'login' ? '#ffffff' : '#52525b', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer', fontFamily: 'inherit'
+                                }}
+                            >
+                                Sign In
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => { setAuthMode('register'); setAuthError(''); setRequestSuccess(false); }}
+                                style={{
+                                    flex: 1, padding: '0.5rem', borderRadius: '8px', border: 'none',
+                                    background: authMode === 'register' ? '#18181b' : 'transparent',
+                                    color: authMode === 'register' ? '#ffffff' : '#52525b', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer', fontFamily: 'inherit'
+                                }}
+                            >
+                                Request Client Access
+                            </button>
                         </div>
 
                         {authError && (
@@ -686,55 +714,106 @@ export default function LandingPage() {
                             </div>
                         )}
 
-                        <form onSubmit={handleAuthSubmit}>
-                            {authMode === 'register' && (
-                                <>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.65rem', marginBottom: '0.75rem' }}>
-                                        <div>
-                                            <label style={{ color: '#52525b', fontSize: '0.72rem', display: 'block', marginBottom: '0.3rem' }}>First Name</label>
-                                            <input type="text" placeholder="Priya" value={firstName} onChange={e => setFirstName(e.target.value)} required style={{ background: '#f8fafc', borderColor: '#e2e8f0', color: '#18181b' }} />
-                                        </div>
-                                        <div>
-                                            <label style={{ color: '#52525b', fontSize: '0.72rem', display: 'block', marginBottom: '0.3rem' }}>Last Name</label>
-                                            <input type="text" placeholder="Patel" value={lastName} onChange={e => setLastName(e.target.value)} style={{ background: '#f8fafc', borderColor: '#e2e8f0', color: '#18181b' }} />
-                                        </div>
-                                    </div>
-                                    <div style={{ marginBottom: '0.75rem' }}>
-                                        <label style={{ color: '#52525b', fontSize: '0.72rem', display: 'block', marginBottom: '0.3rem' }}>Phone / WhatsApp</label>
-                                        <input type="tel" placeholder="+91 98765 43210" value={phone} onChange={e => setPhone(e.target.value)} style={{ background: '#f8fafc', borderColor: '#e2e8f0', color: '#18181b' }} />
-                                    </div>
-                                </>
-                            )}
-                            <div style={{ marginBottom: '0.75rem' }}>
-                                <label style={{ color: '#52525b', fontSize: '0.72rem', display: 'block', marginBottom: '0.3rem' }}>Email Address</label>
-                                <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="name@gmail.com" required style={{ background: '#f8fafc', borderColor: '#e2e8f0', color: '#18181b' }} />
-                            </div>
-                            <div style={{ marginBottom: '1.25rem' }}>
-                                <label style={{ color: '#52525b', fontSize: '0.72rem', display: 'block', marginBottom: '0.3rem' }}>Password</label>
-                                <div style={{ position: 'relative' }}>
-                                    <input type={showPassword ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required style={{ paddingRight: 44, background: '#f8fafc', borderColor: '#e2e8f0', color: '#18181b' }} />
-                                    <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#71717a', cursor: 'pointer' }}>
-                                        {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
-                                    </button>
+                        {requestSuccess ? (
+                            <div style={{ textAlign: 'center', padding: '0.5rem 0' }}>
+                                <div style={{ width: 52, height: 52, background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.85rem' }}>
+                                    <CheckCircle2 size={26} color="#059669" />
                                 </div>
+                                <h3 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '1.35rem', fontWeight: 600, color: '#18181b', marginBottom: '0.4rem' }}>
+                                    Access Request Submitted!
+                                </h3>
+                                <p style={{ color: '#52525b', fontSize: '0.82rem', lineHeight: 1.5, marginBottom: '1.15rem' }}>
+                                    Thank you, <strong>{firstName}</strong>! To ensure client privacy, all customer portals require Preetha Studio owner approval before entry.
+                                </p>
+                                <div style={{ background: '#fef3c7', border: '1px solid #fde68a', borderRadius: '10px', padding: '0.75rem 1rem', marginBottom: '1.25rem', textAlign: 'left' }}>
+                                    <p style={{ fontSize: '0.78rem', color: '#92400e', fontWeight: 700, marginBottom: '0.2rem' }}>
+                                        🔔 Studio Owner Alerted
+                                    </p>
+                                    <p style={{ fontSize: '0.74rem', color: '#78350f', lineHeight: 1.4 }}>
+                                        The studio has received your access request for <strong>{eventType}</strong>. You will be granted access once approved by management.
+                                    </p>
+                                </div>
+                                <p style={{ fontSize: '0.75rem', color: '#71717a', marginBottom: '1.25rem' }}>
+                                    Need urgent access? WhatsApp or Call us at <strong style={{ color: '#18181b' }}>+91 8129788272</strong>
+                                </p>
+                                <button
+                                    type="button"
+                                    onClick={() => { setRequestSuccess(false); setIsAuthModalOpen(false); }}
+                                    className="btn btn-primary"
+                                    style={{ width: '100%', padding: '0.75rem', background: '#18181b', color: '#ffffff', borderRadius: '8px', cursor: 'pointer' }}
+                                >
+                                    Done
+                                </button>
                             </div>
-                            <button type="submit" className="btn btn-primary" disabled={authLoading} style={{ width: '100%', padding: '0.85rem', fontSize: '0.9rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', background: '#18181b', color: '#ffffff' }}>
-                                {authLoading ? <><Loader2 size={16} className="animate-spin" /><span>Authenticating…</span></> : (authMode === 'login' ? 'Sign In to Portal' : 'Create My Account')}
-                            </button>
-                        </form>
+                        ) : (
+                            <form onSubmit={handleAuthSubmit}>
+                                {authMode === 'register' && (
+                                    <>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.65rem', marginBottom: '0.75rem' }}>
+                                            <div>
+                                                <label style={{ color: '#52525b', fontSize: '0.72rem', display: 'block', marginBottom: '0.3rem' }}>First Name *</label>
+                                                <input type="text" placeholder="Priya" value={firstName} onChange={e => setFirstName(e.target.value)} required style={{ background: '#f8fafc', borderColor: '#e2e8f0', color: '#18181b' }} />
+                                            </div>
+                                            <div>
+                                                <label style={{ color: '#52525b', fontSize: '0.72rem', display: 'block', marginBottom: '0.3rem' }}>Last Name</label>
+                                                <input type="text" placeholder="Patel" value={lastName} onChange={e => setLastName(e.target.value)} style={{ background: '#f8fafc', borderColor: '#e2e8f0', color: '#18181b' }} />
+                                            </div>
+                                        </div>
+                                        <div style={{ marginBottom: '0.75rem' }}>
+                                            <label style={{ color: '#52525b', fontSize: '0.72rem', display: 'block', marginBottom: '0.3rem' }}>Phone / WhatsApp *</label>
+                                            <input type="tel" placeholder="+91 98765 43210" value={phone} onChange={e => setPhone(e.target.value)} required style={{ background: '#f8fafc', borderColor: '#e2e8f0', color: '#18181b' }} />
+                                        </div>
+                                        <div style={{ marginBottom: '0.75rem' }}>
+                                            <label style={{ color: '#52525b', fontSize: '0.72rem', display: 'block', marginBottom: '0.3rem' }}>Event / Shoot Type</label>
+                                            <select
+                                                value={eventType}
+                                                onChange={e => setEventType(e.target.value)}
+                                                style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', background: '#f8fafc', borderColor: '#e2e8f0', color: '#18181b', fontSize: '0.82rem' }}
+                                            >
+                                                <option value="Wedding Photography">Wedding Photography</option>
+                                                <option value="Pre-Wedding / Post-Wedding">Pre-Wedding / Post-Wedding</option>
+                                                <option value="Engagement / Ring Ceremony">Engagement / Ring Ceremony</option>
+                                                <option value="Birthday / Family Function">Birthday / Family Function</option>
+                                                <option value="Old Photo Restoration">Old Photo Restoration</option>
+                                                <option value="Other Commercial Project">Other Commercial Project</option>
+                                            </select>
+                                        </div>
+                                    </>
+                                )}
+                                <div style={{ marginBottom: '0.75rem' }}>
+                                    <label style={{ color: '#52525b', fontSize: '0.72rem', display: 'block', marginBottom: '0.3rem' }}>Email Address *</label>
+                                    <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="name@gmail.com" required style={{ background: '#f8fafc', borderColor: '#e2e8f0', color: '#18181b' }} />
+                                </div>
+                                {authMode === 'login' && (
+                                    <div style={{ marginBottom: '1.25rem' }}>
+                                        <label style={{ color: '#52525b', fontSize: '0.72rem', display: 'block', marginBottom: '0.3rem' }}>Password *</label>
+                                        <div style={{ position: 'relative' }}>
+                                            <input type={showPassword ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required style={{ paddingRight: 44, background: '#f8fafc', borderColor: '#e2e8f0', color: '#18181b' }} />
+                                            <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#71717a', cursor: 'pointer' }}>
+                                                {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                                {authMode === 'register' && (
+                                    <div style={{ marginBottom: '1rem' }}>
+                                        <label style={{ color: '#52525b', fontSize: '0.72rem', display: 'block', marginBottom: '0.3rem' }}>Note for Studio (Optional)</label>
+                                        <input type="text" placeholder="e.g. Wedding date on Dec 12 in Thrissur" value={accessMessage} onChange={e => setAccessMessage(e.target.value)} style={{ background: '#f8fafc', borderColor: '#e2e8f0', color: '#18181b' }} />
+                                    </div>
+                                )}
+                                <button type="submit" className="btn btn-primary" disabled={authLoading} style={{ width: '100%', padding: '0.85rem', fontSize: '0.9rem', marginBottom: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', background: '#18181b', color: '#ffffff' }}>
+                                    {authLoading ? <><Loader2 size={16} className="animate-spin" /><span>Processing…</span></> : (authMode === 'login' ? 'Sign In to Portal' : 'Submit Access Request')}
+                                </button>
 
-                        {authMode === 'login' && (
-                            <div style={{ padding: '0.75rem', background: '#fafaf9', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
-                                <p style={{ fontSize: '0.72rem', color: '#71717a', marginBottom: '0.4rem', fontWeight: 600 }}>1-Click Demo Accounts:</p>
-                                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                    <button type="button" onClick={() => handleQuickRole('admin')} style={{ flex: 1, padding: '0.4rem', borderRadius: '6px', background: '#fef3c7', border: '1px solid #fde68a', color: '#92400e', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
-                                        👑 Studio Owner
-                                    </button>
-                                    <button type="button" onClick={() => handleQuickRole('customer')} style={{ flex: 1, padding: '0.4rem', borderRadius: '6px', background: '#f4f4f5', border: '1px solid #e4e4e7', color: '#18181b', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
-                                        👤 Client / Customer
-                                    </button>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', color: '#71717a', fontSize: '0.72rem' }}>
+                                    <ShieldCheck size={14} color="#059669" />
+                                    <span>
+                                        {authMode === 'login'
+                                            ? 'Preetha Studio secure login • Customer portals require studio approval'
+                                            : 'Protected Portal • Owner approval required before account activation'}
+                                    </span>
                                 </div>
-                            </div>
+                            </form>
                         )}
                     </div>
                 </div>
