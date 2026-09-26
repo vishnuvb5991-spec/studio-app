@@ -848,7 +848,7 @@ export default function LandingPage() {
                                         🔔 Notification Sent to Studio Owner
                                     </p>
                                     <p style={{ fontSize: '0.74rem', color: '#78350f', lineHeight: 1.4 }}>
-                                        An access alert was dispatched to Vishnu (Studio Owner). Once approved in the Owner Admin Dashboard, you can sign in directly.
+                                        An access alert was dispatched to Balan (Studio Owner). Once approved in the Owner Admin Dashboard, you can sign in directly.
                                     </p>
                                 </div>
                                 <button

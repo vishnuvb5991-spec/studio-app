@@ -71,6 +71,11 @@ export function AuthProvider({ children }) {
         if (storedUser) {
             try {
                 const parsed = JSON.parse(storedUser);
+                if (parsed.user_type === 'studio_owner' || parsed.id === 'owner-preetha') {
+                    parsed.first_name = 'Balan';
+                    parsed.last_name = '';
+                    localStorage.setItem('current_user', JSON.stringify(parsed));
+                }
                 setUser(parsed);
                 setViewMode(parsed.user_type === 'customer' ? 'customer' : 'owner');
             } catch (e) {}
@@ -291,8 +296,8 @@ export function AuthProvider({ children }) {
             const ownerUser = {
                 id: 'owner-preetha',
                 email: 'vishnuvb5991@gmail.com',
-                first_name: 'Vishnu',
-                last_name: 'V B',
+                first_name: 'Balan',
+                last_name: '',
                 phone: '+91 8129788272',
                 user_type: 'studio_owner',
                 is_superuser: true,
@@ -347,8 +352,8 @@ export function AuthProvider({ children }) {
                 const ownerUser = {
                     id: 'owner-preetha',
                     email: 'vishnuvb5991@gmail.com',
-                    first_name: 'Vishnu',
-                    last_name: 'V B',
+                    first_name: 'Balan',
+                    last_name: '',
                     phone: '+91 8129788272',
                     user_type: 'studio_owner',
                     is_superuser: true,
@@ -437,8 +442,8 @@ export function AuthProvider({ children }) {
                 const ownerUser = {
                     id: 'owner-preetha',
                     email: cleanEmail,
-                    first_name: 'Vishnu',
-                    last_name: 'V B',
+                    first_name: 'Balan',
+                    last_name: '',
                     phone: '+91 8129788272',
                     user_type: 'studio_owner',
                     is_superuser: true,

@@ -497,11 +497,11 @@ function Navbar({ onMenuClick }) {
                         color: '#fde68a',
                         flexShrink: 0,
                     }}>
-                        {user?.first_name?.[0] || 'V'}
+                        {user?.first_name?.[0] || 'B'}
                     </div>
                     <div className="hide-sm">
                         <p style={{ fontWeight: 700, fontSize: '0.8rem', lineHeight: 1.2, color: '#18181b' }}>
-                            {user?.first_name || 'Vishnu'} {user?.last_name || 'V B'}
+                            {user?.first_name || 'Balan'}
                         </p>
                         <p style={{ fontSize: '0.65rem', color: isStudioOwner ? '#d97706' : '#059669', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
                             <ShieldCheck size={10} /> {isStudioOwner ? (viewMode === 'owner' ? 'Studio Owner' : 'Owner (Customer View)') : 'Verified Client'}
