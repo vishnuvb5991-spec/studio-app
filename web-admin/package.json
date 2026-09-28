@@ -4,6 +4,7 @@
     "description": "Admin Dashboard for Studio Management",
     "private": true,
     "dependencies": {
+        "@mcp-b/global": "^5.1.0",
         "@supabase/supabase-js": "^2.114.0",
         "axios": "^1.6.3",
         "date-fns": "^3.2.0",
