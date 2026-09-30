@@ -704,6 +704,14 @@ label {
   }
 }
 
-
-
-
+/* Shutter Snap Flash Animation for Cine Camera Lens Portal */
+@keyframes shutterFade {
+  0% {
+    opacity: 0.95;
+    transform: scale(1.02);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}

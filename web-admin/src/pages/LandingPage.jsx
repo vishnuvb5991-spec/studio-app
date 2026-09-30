@@ -8,6 +8,7 @@ import {
 import Hero3DCanvas from '../components/3d/Hero3DCanvas';
 import Tilt3DCard from '../components/3d/Tilt3DCard';
 import Gallery3DCarousel from '../components/3d/Gallery3DCarousel';
+import CameraLensPortal from '../components/3d/CameraLensPortal';
 
 /* ─── Unsplash photo tokens (free, no auth needed) ─── */
 const GALLERY = [
@@ -313,7 +314,10 @@ export default function LandingPage() {
 
             {/* ── 3D HERO SHOWCASE ────────────────────────────────────── */}
             <div className="hero-3d-container">
-                <div className="hero-3d-grid">
+                {/* Jesko Jets Reference: Cine Camera Lens Portal with Interactive Zoom Effects & Transitions */}
+                <CameraLensPortal onBookClick={() => setIsBookingModalOpen(true)} />
+
+                <div className="hero-3d-grid" style={{ marginTop: '2.5rem' }}>
                     {/* Left: 3D Tilt Photo Card with Floating Rating Badge */}
                     <Tilt3DCard
                         maxTilt={9}
