@@ -314,8 +314,6 @@ export default function LandingPage() {
 
             {/* ── 3D HERO SHOWCASE ────────────────────────────────────── */}
             <div className="hero-3d-container">
-                {/* Jesko Jets Reference: Cine Camera Lens Portal with Interactive Zoom Effects & Transitions */}
-                <CameraLensPortal onBookClick={() => setIsBookingModalOpen(true)} />
 
                 <div className="hero-3d-grid" style={{ marginTop: '2.5rem' }}>
                     {/* Left: 3D Tilt Photo Card with Floating Rating Badge */}
