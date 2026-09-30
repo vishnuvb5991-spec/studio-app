@@ -491,6 +491,45 @@ export default function LandingPage() {
                 </div>
             </section>
 
+            {/* ── CINE CAMERA LENS PORTAL ──────────────────────────────── */}
+            <section style={{
+                background: 'linear-gradient(180deg, #0a0a0a 0%, #111 60%, #0a0a0a 100%)',
+                padding: '80px 0 60px',
+                position: 'relative',
+                overflow: 'hidden'
+            }}>
+                {/* Subtle top divider glow */}
+                <div style={{
+                    position: 'absolute', top: 0, left: 0, right: 0, height: 2,
+                    background: 'linear-gradient(90deg, transparent 0%, #d97706 30%, #f59e0b 50%, #d97706 70%, transparent 100%)',
+                    opacity: 0.6
+                }} />
+
+                {/* Section label */}
+                <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+                    <span style={{
+                        display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+                        background: 'rgba(217,119,6,0.12)', border: '1px solid rgba(217,119,6,0.35)',
+                        borderRadius: 999, padding: '0.35rem 1.1rem',
+                        fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.12em',
+                        color: '#d97706', textTransform: 'uppercase'
+                    }}>
+                        🎬 Through The Lens
+                    </span>
+                    <h2 style={{
+                        marginTop: '0.85rem', fontSize: 'clamp(1.6rem, 4vw, 2.4rem)',
+                        fontWeight: 800, color: '#fff', letterSpacing: '-0.02em'
+                    }}>
+                        Experience Our Cine Optics
+                    </h2>
+                    <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.95rem', marginTop: '0.5rem' }}>
+                        Zoom, transition and step through the world of Balan Studios
+                    </p>
+                </div>
+
+                <CameraLensPortal onBookClick={() => setIsBookingModalOpen(true)} />
+            </section>
+
             {/* ── 3D SPATIAL GALLERY CAROUSEL ─────────────────────────── */}
             <Gallery3DCarousel />
 
