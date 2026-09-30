@@ -1,6 +1,6 @@
 /**
- * Preetha Studio MCP Server
- * Connects Preetha Studio Management App to AI Assistants (Gemini, Antigravity, Claude, Cursor)
+ * Balan Studios MCP Server
+ * Connects Balan Studios Management App to AI Assistants (Gemini, Antigravity, Claude, Cursor)
  * Exposes tools for managing bookings, customer portal access, studio stats, and photography packages.
  */
 
@@ -15,7 +15,7 @@ const DATA_FILE = path.join(__dirname, 'studio-data.json');
 // Initial default data
 const DEFAULT_DATA = {
   studio_info: {
-    name: "Preetha Studio",
+    name: "Balan Studios",
     owner: "Balan",
     phone: "+91 8129788272",
     email: "vishnuvb5991@gmail.com",
@@ -95,7 +95,7 @@ const DEFAULT_DATA = {
       email: "meera.pillai@example.com",
       event_type: "Portrait & Model Portfolio",
       date: "2026-10-05",
-      venue: "Preetha Studio Floor 1",
+      venue: "Balan Studios Floor 1",
       status: "completed",
       total_amount_inr: 8000,
       advance_paid_inr: 8000,
@@ -148,7 +148,7 @@ const server = new McpServer({
 // Tool 1: Get studio overview info
 server.tool(
   "get_studio_info",
-  "Get Preetha Studio business profile, owner name (Balan), phone, website, and operating hours.",
+  "Get Balan Studios business profile, owner name (Balan), phone, website, and operating hours.",
   {},
   async () => {
     const data = loadData();
@@ -166,7 +166,7 @@ server.tool(
 // Tool 2: Get studio dashboard stats
 server.tool(
   "get_studio_stats",
-  "Get Preetha Studio key metrics: total bookings, confirmed, pending, completed counts, total revenue, and pending customer portal access requests.",
+  "Get Balan Studios key metrics: total bookings, confirmed, pending, completed counts, total revenue, and pending customer portal access requests.",
   {},
   async () => {
     const data = loadData();
@@ -203,7 +203,7 @@ server.tool(
 // Tool 3: List bookings with optional filters
 server.tool(
   "list_bookings",
-  "List Preetha Studio bookings with optional status filter (confirmed, pending, completed, cancelled) or limit.",
+  "List Balan Studios bookings with optional status filter (confirmed, pending, completed, cancelled) or limit.",
   {
     status: z.enum(["confirmed", "pending", "completed", "cancelled"]).optional().describe("Filter by booking status"),
     limit: z.number().optional().describe("Max number of bookings to return (default 20)")
@@ -257,7 +257,7 @@ server.tool(
 // Tool 5: Create a new booking
 server.tool(
   "create_booking",
-  "Create a new booking in Preetha Studio.",
+  "Create a new booking in Balan Studios.",
   {
     client_name: z.string().describe("Full name of the client"),
     phone: z.string().describe("Client phone number"),
@@ -337,7 +337,7 @@ server.tool(
 // Tool 7: List customer access requests
 server.tool(
   "list_customer_access_requests",
-  "List customers who requested access to the Preetha Studio customer portal.",
+  "List customers who requested access to the Balan Studios customer portal.",
   {},
   async () => {
     const data = loadData();
@@ -423,7 +423,7 @@ server.tool(
 // Tool 10: Get photography & videography packages
 server.tool(
   "get_pricing_packages",
-  "Get Preetha Studio service packages, pricing in INR, inclusions, and photography categories.",
+  "Get Balan Studios service packages, pricing in INR, inclusions, and photography categories.",
   {},
   async () => {
     const data = loadData();
@@ -442,10 +442,10 @@ server.tool(
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error("Preetha Studio MCP Server running on stdio");
+  console.error("Balan Studios MCP Server running on stdio");
 }
 
 main().catch((err) => {
-  console.error("Fatal error starting Preetha Studio MCP Server:", err);
+  console.error("Fatal error starting Balan Studios MCP Server:", err);
   process.exit(1);
 });

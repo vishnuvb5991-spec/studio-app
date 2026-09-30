@@ -47,7 +47,7 @@ const PORTFOLIO_SCENES = [
         iso: "100",
         shutter: "1/160s",
         fStop: "f/2.8",
-        location: "Preetha Studio Floor 1",
+        location: "Balan Studios Floor 1",
         image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=1600&auto=format&fit=crop&q=85"
     }
 ];
@@ -312,7 +312,7 @@ export default function CameraLensPortal({ onBookClick }) {
                             whiteSpace: 'nowrap',
                             textShadow: '0 1px 2px rgba(0,0,0,0.8)'
                         }}>
-                            PREETHA MASTER CINE • {selectedFocal} • T1.4 Ø114mm
+                            BALAN MASTER CINE • {selectedFocal} • T1.4 Ø114mm
                         </div>
 
                         <div style={{
@@ -770,7 +770,7 @@ export default function CameraLensPortal({ onBookClick }) {
                         textAlign: 'center'
                     }}>
                         <div style={{ color: '#d1d5db', fontSize: '0.85rem', marginBottom: '0.75rem' }}>
-                            Captured with Preetha Master Cine Optics • {scene.location}
+                            Captured with Balan Master Cine Optics • {scene.location}
                         </div>
                         <button
                             onClick={() => {

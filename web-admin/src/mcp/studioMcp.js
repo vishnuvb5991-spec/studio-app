@@ -1,5 +1,5 @@
 /**
- * Preetha Studio — WebMCP Integration
+ * Balan Studios — WebMCP Integration
  * Exposes studio data and actions as MCP tools that AI agents can call
  * directly from inside the browser tab.
  *
@@ -39,7 +39,7 @@ export function initStudioMCP() {
   // Guard: browser must support WebMCP
   if (typeof document === 'undefined' || !document.modelContext) {
     console.info(
-      '[Preetha Studio MCP] document.modelContext not available in this browser. ' +
+      '[Balan Studios MCP] document.modelContext not available in this browser. ' +
       'Enable chrome://flags/#enable-webmcp-testing to use WebMCP tools.'
     );
     return;
@@ -49,7 +49,7 @@ export function initStudioMCP() {
   document.modelContext.registerTool({
     name: 'get_studio_stats',
     description:
-      'Get Preetha Studio overview: total bookings, pending approvals, revenue summary, and recent activity count.',
+      'Get Balan Studios overview: total bookings, pending approvals, revenue summary, and recent activity count.',
     inputSchema: { type: 'object', properties: {} },
     execute: async () => {
       const bookings = readStore('studio_bookings', []);
@@ -75,7 +75,7 @@ export function initStudioMCP() {
   document.modelContext.registerTool({
     name: 'list_bookings',
     description:
-      'List all Preetha Studio bookings. Optionally filter by status (pending/confirmed/completed/cancelled) or event_type.',
+      'List all Balan Studios bookings. Optionally filter by status (pending/confirmed/completed/cancelled) or event_type.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -124,7 +124,7 @@ export function initStudioMCP() {
   // ── 3. Search Bookings ───────────────────────────────────────────────────
   document.modelContext.registerTool({
     name: 'search_bookings',
-    description: 'Search Preetha Studio bookings by client name, phone, or event type.',
+    description: 'Search Balan Studios bookings by client name, phone, or event type.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -165,7 +165,7 @@ export function initStudioMCP() {
   document.modelContext.registerTool({
     name: 'list_pending_requests',
     description:
-      'List customers currently waiting for Preetha Studio owner approval to access the portal.',
+      'List customers currently waiting for Balan Studios owner approval to access the portal.',
     inputSchema: { type: 'object', properties: {} },
     execute: async () => {
       const requests = readStore('studio_access_requests', []);
@@ -223,7 +223,7 @@ export function initStudioMCP() {
         content: [
           {
             type: 'text',
-            text: `✅ Access approved for ${email}. They can now sign in to Preetha Studio portal.`,
+            text: `✅ Access approved for ${email}. They can now sign in to Balan Studios portal.`,
           },
         ],
       };
@@ -274,7 +274,7 @@ export function initStudioMCP() {
   document.modelContext.registerTool({
     name: 'list_notifications',
     description:
-      'List recent Preetha Studio security alerts, owner login events, and customer access activity.',
+      'List recent Balan Studios security alerts, owner login events, and customer access activity.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -314,7 +314,7 @@ export function initStudioMCP() {
   // ── 8. Get Gallery Items ─────────────────────────────────────────────────
   document.modelContext.registerTool({
     name: 'get_gallery',
-    description: 'List photo/video gallery items in Preetha Studio.',
+    description: 'List photo/video gallery items in Balan Studios.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -348,7 +348,7 @@ export function initStudioMCP() {
   });
 
   console.log(
-    '%c🎯 Preetha Studio MCP Ready',
+    '%c🎯 Balan Studios MCP Ready',
     'color: #d97706; font-weight: bold; font-size: 14px;',
     '— 8 AI tools registered via WebMCP'
   );

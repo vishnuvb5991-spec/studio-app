@@ -164,7 +164,7 @@ function Login() {
                         color: '#18181b',
                         marginBottom: '0.25rem'
                     }}>
-                        Preetha Studio <span style={{ color: '#d97706' }}>Portal</span>
+                        Balan Studios <span style={{ color: '#d97706' }}>Portal</span>
                     </h1>
                     <p style={{ color: '#52525b', fontSize: '0.85rem' }}>
                         Access Photos, Bookings & Restorations on Web or Mobile
@@ -321,7 +321,7 @@ function Login() {
                             Client Access Pending Approval
                         </h3>
                         <p style={{ color: '#52525b', fontSize: '0.8rem', lineHeight: 1.5, marginBottom: '1rem' }}>
-                            To protect client photo privacy, new customer accounts require Preetha Studio owner permission before signing in.
+                            To protect client photo privacy, new customer accounts require Balan Studios owner permission before signing in.
                         </p>
                         <div style={{ background: '#fef3c7', border: '1px solid #fde68a', borderRadius: '10px', padding: '0.75rem 1rem', marginBottom: '1.15rem', textAlign: 'left' }}>
                             <p style={{ fontSize: '0.78rem', color: '#92400e', fontWeight: 700, marginBottom: '0.2rem' }}>
@@ -349,7 +349,7 @@ function Login() {
                             Access Request Submitted!
                         </h3>
                         <p style={{ color: '#52525b', fontSize: '0.82rem', lineHeight: 1.5, marginBottom: '1.15rem' }}>
-                            Thank you, <strong>{firstName}</strong>! To ensure client privacy, all customer portals require Preetha Studio owner approval before entry.
+                            Thank you, <strong>{firstName}</strong>! To ensure client privacy, all customer portals require Balan Studios owner approval before entry.
                         </p>
                         <div style={{ background: '#fef3c7', border: '1px solid #fde68a', borderRadius: '10px', padding: '0.75rem 1rem', marginBottom: '1.25rem', textAlign: 'left' }}>
                             <p style={{ fontSize: '0.78rem', color: '#92400e', fontWeight: 700, marginBottom: '0.2rem' }}>

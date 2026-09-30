@@ -76,7 +76,7 @@ function Sidebar({ isOpen, onClose }) {
                         alignItems: 'center',
                         gap: '0.35rem'
                     }}>
-                        <span>Preetha Studio</span>
+                        <span>Balan Studios</span>
                         <Sparkles size={14} color="#d97706" />
                     </div>
                     <div style={{

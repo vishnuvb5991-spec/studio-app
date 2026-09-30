@@ -180,7 +180,7 @@ export default function LandingPage() {
                     {/* Logo */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontFamily: "'Playfair Display', Georgia, serif", fontWeight: 700, fontSize: '1.1rem', letterSpacing: '-0.01em', flexShrink: 0 }}>
                         <Camera size={18} strokeWidth={2} />
-                        Preetha Studio
+                        Balan Studios
                     </div>
 
                     {/* Desktop Links */}
@@ -687,7 +687,7 @@ export default function LandingPage() {
                 </div>
 
                 <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: '1.5rem', textAlign: 'center', color: '#6b7280', fontSize: '0.8rem' }}>
-                    © 2026 Preetha Studio Photography &amp; Films. All rights reserved.
+                    © 2026 Balan Studios Photography &amp; Films. All rights reserved.
                 </div>
             </footer>
 
@@ -724,7 +724,7 @@ export default function LandingPage() {
                                 <Camera size={24} color="#fde68a" />
                             </div>
                             <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '1.55rem', fontWeight: 600, color: '#18181b', marginBottom: '0.2rem' }}>
-                                Preetha Studio <span style={{ color: '#d97706' }}>Portal</span>
+                                Balan Studios <span style={{ color: '#d97706' }}>Portal</span>
                             </h2>
                             <p style={{ color: '#52525b', fontSize: '0.82rem' }}>Sign in to access your studio hub</p>
                         </div>
@@ -845,7 +845,7 @@ export default function LandingPage() {
                                     Client Access Pending Approval
                                 </h3>
                                 <p style={{ color: '#52525b', fontSize: '0.8rem', lineHeight: 1.5, marginBottom: '1rem' }}>
-                                    To protect client photo privacy, new customer accounts require Preetha Studio owner permission before signing in.
+                                    To protect client photo privacy, new customer accounts require Balan Studios owner permission before signing in.
                                 </p>
                                 <div style={{ background: '#fef3c7', border: '1px solid #fde68a', borderRadius: '10px', padding: '0.75rem 1rem', marginBottom: '1.15rem', textAlign: 'left' }}>
                                     <p style={{ fontSize: '0.78rem', color: '#92400e', fontWeight: 700, marginBottom: '0.2rem' }}>
@@ -873,7 +873,7 @@ export default function LandingPage() {
                                     Access Request Submitted!
                                 </h3>
                                 <p style={{ color: '#52525b', fontSize: '0.82rem', lineHeight: 1.5, marginBottom: '1.15rem' }}>
-                                    Thank you, <strong>{firstName}</strong>! To ensure client privacy, all customer portals require Preetha Studio owner approval before entry.
+                                    Thank you, <strong>{firstName}</strong>! To ensure client privacy, all customer portals require Balan Studios owner approval before entry.
                                 </p>
                                 <div style={{ background: '#fef3c7', border: '1px solid #fde68a', borderRadius: '10px', padding: '0.75rem 1rem', marginBottom: '1.25rem', textAlign: 'left' }}>
                                     <p style={{ fontSize: '0.78rem', color: '#92400e', fontWeight: 700, marginBottom: '0.2rem' }}>
@@ -1021,7 +1021,7 @@ export default function LandingPage() {
                                     <ShieldCheck size={14} color="#059669" />
                                     <span>
                                         {authMode === 'login'
-                                            ? 'Preetha Studio secure login • Customer portals require studio approval'
+                                            ? 'Balan Studios secure login • Customer portals require studio approval'
                                             : 'Protected Portal • Owner approval required before account activation'}
                                     </span>
                                 </div>

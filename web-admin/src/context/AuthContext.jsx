@@ -51,7 +51,7 @@ export const recordNotification = (notif) => {
         }
 
         // Pop desktop notification
-        sendBrowserNotification(fullNotif.title || '🚨 Preetha Studio Alert', fullNotif.message || '');
+        sendBrowserNotification(fullNotif.title || '🚨 Balan Studios Alert', fullNotif.message || '');
         return fullNotif;
     } catch (e) {
         console.error('Error recording notification:', e);
@@ -201,7 +201,7 @@ export function AuthProvider({ children }) {
         return {
             success: true,
             pendingApproval: true,
-            message: 'Your access request has been sent to Preetha Studio management. To protect client privacy, all accounts require owner approval before entry. You will be notified once approved.'
+            message: 'Your access request has been sent to Balan Studios management. To protect client privacy, all accounts require owner approval before entry. You will be notified once approved.'
         };
     };
 
@@ -411,7 +411,7 @@ export function AuthProvider({ children }) {
                 return {
                     success: false,
                     pendingApproval: true,
-                    error: 'Customer Access Restricted: Portal access requires Preetha Studio owner permission. A notification has been sent to the owner for approval.'
+                    error: 'Customer Access Restricted: Portal access requires Balan Studios owner permission. A notification has been sent to the owner for approval.'
                 };
             }
 
@@ -456,7 +456,7 @@ export function AuthProvider({ children }) {
                 recordNotification({
                     type: 'owner_login',
                     title: '👑 Studio Owner Signed In',
-                    message: `Owner signed in securely to Preetha Studio Command Center at ${new Date().toLocaleTimeString()}.`,
+                    message: `Owner signed in securely to Balan Studios Command Center at ${new Date().toLocaleTimeString()}.`,
                     email: cleanEmail,
                     unread: false
                 });
@@ -493,7 +493,7 @@ export function AuthProvider({ children }) {
 
             return {
                 success: false,
-                error: 'Access Denied: Your customer account is pending approval by Preetha Studio owner. You cannot sign in without permission. Please contact +91 8129788272 or submit an Access Request.'
+                error: 'Access Denied: Your customer account is pending approval by Balan Studios owner. You cannot sign in without permission. Please contact +91 8129788272 or submit an Access Request.'
             };
         }
 

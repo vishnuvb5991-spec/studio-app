@@ -49,7 +49,7 @@ const defaultShowcaseBookings = [
         customer_name: 'Rohan Mehra (Creative Dir)',
         customer_email: 'rohan.m@zara.in',
         customer_phone: '+91 98110 99823',
-        venue_name: 'Preetha Studio Floor 1, Thrissur',
+        venue_name: 'Balan Studios Floor 1, Thrissur',
         total_amount: 85000,
         advance_paid: false,
         status: 'pending'
@@ -118,7 +118,7 @@ function Bookings() {
             customer_name: customerName.trim(),
             customer_email: customerEmail.trim() || `${customerName.toLowerCase().replace(/\s+/g, '')}@gmail.com`,
             customer_phone: customerPhone.trim() || '+91 98765 00000',
-            venue_name: venueName.trim() || 'Main Studio, Preetha Studio',
+            venue_name: venueName.trim() || 'Main Studio, Balan Studios',
             total_amount: Number(totalAmount) || 50000,
             advance_paid: advancePaid,
             status: eventStatus

@@ -10,6 +10,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     </React.StrictMode>
 );
 
-// Register Preetha Studio as a WebMCP server so AI agents can
+// Register Balan Studios as a WebMCP server so AI agents can
 // interact with bookings, approvals, and studio data directly in-browser.
 initStudioMCP();
