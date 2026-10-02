@@ -492,7 +492,7 @@ export default function LandingPage() {
             {/* ── CINE CAMERA LENS PORTAL ──────────────────────────────── */}
             <section style={{
                 background: 'linear-gradient(180deg, #0a0a0a 0%, #111 60%, #0a0a0a 100%)',
-                padding: '80px 0 60px',
+                padding: 'clamp(45px, 8vw, 80px) 0 clamp(35px, 6vw, 60px)',
                 position: 'relative',
                 overflow: 'hidden'
             }}>
@@ -504,23 +504,24 @@ export default function LandingPage() {
                 }} />
 
                 {/* Section label */}
-                <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+                <div style={{ textAlign: 'center', marginBottom: 'clamp(1.25rem, 3.5vw, 2rem)', padding: '0 1rem' }}>
                     <span style={{
                         display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
                         background: 'rgba(217,119,6,0.12)', border: '1px solid rgba(217,119,6,0.35)',
-                        borderRadius: 999, padding: '0.35rem 1.1rem',
-                        fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.12em',
+                        borderRadius: 999, padding: '0.3rem 0.95rem',
+                        fontSize: 'clamp(0.68rem, 2vw, 0.75rem)', fontWeight: 700, letterSpacing: '0.1em',
                         color: '#d97706', textTransform: 'uppercase'
                     }}>
                         🎬 Through The Lens
                     </span>
                     <h2 style={{
-                        marginTop: '0.85rem', fontSize: 'clamp(1.6rem, 4vw, 2.4rem)',
-                        fontWeight: 800, color: '#fff', letterSpacing: '-0.02em'
+                        marginTop: '0.75rem', fontSize: 'clamp(1.35rem, 4.5vw, 2.4rem)',
+                        fontWeight: 800, color: '#fff', letterSpacing: '-0.02em',
+                        lineHeight: 1.2
                     }}>
                         Experience Our Cine Optics
                     </h2>
-                    <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.95rem', marginTop: '0.5rem' }}>
+                    <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 'clamp(0.8rem, 2.5vw, 0.95rem)', marginTop: '0.4rem', maxWidth: '600px', margin: '0.4rem auto 0 auto' }}>
                         Zoom, transition and step through the world of Balan Studios
                     </p>
                 </div>

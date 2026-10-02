@@ -72,9 +72,13 @@ export default function CameraLensPortal({ onBookClick }) {
     const [showHud, setShowHud] = useState(true);
     const [apertureSize, setApertureSize] = useState(0.85); // 0.2 (closed) to 1.0 (wide open)
 
+    // Touch gesture tracking for mobile devices
+    const touchStartRef = useRef({ x: 0, y: 0, time: 0 });
+    const isTouchingRef = useRef(false);
+
     const scene = PORTFOLIO_SCENES[currentSceneIndex];
 
-    // Smooth 3D tilt tracking (Jesko Jets interactive perspective)
+    // Smooth 3D tilt tracking (desktop mouse perspective)
     const handleMouseMove = (e) => {
         if (!containerRef.current) return;
         const rect = containerRef.current.getBoundingClientRect();
@@ -84,6 +88,53 @@ export default function CameraLensPortal({ onBookClick }) {
     };
 
     const handleMouseLeave = () => {
+        setTilt({ x: 0, y: 0 });
+    };
+
+    // Touch handling for mobile tilt & swipe gesture
+    const handleTouchStart = (e) => {
+        if (e.touches && e.touches.length === 1) {
+            const touch = e.touches[0];
+            touchStartRef.current = {
+                x: touch.clientX,
+                y: touch.clientY,
+                time: Date.now()
+            };
+            isTouchingRef.current = true;
+        }
+    };
+
+    const handleTouchMove = (e) => {
+        if (!containerRef.current || !e.touches || e.touches.length !== 1) return;
+        const touch = e.touches[0];
+        const rect = containerRef.current.getBoundingClientRect();
+        const x = (touch.clientX - rect.left) / rect.width - 0.5;
+        const y = (touch.clientY - rect.top) / rect.height - 0.5;
+        // Interactive 3D tilt tracking on mobile
+        setTilt({
+            x: Math.max(-14, Math.min(14, x * 22)),
+            y: Math.max(-14, Math.min(14, -y * 22))
+        });
+    };
+
+    const handleTouchEnd = (e) => {
+        if (isTouchingRef.current && e.changedTouches && e.changedTouches.length === 1) {
+            const touch = e.changedTouches[0];
+            const diffX = touch.clientX - touchStartRef.current.x;
+            const diffY = touch.clientY - touchStartRef.current.y;
+            const duration = Date.now() - touchStartRef.current.time;
+
+            // Detect horizontal swipe gesture (min 45px swipe, faster than 400ms)
+            if (Math.abs(diffX) > 45 && Math.abs(diffX) > Math.abs(diffY) * 1.3 && duration < 400) {
+                if (diffX < 0) {
+                    nextScene(); // Swipe left -> next photo
+                } else {
+                    prevScene(); // Swipe right -> prev photo
+                }
+            }
+        }
+        isTouchingRef.current = false;
+        // Smoothly return tilt to center
         setTilt({ x: 0, y: 0 });
     };
 
@@ -135,65 +186,52 @@ export default function CameraLensPortal({ onBookClick }) {
     };
 
     return (
-        <div style={{
-            position: 'relative',
-            width: '100%',
-            maxWidth: '1180px',
-            margin: '0 auto 3rem auto',
-            padding: '0 1rem'
-        }}>
+        <div className="cine-lens-wrapper">
             {/* Header Badge & Context: Reference to Jesko Jets-style Camera Portal */}
-            <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                flexWrap: 'wrap',
-                gap: '1rem',
-                marginBottom: '1rem'
-            }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+            <div className="cine-lens-top-bar">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                     <div style={{
                         display: 'inline-flex',
                         alignItems: 'center',
-                        gap: '0.45rem',
+                        gap: '0.4rem',
                         background: 'linear-gradient(135deg, #18181b 0%, #27272a 100%)',
                         color: '#fef3c7',
                         border: '1px solid rgba(245, 158, 11, 0.4)',
-                        padding: '0.35rem 0.85rem',
+                        padding: '0.3rem 0.75rem',
                         borderRadius: '999px',
-                        fontSize: '0.75rem',
+                        fontSize: 'clamp(0.68rem, 2vw, 0.75rem)',
                         fontWeight: 700,
-                        letterSpacing: '0.05em',
+                        letterSpacing: '0.04em',
                         textTransform: 'uppercase',
                         boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                     }}>
-                        <Aperture size={14} color="#f59e0b" />
-                        Through The Lens • Cine Optics Viewport
+                        <Aperture size={13} color="#f59e0b" />
+                        Through The Lens • Cine Optics
                     </div>
-                    <span style={{ fontSize: '0.8rem', color: '#6b7280', fontWeight: 500 }}>
-                        Interactive Optical Zoom &amp; Transition
+                    <span style={{ fontSize: '0.78rem', color: '#6b7280', fontWeight: 500 }} className="hidden sm:inline">
+                        Optical Zoom &amp; Transition
                     </span>
                 </div>
 
                 {/* HUD toggle & Zoom Through CTA */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <button
                         onClick={() => setShowHud(!showHud)}
                         style={{
                             display: 'inline-flex',
                             alignItems: 'center',
-                            gap: '0.4rem',
+                            gap: '0.35rem',
                             background: showHud ? '#f4f4f5' : '#ffffff',
                             border: '1px solid #d1d5db',
                             borderRadius: '8px',
-                            padding: '0.35rem 0.75rem',
-                            fontSize: '0.75rem',
+                            padding: '0.35rem 0.65rem',
+                            fontSize: '0.74rem',
                             fontWeight: 600,
                             color: '#374151',
                             cursor: 'pointer'
                         }}
                     >
-                        <Eye size={13} /> {showHud ? 'Hide HUD' : 'Show HUD'}
+                        <Eye size={12} /> {showHud ? 'Hide HUD' : 'Show HUD'}
                     </button>
 
                     <button
@@ -201,19 +239,19 @@ export default function CameraLensPortal({ onBookClick }) {
                         style={{
                             display: 'inline-flex',
                             alignItems: 'center',
-                            gap: '0.45rem',
+                            gap: '0.4rem',
                             background: 'linear-gradient(135deg, #d97706 0%, #b45309 100%)',
                             color: '#ffffff',
                             border: 'none',
                             borderRadius: '8px',
-                            padding: '0.4rem 0.95rem',
-                            fontSize: '0.78rem',
+                            padding: '0.38rem 0.85rem',
+                            fontSize: '0.76rem',
                             fontWeight: 700,
                             cursor: 'pointer',
                             boxShadow: '0 4px 14px rgba(217, 119, 6, 0.35)'
                         }}
                     >
-                        <Maximize2 size={13} /> Zoom Through Lens
+                        <Maximize2 size={12} /> Zoom Through
                     </button>
                 </div>
             </div>
@@ -223,20 +261,11 @@ export default function CameraLensPortal({ onBookClick }) {
                 ref={containerRef}
                 onMouseMove={handleMouseMove}
                 onMouseLeave={handleMouseLeave}
-                style={{
-                    position: 'relative',
-                    width: '100%',
-                    minHeight: '520px',
-                    borderRadius: '24px',
-                    background: 'radial-gradient(ellipse at 50% 40%, #1c1c21 0%, #0a0a0d 100%)',
-                    boxShadow: '0 30px 60px -15px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255,255,255,0.1)',
-                    border: '1px solid rgba(255, 255, 255, 0.08)',
-                    overflow: 'hidden',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    perspective: '1200px'
-                }}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+                onTouchCancel={handleTouchEnd}
+                className="cine-lens-viewport-box"
             >
                 {/* Background Optical Flares & Bokeh Grid */}
                 <div style={{
@@ -248,27 +277,14 @@ export default function CameraLensPortal({ onBookClick }) {
                 }} />
 
                 {/* ── 3D TILTED LENS BARREL ASSEMBLY ─────────────────────── */}
-                <div style={{
-                    position: 'relative',
-                    width: 'min(90vw, 440px)',
-                    height: 'min(90vw, 440px)',
-                    transform: `rotateY(${tilt.x}deg) rotateX(${tilt.y}deg)`,
-                    transition: 'transform 0.15s cubic-bezier(0.2, 0, 0.2, 1)',
-                    transformStyle: 'preserve-3d',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                }}>
-
+                <div
+                    className="cine-lens-barrel"
+                    style={{
+                        transform: `rotateY(${tilt.x}deg) rotateX(${tilt.y}deg)`,
+                    }}
+                >
                     {/* Outer Barrel Ring (Knurled Matte Black Metal) */}
-                    <div style={{
-                        position: 'absolute',
-                        inset: '-18px',
-                        borderRadius: '50%',
-                        background: 'linear-gradient(145deg, #2b2b30 0%, #111114 60%, #1e1e22 100%)',
-                        boxShadow: '0 20px 45px rgba(0,0,0,0.8), inset 0 2px 4px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.9)',
-                        border: '2px solid #333338'
-                    }}>
+                    <div className="cine-lens-outer-ring">
                         {/* Mechanical Knurling Texture */}
                         <div style={{
                             position: 'absolute',
@@ -280,53 +296,16 @@ export default function CameraLensPortal({ onBookClick }) {
                     </div>
 
                     {/* Luxury Red Cine Ring (Iconic Cinema Lens Accent) */}
-                    <div style={{
-                        position: 'absolute',
-                        inset: '-7px',
-                        borderRadius: '50%',
-                        border: '3.5px solid #ef4444',
-                        boxShadow: '0 0 16px rgba(239, 68, 68, 0.45)',
-                        opacity: 0.95
-                    }} />
+                    <div className="cine-lens-red-ring" />
 
                     {/* Precision Engraved Gold Markings Ring */}
-                    <div style={{
-                        position: 'absolute',
-                        inset: '2px',
-                        borderRadius: '50%',
-                        border: '1.5px solid rgba(217, 119, 6, 0.55)',
-                        boxShadow: 'inset 0 0 12px rgba(0,0,0,0.8)',
-                        background: '#151518'
-                    }}>
+                    <div className="cine-lens-gold-ring">
                         {/* Circular Text / Lens Engravings */}
-                        <div style={{
-                            position: 'absolute',
-                            top: 8,
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            fontSize: '0.62rem',
-                            fontWeight: 800,
-                            letterSpacing: '0.12em',
-                            color: '#d4af37',
-                            textTransform: 'uppercase',
-                            whiteSpace: 'nowrap',
-                            textShadow: '0 1px 2px rgba(0,0,0,0.8)'
-                        }}>
+                        <div className="cine-lens-engraving-top">
                             BALAN MASTER CINE • {selectedFocal} • T1.4 Ø114mm
                         </div>
 
-                        <div style={{
-                            position: 'absolute',
-                            bottom: 8,
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            fontSize: '0.58rem',
-                            fontWeight: 700,
-                            letterSpacing: '0.15em',
-                            color: '#9ca3af',
-                            textTransform: 'uppercase',
-                            whiteSpace: 'nowrap'
-                        }}>
+                        <div className="cine-lens-engraving-bottom">
                             OPTICAL MULTI-COATED • 8K RESOLUTION
                         </div>
                     </div>
@@ -398,16 +377,16 @@ export default function CameraLensPortal({ onBookClick }) {
                                 display: 'flex',
                                 flexDirection: 'column',
                                 justifyContent: 'space-between',
-                                padding: '1.25rem',
+                                padding: 'clamp(0.75rem, 3vw, 1.25rem)',
                                 color: '#ffffff',
                                 fontFamily: "'Courier New', Courier, monospace",
-                                fontSize: '0.72rem',
+                                fontSize: 'clamp(0.62rem, 1.8vw, 0.72rem)',
                                 textShadow: '0 1px 3px rgba(0,0,0,0.9)'
                             }}>
                                 {/* Top HUD: Recording status & Exposure */}
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                                        <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#ef4444', boxShadow: '0 0 8px #ef4444' }} />
+                                        <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#ef4444', boxShadow: '0 0 8px #ef4444' }} />
                                         <span style={{ fontWeight: 800, letterSpacing: '0.1em' }}>4K RAW</span>
                                     </div>
                                     <div>[+0.3 EV]</div>
@@ -419,8 +398,8 @@ export default function CameraLensPortal({ onBookClick }) {
                                     top: '50%',
                                     left: '50%',
                                     transform: 'translate(-50%, -50%)',
-                                    width: 44,
-                                    height: 44,
+                                    width: 36,
+                                    height: 36,
                                     border: '1px solid rgba(255, 255, 255, 0.35)',
                                     borderRadius: '4px',
                                     display: 'flex',
@@ -432,7 +411,7 @@ export default function CameraLensPortal({ onBookClick }) {
                                 </div>
 
                                 {/* Bottom HUD: ISO, Shutter, Focal */}
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', fontSize: '0.68rem', fontWeight: 700 }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', fontSize: 'clamp(0.58rem, 1.6vw, 0.68rem)', fontWeight: 700 }}>
                                     <div>
                                         <div>ISO {scene.iso}</div>
                                         <div>{scene.shutter}</div>
@@ -463,113 +442,61 @@ export default function CameraLensPortal({ onBookClick }) {
                 <button
                     onClick={prevScene}
                     aria-label="Previous scene"
-                    style={{
-                        position: 'absolute',
-                        left: '1.25rem',
-                        background: 'rgba(24, 24, 27, 0.75)',
-                        backdropFilter: 'blur(8px)',
-                        border: '1px solid rgba(255,255,255,0.15)',
-                        color: '#ffffff',
-                        width: 44,
-                        height: 44,
-                        borderRadius: '50%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: 'pointer',
-                        zIndex: 10,
-                        transition: 'transform 0.2s, background 0.2s'
-                    }}
+                    className="cine-lens-arrow-btn"
+                    style={{ left: 'clamp(0.4rem, 2vw, 1.25rem)' }}
                     onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
                     onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1.0)'}
                 >
-                    <ChevronLeft size={22} />
+                    <ChevronLeft size={20} />
                 </button>
 
                 <button
                     onClick={nextScene}
                     aria-label="Next scene"
-                    style={{
-                        position: 'absolute',
-                        right: '1.25rem',
-                        background: 'rgba(24, 24, 27, 0.75)',
-                        backdropFilter: 'blur(8px)',
-                        border: '1px solid rgba(255,255,255,0.15)',
-                        color: '#ffffff',
-                        width: 44,
-                        height: 44,
-                        borderRadius: '50%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: 'pointer',
-                        zIndex: 10,
-                        transition: 'transform 0.2s, background 0.2s'
-                    }}
+                    className="cine-lens-arrow-btn"
+                    style={{ right: 'clamp(0.4rem, 2vw, 1.25rem)' }}
                     onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
                     onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1.0)'}
                 >
-                    <ChevronRight size={22} />
+                    <ChevronRight size={20} />
                 </button>
 
                 {/* Bottom Scene Info Bar */}
-                <div style={{
-                    position: 'absolute',
-                    bottom: '1.25rem',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    background: 'rgba(18, 18, 22, 0.85)',
-                    backdropFilter: 'blur(16px)',
-                    border: '1px solid rgba(255, 255, 255, 0.12)',
-                    borderRadius: '999px',
-                    padding: '0.45rem 1.25rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '1rem',
-                    color: '#ffffff',
-                    maxWidth: '90%',
-                    whiteSpace: 'nowrap',
-                    zIndex: 10
-                }}>
-                    <div style={{ fontSize: '0.82rem', fontWeight: 700 }}>
+                <div className="cine-lens-info-pill">
+                    <div style={{ fontSize: 'clamp(0.72rem, 2vw, 0.82rem)', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {scene.title}
                     </div>
-                    <div style={{ width: 1, height: 14, background: 'rgba(255,255,255,0.25)' }} />
-                    <div style={{ fontSize: '0.75rem', color: '#d1d5db' }}>
+                    <div className="cine-lens-info-pill-divider" style={{ width: 1, height: 14, background: 'rgba(255,255,255,0.25)' }} />
+                    <div className="cine-lens-info-pill-location" style={{ fontSize: '0.75rem', color: '#d1d5db' }}>
                         {scene.location}
                     </div>
-                    <div style={{ width: 1, height: 14, background: 'rgba(255,255,255,0.25)' }} />
-                    <div style={{ fontSize: '0.72rem', color: '#f59e0b', fontWeight: 600 }}>
+                    <div className="cine-lens-info-pill-divider" style={{ width: 1, height: 14, background: 'rgba(255,255,255,0.25)' }} />
+                    <div style={{ fontSize: '0.72rem', color: '#f59e0b', fontWeight: 600, flexShrink: 0 }}>
                         {currentSceneIndex + 1} / {PORTFOLIO_SCENES.length}
                     </div>
                 </div>
             </div>
 
+            {/* Mobile Touch & Gesture Hint */}
+            <div className="cine-lens-mobile-hint" style={{ marginTop: '0.5rem' }}>
+                <span>👆 Drag to tilt 3D lens • 👈 Swipe left/right to change scenes 👉</span>
+            </div>
+
             {/* ── OPTICAL ZOOM & FOCAL LENGTH CONTROLLER ────────────────── */}
-            <div style={{
-                marginTop: '1.25rem',
-                background: '#ffffff',
-                border: '1px solid #e5e7eb',
-                borderRadius: '16px',
-                padding: '1.25rem',
-                boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '1rem'
-            }}>
+            <div className="cine-lens-controller-card">
                 <div style={{
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     flexWrap: 'wrap',
-                    gap: '0.75rem'
+                    gap: '0.5rem'
                 }}>
                     <div>
-                        <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#111827' }}>
-                            Optical Focal Length &amp; Zoom Transition
+                        <div style={{ fontSize: 'clamp(0.82rem, 2vw, 0.88rem)', fontWeight: 800, color: '#111827' }}>
+                            Optical Focal Length &amp; Zoom
                         </div>
-                        <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
-                            Simulates master cine prime lenses with real-time barrel magnification
+                        <div style={{ fontSize: '0.72rem', color: '#6b7280' }}>
+                            Simulates master cine primes with real-time barrel magnification
                         </div>
                     </div>
 
@@ -577,51 +504,46 @@ export default function CameraLensPortal({ onBookClick }) {
                     <div style={{
                         display: 'inline-flex',
                         alignItems: 'center',
-                        gap: '0.4rem',
+                        gap: '0.35rem',
                         background: '#fef3c7',
                         color: '#92400e',
-                        padding: '0.3rem 0.75rem',
+                        padding: '0.28rem 0.65rem',
                         borderRadius: '8px',
                         fontWeight: 800,
-                        fontSize: '0.82rem'
+                        fontSize: 'clamp(0.74rem, 2vw, 0.82rem)'
                     }}>
-                        <ZoomIn size={14} /> {zoom.toFixed(2)}x Magnification
+                        <ZoomIn size={13} /> {zoom.toFixed(2)}x
                     </div>
                 </div>
 
                 {/* Focal Presets (24mm, 35mm, 50mm, 85mm, 135mm) */}
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
-                    gap: '0.65rem'
-                }}>
+                <div className="cine-lens-presets-grid">
                     {FOCAL_PRESETS.map((preset) => {
                         const isSelected = selectedFocal === preset.label;
                         return (
                             <button
                                 key={preset.label}
                                 onClick={() => handleFocalSelect(preset)}
+                                className="cine-lens-preset-btn"
                                 style={{
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    padding: '0.65rem 0.5rem',
-                                    borderRadius: '10px',
                                     border: isSelected ? '2px solid #d97706' : '1px solid #e5e7eb',
                                     background: isSelected ? '#fffbeb' : '#fafafa',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.2s ease',
                                     boxShadow: isSelected ? '0 4px 12px rgba(217, 119, 6, 0.18)' : 'none'
                                 }}
                             >
                                 <span style={{
-                                    fontSize: '0.95rem',
+                                    fontSize: 'clamp(0.78rem, 2.4vw, 0.95rem)',
                                     fontWeight: 800,
                                     color: isSelected ? '#b45309' : '#18181b'
                                 }}>
                                     {preset.label}
                                 </span>
-                                <span style={{ fontSize: '0.7rem', color: '#6b7280', marginTop: '0.15rem' }}>
+                                <span style={{
+                                    fontSize: 'clamp(0.58rem, 1.8vw, 0.7rem)',
+                                    color: '#6b7280',
+                                    marginTop: '0.1rem',
+                                    whiteSpace: 'nowrap'
+                                }}>
                                     {preset.name}
                                 </span>
                             </button>
@@ -629,28 +551,30 @@ export default function CameraLensPortal({ onBookClick }) {
                     })}
                 </div>
 
-                {/* Continuous Optical Zoom Slider */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', paddingTop: '0.25rem' }}>
-                    <ZoomOut size={16} color="#6b7280" />
-                    <input
-                        type="range"
-                        min="0.75"
-                        max="3.5"
-                        step="0.05"
-                        value={zoom}
-                        onChange={(e) => {
-                            const val = parseFloat(e.target.value);
-                            setZoom(val);
-                            setSelectedFocal(`${Math.round(val * 35)}mm`);
-                        }}
-                        style={{
-                            flex: 1,
-                            accentColor: '#d97706',
-                            height: '6px',
-                            cursor: 'pointer'
-                        }}
-                    />
-                    <ZoomIn size={16} color="#6b7280" />
+                {/* Continuous Optical Zoom Slider & Click Shutter */}
+                <div className="cine-lens-slider-row">
+                    <div className="cine-lens-slider-inner">
+                        <ZoomOut size={15} color="#6b7280" style={{ flexShrink: 0 }} />
+                        <input
+                            type="range"
+                            min="0.75"
+                            max="3.5"
+                            step="0.05"
+                            value={zoom}
+                            onChange={(e) => {
+                                const val = parseFloat(e.target.value);
+                                setZoom(val);
+                                setSelectedFocal(`${Math.round(val * 35)}mm`);
+                            }}
+                            style={{
+                                flex: 1,
+                                accentColor: '#d97706',
+                                height: '6px',
+                                cursor: 'pointer'
+                            }}
+                        />
+                        <ZoomIn size={15} color="#6b7280" style={{ flexShrink: 0 }} />
+                    </div>
 
                     {/* Snap Shutter Button */}
                     <button
@@ -658,19 +582,20 @@ export default function CameraLensPortal({ onBookClick }) {
                         style={{
                             display: 'inline-flex',
                             alignItems: 'center',
+                            justifyContent: 'center',
                             gap: '0.4rem',
                             background: '#18181b',
                             color: '#ffffff',
                             border: 'none',
-                            padding: '0.5rem 1rem',
+                            padding: '0.55rem 1.1rem',
                             borderRadius: '8px',
-                            fontSize: '0.8rem',
+                            fontSize: '0.78rem',
                             fontWeight: 700,
                             cursor: 'pointer',
                             whiteSpace: 'nowrap'
                         }}
                     >
-                        <Camera size={14} /> Click Shutter
+                        <Camera size={13} /> Click Shutter
                     </button>
                 </div>
             </div>
@@ -726,9 +651,9 @@ export default function CameraLensPortal({ onBookClick }) {
                     {/* Top Bar with Close button */}
                     <div style={{
                         position: 'absolute',
-                        top: '1.5rem',
-                        left: '1.5rem',
-                        right: '1.5rem',
+                        top: 'clamp(0.85rem, 3vw, 1.5rem)',
+                        left: 'clamp(0.85rem, 3vw, 1.5rem)',
+                        right: 'clamp(0.85rem, 3vw, 1.5rem)',
                         display: 'flex',
                         justifyContent: 'space-between',
                         alignItems: 'center',
@@ -736,7 +661,7 @@ export default function CameraLensPortal({ onBookClick }) {
                     }}>
                         <div style={{
                             color: '#ffffff',
-                            fontSize: '1.1rem',
+                            fontSize: 'clamp(0.95rem, 3vw, 1.15rem)',
                             fontWeight: 800,
                             fontFamily: "'Playfair Display', Georgia, serif"
                         }}>
@@ -750,26 +675,28 @@ export default function CameraLensPortal({ onBookClick }) {
                                 color: '#ffffff',
                                 border: '1px solid rgba(255,255,255,0.3)',
                                 borderRadius: '999px',
-                                padding: '0.45rem 1.25rem',
-                                fontSize: '0.85rem',
+                                padding: '0.4rem 0.95rem',
+                                fontSize: 'clamp(0.75rem, 2vw, 0.85rem)',
                                 fontWeight: 700,
                                 cursor: 'pointer'
                             }}
                         >
-                            ✕ Exit Zoom View
+                            ✕ Exit
                         </button>
                     </div>
 
                     {/* Bottom Action: Book This Style */}
                     <div style={{
                         position: 'absolute',
-                        bottom: '2.5rem',
+                        bottom: 'clamp(1.25rem, 4vw, 2.5rem)',
                         left: '50%',
                         transform: 'translateX(-50%)',
                         zIndex: 20,
-                        textAlign: 'center'
+                        textAlign: 'center',
+                        width: 'calc(100% - 2rem)',
+                        maxWidth: '440px'
                     }}>
-                        <div style={{ color: '#d1d5db', fontSize: '0.85rem', marginBottom: '0.75rem' }}>
+                        <div style={{ color: '#d1d5db', fontSize: '0.82rem', marginBottom: '0.65rem' }}>
                             Captured with Balan Master Cine Optics • {scene.location}
                         </div>
                         <button
@@ -782,8 +709,9 @@ export default function CameraLensPortal({ onBookClick }) {
                                 color: '#ffffff',
                                 border: 'none',
                                 borderRadius: '8px',
-                                padding: '0.85rem 2rem',
-                                fontSize: '0.95rem',
+                                width: '100%',
+                                padding: '0.75rem 1.5rem',
+                                fontSize: '0.92rem',
                                 fontWeight: 800,
                                 cursor: 'pointer',
                                 boxShadow: '0 10px 30px rgba(217, 119, 6, 0.45)'
