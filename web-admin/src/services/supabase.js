@@ -1,9 +1,19 @@
 import { createClient } from '@supabase/supabase-js';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://zgkzblmellqqphjvtzaa.supabase.co';
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpna3pibG1lbGxxcXBoanZ0emFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgyMjg2NTgsImV4cCI6MjEwMzgwNDY1OH0.B2RjyURoI7abXTpHKSFpn7TIZGXxyawyZDv-BafXA2Y';
+// These must be set in .env.production (local) or your CI/CD environment variables.
+// See web-admin/.env.example for the template.
+// NEVER hardcode real API keys here.
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    console.warn(
+        '[Supabase] VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY is not set. ' +
+        'Copy web-admin/.env.example → .env.production and fill in your project credentials.'
+    );
+}
+
+export const supabase = createClient(SUPABASE_URL || '', SUPABASE_ANON_KEY || '', {
     auth: {
         autoRefreshToken: true,
         persistSession: true,

@@ -78,11 +78,11 @@ const allTransactions = [
         payoutStatus: 'Settled to Bank',
         refId: 'pay_P1rW654kJh'
     },
-    // Ananya's own transactions — visible when she logs in
+    // Demo customer transactions — visible when demo customer logs in
     {
         id: 'TXN-984210',
-        customer: 'Ananya S',
-        email: 'ananya.s@gmail.com',
+        customer: 'Demo Customer',
+        email: 'demo.customer@example.com',
         event: 'Luxury Destination Wedding (Jaipur)',
         amount: 185000,
         advance_paid: 185000,
@@ -94,8 +94,8 @@ const allTransactions = [
     },
     {
         id: 'TXN-984205',
-        customer: 'Ananya S',
-        email: 'ananya.s@gmail.com',
+        customer: 'Demo Customer',
+        email: 'demo.customer@example.com',
         event: 'Birthday Portrait Session',
         amount: 8500,
         advance_paid: 0,
@@ -133,9 +133,9 @@ function AdminPaymentsView() {
         localStorage.setItem('studio_admin_notifications', '[]');
     };
 
-    // Only show non-duplicated transactions (exclude Ananya's duplicated demo rows)
-    const ownerTransactions = allTransactions.filter(t => t.email !== 'ananya.s@gmail.com' || t.status === 'success' && t.id === 'TXN-984210' && false);
-    const displayTransactions = allTransactions.filter(t => !['ananya.s@gmail.com'].includes(t.email));
+    // Only show owner-level transactions in the admin view (exclude demo-customer-only rows)
+    const ownerTransactions = allTransactions.filter(t => t.email !== 'demo.customer@example.com');
+    const displayTransactions = allTransactions.filter(t => !['demo.customer@example.com'].includes(t.email));
 
     const filteredTransactions = filter === 'all'
         ? displayTransactions

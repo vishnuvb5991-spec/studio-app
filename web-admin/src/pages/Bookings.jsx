@@ -23,7 +23,7 @@ const defaultShowcaseBookings = [
         event_name: 'Ananya & Kabir Sangeet + Wedding',
         event_date: '2026-11-18',
         customer_name: 'Ananya Sharma',
-        customer_email: 'ananya.s@gmail.com',
+        customer_email: 'demo.customer@example.com',
         customer_phone: '+91 98201 44521',
         venue_name: 'The Leela Palace, Udaipur',
         total_amount: 195000,

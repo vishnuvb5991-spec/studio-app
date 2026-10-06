@@ -3,6 +3,23 @@ import { supabase } from '../services/supabase';
 
 const AuthContext = createContext(null);
 
+// ── Environment-driven configuration ────────────────────────────────────────
+// All sensitive values come from .env.production (gitignored).
+// See web-admin/.env.example for the template.
+const OWNER_PIN      = import.meta.env.VITE_OWNER_PIN          || '0000';
+const OWNER_PHONE    = import.meta.env.VITE_STUDIO_PHONE        || '+91 0000000000';
+const STUDIO_EMAIL   = import.meta.env.VITE_STUDIO_EMAIL        || 'admin@studio.com';
+const SESSION_KEY    = import.meta.env.VITE_OWNER_SESSION_KEY   || 'studio-owner-session';
+const DEMO_CUST_EMAIL = import.meta.env.VITE_DEMO_CUSTOMER_EMAIL || 'demo@example.com';
+
+// Owner emails allowed to sign in (comma-separated in env)
+const OWNER_EMAILS   = (import.meta.env.VITE_OWNER_EMAILS || '').split(',').map(e => e.trim()).filter(Boolean);
+
+// Accepted owner passwords (comma-separated in env, first one is primary)
+const OWNER_PASSWORDS = (import.meta.env.VITE_OWNER_PASSWORDS || '').split(',').map(p => p.trim()).filter(Boolean);
+// ─────────────────────────────────────────────────────────────────────────────
+
+
 // Helper for desktop push notifications
 const sendBrowserNotification = (title, body) => {
     try {
@@ -110,8 +127,7 @@ export function AuthProvider({ children }) {
 
     const fetchUserProfile = async (authUser) => {
         try {
-            const isOwner = authUser.email === 'vishnuvb5991@gmail.com' ||
-                            authUser.email === 'studiofotofxammadam@gmail.com' ||
+            const isOwner = OWNER_EMAILS.includes(authUser.email?.toLowerCase()) ||
                             authUser.email?.includes('owner');
 
             const finalUser = {
@@ -119,7 +135,7 @@ export function AuthProvider({ children }) {
                 email: authUser.email,
                 first_name: isOwner ? 'Studio' : (authUser.email?.split('@')[0] || 'Client'),
                 last_name: isOwner ? 'Owner' : '',
-                phone: '+91 8129788272',
+                phone: isOwner ? OWNER_PHONE : '',
                 user_type: isOwner ? 'studio_owner' : 'customer',
                 is_superuser: isOwner,
             };
@@ -283,27 +299,27 @@ export function AuthProvider({ children }) {
         }
     };
 
-    // Verify Owner Master PIN (private owner key: 8272, or custom set by owner)
+    // Verify Owner Master PIN (loaded from VITE_OWNER_PIN env var)
     const verifyOwnerPin = async (enteredPin, trustDevice = true) => {
         const cleanPin = (enteredPin || '').trim();
-        const storedPin = localStorage.getItem('studio_owner_pin') || '8272';
-        const validPins = [storedPin, '8272'];
+        const storedPin = localStorage.getItem('studio_owner_pin') || OWNER_PIN;
+        const validPins = [storedPin, OWNER_PIN].filter(Boolean);
 
         if (validPins.includes(cleanPin)) {
             if (trustDevice) {
                 localStorage.setItem('studio_owner_trusted_device', 'true');
             }
             const ownerUser = {
-                id: 'owner-preetha',
-                email: 'vishnuvb5991@gmail.com',
+                id: 'owner-balan',
+                email: STUDIO_EMAIL,
                 first_name: 'Balan',
                 last_name: '',
-                phone: '+91 8129788272',
+                phone: OWNER_PHONE,
                 user_type: 'studio_owner',
                 is_superuser: true,
             };
             localStorage.setItem('current_user', JSON.stringify(ownerUser));
-            localStorage.setItem('access_token', 'preetha-owner-session-token');
+            localStorage.setItem('access_token', SESSION_KEY);
             setUser(ownerUser);
             setViewMode('owner');
 
@@ -311,7 +327,7 @@ export function AuthProvider({ children }) {
                 type: 'owner_login',
                 title: '👑 Studio Owner Verified via PIN',
                 message: `Owner verified with Master PIN and signed in at ${new Date().toLocaleTimeString()}.`,
-                email: 'vishnuvb5991@gmail.com',
+                email: STUDIO_EMAIL,
                 unread: false
             });
 
@@ -321,7 +337,7 @@ export function AuthProvider({ children }) {
                 type: 'security_violation',
                 title: '🚨 Failed Owner PIN Attempt!',
                 message: `Someone entered an incorrect PIN while attempting Studio Owner access at ${new Date().toLocaleTimeString()}. Access blocked.`,
-                email: 'admin@studio.com',
+                email: STUDIO_EMAIL,
                 unread: true
             });
             return {
@@ -332,12 +348,11 @@ export function AuthProvider({ children }) {
     };
 
     // SECURE LOGIN:
-    // 1. Studio Owner sample credentials (admin@studio.com / StudioPro2024!):
-    //    Auto-signs in on trusted devices. On any other device (shared links),
-    //    prompts for Owner Master PIN (5991) so strangers cannot enter!
-    // 2. Customer sample credentials (ananya.s@gmail.com):
+    // 1. Studio Owner demo credentials (from env VITE_STUDIO_EMAIL / VITE_OWNER_PASSWORDS):
+    //    Auto-signs in on trusted devices. On any other device prompts for Owner Master PIN.
+    // 2. Customer demo credentials (from env VITE_DEMO_CUSTOMER_EMAIL):
     //    Requires owner approval. Visitors cannot enter without permission.
-    // 3. Direct Owner login with vishnuvb5991@gmail.com.
+    // 3. Owner emails (from env VITE_OWNER_EMAILS) with password verification.
     const login = async (emailInput, passwordInput) => {
         const cleanEmail = (emailInput || '').trim().toLowerCase();
         const cleanPassword = (passwordInput || '').trim();
@@ -347,19 +362,19 @@ export function AuthProvider({ children }) {
         }
 
         // 👑 1. SAMPLE ADMIN / STUDIO OWNER QUICK ROLE
-        if (cleanEmail === 'admin@studio.com' || cleanPassword === 'StudioPro2024!') {
+        if (cleanEmail === STUDIO_EMAIL.toLowerCase() || OWNER_PASSWORDS.includes(cleanPassword)) {
             if (isOwnerDeviceTrusted()) {
                 const ownerUser = {
-                    id: 'owner-preetha',
-                    email: 'vishnuvb5991@gmail.com',
+                    id: 'owner-balan',
+                    email: STUDIO_EMAIL,
                     first_name: 'Balan',
                     last_name: '',
-                    phone: '+91 8129788272',
+                    phone: OWNER_PHONE,
                     user_type: 'studio_owner',
                     is_superuser: true,
                 };
                 localStorage.setItem('current_user', JSON.stringify(ownerUser));
-                localStorage.setItem('access_token', 'preetha-owner-session-token');
+                localStorage.setItem('access_token', SESSION_KEY);
                 setUser(ownerUser);
                 setViewMode('owner');
 
@@ -367,7 +382,7 @@ export function AuthProvider({ children }) {
                     type: 'owner_login',
                     title: '👑 Studio Owner Auto-Authorized',
                     message: `Owner signed in on trusted device at ${new Date().toLocaleTimeString()}.`,
-                    email: 'vishnuvb5991@gmail.com',
+                    email: STUDIO_EMAIL,
                     unread: false
                 });
 
@@ -391,7 +406,7 @@ export function AuthProvider({ children }) {
         }
 
         // 👤 2. SAMPLE CLIENT / CUSTOMER QUICK ROLE
-        if (cleanEmail === 'ananya.s@gmail.com' || cleanEmail === 'client@studio.com') {
+        if (cleanEmail === DEMO_CUST_EMAIL.toLowerCase()) {
             const approvedCustomers = getApprovedCustomers();
             const isApproved = approvedCustomers.some(e => e.toLowerCase() === cleanEmail);
 
@@ -401,9 +416,9 @@ export function AuthProvider({ children }) {
                     title: '👤 Customer Portal Access Attempt',
                     message: `A visitor clicked Client Demo / sample credentials (${cleanEmail}) at ${new Date().toLocaleTimeString()}. Owner permission required.`,
                     email: cleanEmail,
-                    client: 'Sample Client (Ananya Sharma)',
-                    phone: '+91 98765 43210',
-                    event_type: 'Wedding Photography',
+                    client: 'Sample Client (Demo)',
+                    phone: '',
+                    event_type: 'Photography Session',
                     status: 'pending_approval',
                     unread: true
                 });
@@ -416,11 +431,11 @@ export function AuthProvider({ children }) {
             }
 
             const customerUser = {
-                id: 'cust_ananya',
+                id: 'cust_demo',
                 email: cleanEmail,
-                first_name: 'Ananya',
-                last_name: 'Sharma',
-                phone: '+91 98765 43210',
+                first_name: cleanEmail.split('@')[0],
+                last_name: '',
+                phone: '',
                 user_type: 'customer',
                 is_superuser: false,
             };
@@ -431,25 +446,23 @@ export function AuthProvider({ children }) {
         }
 
         // 👑 3. STUDIO OWNER AUTHENTICATION BY EMAIL
-        const isOwnerEmail = cleanEmail === 'vishnuvb5991@gmail.com' ||
-                             cleanEmail === 'studiofotofxammadam@gmail.com' ||
-                             cleanEmail === 'vishnu@preethastudio.com';
+        const isOwnerEmail = OWNER_EMAILS.includes(cleanEmail);
 
         if (isOwnerEmail) {
-            const storedOwnerPass = localStorage.getItem('studio_owner_password') || 'Preetha@2026';
+            const storedOwnerPass = localStorage.getItem('studio_owner_password') || OWNER_PASSWORDS[0] || '';
 
-            if (cleanPassword === storedOwnerPass || cleanPassword === 'StudioFX@2026' || cleanPassword === 'PreethaAdmin2026' || cleanPassword === '8272') {
+            if (cleanPassword === storedOwnerPass || OWNER_PASSWORDS.includes(cleanPassword)) {
                 const ownerUser = {
-                    id: 'owner-preetha',
+                    id: 'owner-balan',
                     email: cleanEmail,
                     first_name: 'Balan',
                     last_name: '',
-                    phone: '+91 8129788272',
+                    phone: OWNER_PHONE,
                     user_type: 'studio_owner',
                     is_superuser: true,
                 };
                 localStorage.setItem('current_user', JSON.stringify(ownerUser));
-                localStorage.setItem('access_token', 'preetha-owner-session-token');
+                localStorage.setItem('access_token', SESSION_KEY);
                 setUser(ownerUser);
                 setViewMode('owner');
 
@@ -474,12 +487,11 @@ export function AuthProvider({ children }) {
             }
         }
 
-        // 👤 3. CUSTOMER PORTAL AUTHENTICATION (REQUIRES OWNER APPROVAL)
+        // 👤 4. CUSTOMER PORTAL AUTHENTICATION (REQUIRES OWNER APPROVAL)
         const approvedCustomers = getApprovedCustomers();
         const isApproved = approvedCustomers.some(e => e.toLowerCase() === cleanEmail);
 
         if (!isApproved) {
-            // Check if there is an unapproved request
             const requests = getAccessRequests();
             const matchingReq = requests.find(r => r.email.toLowerCase() === cleanEmail);
 
@@ -493,7 +505,7 @@ export function AuthProvider({ children }) {
 
             return {
                 success: false,
-                error: 'Access Denied: Your customer account is pending approval by Balan Studios owner. You cannot sign in without permission. Please contact +91 8129788272 or submit an Access Request.'
+                error: `Access Denied: Your customer account is pending approval by Balan Studios owner. You cannot sign in without permission. Please contact ${OWNER_PHONE} or submit an Access Request.`
             };
         }
 

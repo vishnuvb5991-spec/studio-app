@@ -7,7 +7,7 @@ const defaultShowcaseCustomers = [
     {
         id: 'CUST-8801',
         name: 'Vikram & Ananya Singhania',
-        email: 'ananya.s@gmail.com',
+        email: 'demo.customer@example.com',
         phone: '+91 98201 44521',
         city: 'Mumbai',
         state: 'Maharashtra',
@@ -76,7 +76,7 @@ function Customers() {
                 const mapped = fetched.map((c, i) => ({
                     id: c.id || `CUST-880${i+1}`,
                     name: `${c.user?.first_name || 'Client'} ${c.user?.last_name || ''}`,
-                    email: c.user?.email || 'client@studio.com',
+                    email: c.user?.email || 'client@example.com',
                     phone: c.user?.phone || '+91 98765 00000',
                     city: c.city || 'Mumbai',
                     state: c.state || 'Maharashtra',

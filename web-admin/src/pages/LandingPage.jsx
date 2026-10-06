@@ -38,9 +38,9 @@ export default function LandingPage() {
     const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
     const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
-    // Auth form state — with sample credentials kept available
-    const [email, setEmail] = useState('admin@studio.com');
-    const [password, setPassword] = useState('StudioPro2024!');
+    // Auth form state
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [phone, setPhone] = useState('');
@@ -58,11 +58,19 @@ export default function LandingPage() {
     const [pinError, setPinError] = useState('');
     const [customerPendingApproval, setCustomerPendingApproval] = useState(false);
 
-    // Warm-up Render backend
+    // Quick-role credentials from env vars (never baked into source)
+    const ADMIN_EMAIL = import.meta.env.VITE_STUDIO_EMAIL || '';
+    const ADMIN_PASS  = (import.meta.env.VITE_OWNER_PASSWORDS || '').split(',')[0]?.trim() || '';
+    const DEMO_EMAIL  = import.meta.env.VITE_DEMO_CUSTOMER_EMAIL || '';
+
+    // Warm-up Render backend (prevents cold-start delay on first API call)
     useEffect(() => {
-        fetch('https://studio-django-api.onrender.com/api/v1/bookings/dashboard_stats/', {
-            method: 'GET', mode: 'cors'
-        }).catch(() => {});
+        const djangoBase = import.meta.env.VITE_DJANGO_API_BASE_URL;
+        if (djangoBase) {
+            fetch(`${djangoBase.startsWith('http') ? djangoBase : 'https://' + djangoBase}/api/v1/bookings/dashboard_stats/`, {
+                method: 'GET', mode: 'cors'
+            }).catch(() => {});
+        }
     }, []);
 
     // Redirect if already logged in
@@ -76,11 +84,11 @@ export default function LandingPage() {
         setShowPinPrompt(false);
         setCustomerPendingApproval(false);
         if (role === 'admin') {
-            setEmail('admin@studio.com');
-            setPassword('StudioPro2024!');
+            setEmail(ADMIN_EMAIL);
+            setPassword(ADMIN_PASS);
         } else {
-            setEmail('ananya.s@gmail.com');
-            setPassword('Customer2024!');
+            setEmail(DEMO_EMAIL);
+            setPassword('');
         }
     };
 
@@ -696,8 +704,8 @@ export default function LandingPage() {
                             </a>
                         </p>
                         <p style={{ marginBottom: '0.65rem' }}>
-                            <a href="tel:+918129788272" style={{ color: '#9ca3af', fontSize: '0.875rem', textDecoration: 'none', transition: 'color 0.2s ease' }} onMouseEnter={e => e.target.style.color = '#fff'} onMouseLeave={e => e.target.style.color = '#9ca3af'}>
-                                +91 8129788272
+                            <a href={`tel:${(import.meta.env.VITE_STUDIO_PHONE || '').replace(/\s+/g, '')}`} style={{ color: '#9ca3af', fontSize: '0.875rem', textDecoration: 'none', transition: 'color 0.2s ease' }} onMouseEnter={e => e.target.style.color = '#fff'} onMouseLeave={e => e.target.style.color = '#9ca3af'}>
+                                {import.meta.env.VITE_STUDIO_PHONE || ''}
                             </a>
                         </p>
                         <p style={{ color: '#9ca3af', fontSize: '0.875rem' }}>Thrissur, Kerala, India</p>
@@ -922,7 +930,7 @@ export default function LandingPage() {
                                     </p>
                                 </div>
                                 <p style={{ fontSize: '0.75rem', color: '#71717a', marginBottom: '1.25rem' }}>
-                                    Need urgent access? WhatsApp or Call us at <strong style={{ color: '#18181b' }}>+91 8129788272</strong>
+                                    Need urgent access? WhatsApp or Call us at <strong style={{ color: '#18181b' }}>{import.meta.env.VITE_STUDIO_PHONE || 'our studio'}</strong>
                                 </p>
                                 <button
                                     type="button"
@@ -1013,12 +1021,12 @@ export default function LandingPage() {
                                                 onClick={() => handleQuickRole('admin')}
                                                 style={{
                                                     padding: '0.5rem 0.4rem',
-                                                    background: email === 'admin@studio.com' ? '#fef3c7' : '#ffffff',
-                                                    border: email === 'admin@studio.com' ? '1px solid #f59e0b' : '1px solid #e2e8f0',
+                                                    background: email === ADMIN_EMAIL ? '#fef3c7' : '#ffffff',
+                                                    border: email === ADMIN_EMAIL ? '1px solid #f59e0b' : '1px solid #e2e8f0',
                                                     borderRadius: '6px',
                                                     fontSize: '0.72rem',
                                                     fontWeight: 700,
-                                                    color: email === 'admin@studio.com' ? '#92400e' : '#475569',
+                                                    color: email === ADMIN_EMAIL ? '#92400e' : '#475569',
                                                     cursor: 'pointer',
                                                     display: 'flex',
                                                     alignItems: 'center',
@@ -1033,12 +1041,12 @@ export default function LandingPage() {
                                                 onClick={() => handleQuickRole('customer')}
                                                 style={{
                                                     padding: '0.5rem 0.4rem',
-                                                    background: email === 'ananya.s@gmail.com' ? '#eff6ff' : '#ffffff',
-                                                    border: email === 'ananya.s@gmail.com' ? '1px solid #3b82f6' : '1px solid #e2e8f0',
+                                                    background: email === DEMO_EMAIL ? '#eff6ff' : '#ffffff',
+                                                    border: email === DEMO_EMAIL ? '1px solid #3b82f6' : '1px solid #e2e8f0',
                                                     borderRadius: '6px',
                                                     fontSize: '0.72rem',
                                                     fontWeight: 700,
-                                                    color: email === 'ananya.s@gmail.com' ? '#1e40af' : '#475569',
+                                                    color: email === DEMO_EMAIL ? '#1e40af' : '#475569',
                                                     cursor: 'pointer',
                                                     display: 'flex',
                                                     alignItems: 'center',

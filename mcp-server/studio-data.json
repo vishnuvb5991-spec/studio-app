@@ -2,8 +2,8 @@
   "studio_info": {
     "name": "Balan Studios",
     "owner": "Balan",
-    "phone": "+91 8129788272",
-    "email": "vishnuvb5991@gmail.com",
+    "phone": "+91 0000000000",
+    "email": "admin@studio.com",
     "website": "https://preetha-studio-app.surge.sh",
     "tagline": "Capturing Timeless Elegance & Memories with Cinematic Artistry",
     "location": "Kerala, India",
@@ -87,14 +87,5 @@
       "notes": "Delivered 15 retouched digital portraits."
     }
   ],
-  "customer_access_requests": [
-    {
-      "id": "req-1",
-      "email": "ananya.s@gmail.com",
-      "full_name": "Ananya Sharma",
-      "requested_at": "2026-09-26T18:30:00Z",
-      "status": "pending",
-      "device": "Mobile Chrome"
-    }
-  ]
+  "customer_access_requests": []
 }

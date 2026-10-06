@@ -10,16 +10,19 @@ const { z } = require('zod');
 const fs = require('fs');
 const path = require('path');
 
+// Load .env if present (development / standalone usage)
+try { require('dotenv').config(); } catch (_) {}
+
 const DATA_FILE = path.join(__dirname, 'studio-data.json');
 
-// Initial default data
+// Initial default data — sensitive fields loaded from environment variables
 const DEFAULT_DATA = {
   studio_info: {
     name: "Balan Studios",
     owner: "Balan",
-    phone: "+91 8129788272",
-    email: "vishnuvb5991@gmail.com",
-    website: "https://preetha-studio-app.surge.sh",
+    phone: process.env.STUDIO_OWNER_PHONE || "+91 0000000000",
+    email: process.env.STUDIO_OWNER_EMAIL || "admin@studio.com",
+    website: process.env.STUDIO_WEBSITE || "https://preetha-studio-app.surge.sh",
     tagline: "Capturing Timeless Elegance & Memories with Cinematic Artistry",
     location: "Kerala, India",
     working_hours: "09:00 AM - 08:30 PM (Mon - Sun)"
@@ -102,16 +105,7 @@ const DEFAULT_DATA = {
       notes: "Delivered 15 retouched digital portraits."
     }
   ],
-  customer_access_requests: [
-    {
-      id: "req-1",
-      email: "ananya.s@gmail.com",
-      full_name: "Ananya Sharma",
-      requested_at: "2026-09-26T18:30:00Z",
-      status: "pending",
-      device: "Mobile Chrome"
-    }
-  ]
+  customer_access_requests: []
 };
 
 // Data persistence helpers

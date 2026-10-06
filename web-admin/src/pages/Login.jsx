@@ -5,8 +5,8 @@ import { Camera, Eye, EyeOff, Sparkles, ShieldCheck, ShieldAlert, ArrowRight, Lo
 
 function Login() {
     const [mode, setMode] = useState('login'); // 'login' | 'register'
-    const [email, setEmail] = useState('admin@studio.com');
-    const [password, setPassword] = useState('StudioPro2024!');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [phone, setPhone] = useState('');
@@ -26,17 +26,22 @@ function Login() {
     const { login, requestAccess, verifyOwnerPin } = useAuth();
     const navigate = useNavigate();
 
+    // Quick-role buttons pre-fill from env vars (values never baked into the source)
+    const ADMIN_EMAIL = import.meta.env.VITE_STUDIO_EMAIL || '';
+    const ADMIN_PASS  = (import.meta.env.VITE_OWNER_PASSWORDS || '').split(',')[0]?.trim() || '';
+    const DEMO_EMAIL  = import.meta.env.VITE_DEMO_CUSTOMER_EMAIL || '';
+
     const handleQuickRole = (role) => {
         setError('');
         setPinError('');
         setShowPinPrompt(false);
         setCustomerPendingApproval(false);
         if (role === 'admin') {
-            setEmail('admin@studio.com');
-            setPassword('StudioPro2024!');
+            setEmail(ADMIN_EMAIL);
+            setPassword(ADMIN_PASS);
         } else {
-            setEmail('ananya.s@gmail.com');
-            setPassword('Customer2024!');
+            setEmail(DEMO_EMAIL);
+            setPassword('');
         }
     };
 
@@ -360,7 +365,7 @@ function Login() {
                             </p>
                         </div>
                         <p style={{ fontSize: '0.75rem', color: '#71717a', marginBottom: '1.25rem' }}>
-                            Need urgent access? WhatsApp or Call us at <strong style={{ color: '#18181b' }}>+91 8129788272</strong>
+                            Need urgent access? WhatsApp or Call us at <strong style={{ color: '#18181b' }}>{import.meta.env.VITE_STUDIO_PHONE || 'our studio'}</strong>
                         </p>
                         <button
                             type="button"
@@ -516,12 +521,12 @@ function Login() {
                                         onClick={() => handleQuickRole('admin')}
                                         style={{
                                             padding: '0.5rem 0.4rem',
-                                            background: email === 'admin@studio.com' ? '#fef3c7' : '#ffffff',
-                                            border: email === 'admin@studio.com' ? '1px solid #f59e0b' : '1px solid #e2e8f0',
+                                            background: email === ADMIN_EMAIL ? '#fef3c7' : '#ffffff',
+                                            border: email === ADMIN_EMAIL ? '1px solid #f59e0b' : '1px solid #e2e8f0',
                                             borderRadius: '6px',
                                             fontSize: '0.72rem',
                                             fontWeight: 700,
-                                            color: email === 'admin@studio.com' ? '#92400e' : '#475569',
+                                            color: email === ADMIN_EMAIL ? '#92400e' : '#475569',
                                             cursor: 'pointer',
                                             display: 'flex',
                                             alignItems: 'center',
@@ -536,12 +541,12 @@ function Login() {
                                         onClick={() => handleQuickRole('customer')}
                                         style={{
                                             padding: '0.5rem 0.4rem',
-                                            background: email === 'ananya.s@gmail.com' ? '#eff6ff' : '#ffffff',
-                                            border: email === 'ananya.s@gmail.com' ? '1px solid #3b82f6' : '1px solid #e2e8f0',
+                                            background: email === DEMO_EMAIL ? '#eff6ff' : '#ffffff',
+                                            border: email === DEMO_EMAIL ? '1px solid #3b82f6' : '1px solid #e2e8f0',
                                             borderRadius: '6px',
                                             fontSize: '0.72rem',
                                             fontWeight: 700,
-                                            color: email === 'ananya.s@gmail.com' ? '#1e40af' : '#475569',
+                                            color: email === DEMO_EMAIL ? '#1e40af' : '#475569',
                                             cursor: 'pointer',
                                             display: 'flex',
                                             alignItems: 'center',

@@ -13,10 +13,16 @@ class Command(BaseCommand):
     help = 'Create initial admin user if none exists'
 
     def handle(self, *args, **options):
-        # Get credentials from environment variables or use defaults
+        # Get credentials from environment variables (required — no hardcoded defaults)
         email = os.environ.get('ADMIN_EMAIL', 'admin@studio.com')
-        password = os.environ.get('ADMIN_PASSWORD', 'StudioPro2024!')
+        password = os.environ.get('ADMIN_PASSWORD')
         username = os.environ.get('ADMIN_USERNAME', 'admin')
+
+        if not password:
+            self.stdout.write(
+                self.style.ERROR('ADMIN_PASSWORD environment variable is required. Set it before running this command.')
+            )
+            return
         
         # Check if any superuser exists
         if User.objects.filter(is_superuser=True).exists():

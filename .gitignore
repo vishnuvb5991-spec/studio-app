@@ -6,11 +6,17 @@ yarn-error.log*
 .npm
 dist/
 build/
-# Ignore secret local env files but KEEP .env.production (Netlify reads it at build time)
+# Ignore ALL real env files — use .env.example as template
 .env
 .env.local
+.env.production
 .env.development.local
 .env.test.local
+.env.production.local
+**/.env
+**/.env.production
+**/.env.local
+# Never commit real secrets — only .env.example files are safe to commit
 
 # Django
 __pycache__/
