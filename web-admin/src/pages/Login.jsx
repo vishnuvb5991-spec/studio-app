@@ -592,50 +592,28 @@ function Login() {
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', marginBottom: '0.5rem', color: '#64748b', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                                     <Sparkles size={12} color="#d97706" /> Fast 1-Click Demo Credentials
                                 </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.45rem' }}>
-                                    <button
-                                        type="button"
-                                        onClick={() => handleQuickRole('admin')}
-                                        style={{
-                                            padding: '0.5rem 0.4rem',
-                                            background: email === ADMIN_EMAIL ? '#fef3c7' : '#ffffff',
-                                            border: email === ADMIN_EMAIL ? '1px solid #f59e0b' : '1px solid #e2e8f0',
-                                            borderRadius: '6px',
-                                            fontSize: '0.72rem',
-                                            fontWeight: 700,
-                                            color: email === ADMIN_EMAIL ? '#92400e' : '#475569',
-                                            cursor: 'pointer',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            gap: '0.3rem'
-                                        }}
-                                    >
-                                        👑 Studio Owner
-                                    </button>
+                                <div style={{ display: 'flex', justifyContent: 'center' }}>
                                     <button
                                         type="button"
                                         onClick={() => handleQuickRole('customer')}
                                         style={{
-                                            padding: '0.5rem 0.4rem',
+                                            width: '100%',
+                                            padding: '0.55rem 0.6rem',
                                             background: email === DEMO_EMAIL ? '#eff6ff' : '#ffffff',
                                             border: email === DEMO_EMAIL ? '1px solid #3b82f6' : '1px solid #e2e8f0',
                                             borderRadius: '6px',
-                                            fontSize: '0.72rem',
+                                            fontSize: '0.74rem',
                                             fontWeight: 700,
                                             color: email === DEMO_EMAIL ? '#1e40af' : '#475569',
                                             cursor: 'pointer',
                                             display: 'flex',
                                             alignItems: 'center',
                                             justifyContent: 'center',
-                                            gap: '0.3rem'
+                                            gap: '0.35rem'
                                         }}
                                     >
-                                        👤 Client / Customer
+                                        👤 Client / Customer (Sample Demo)
                                     </button>
-                                </div>
-                                <div style={{ marginTop: '0.45rem', fontSize: '0.67rem', color: '#94a3b8' }}>
-                                    Protected by Owner Master PIN on unrecognized devices
                                 </div>
                             </div>
                         )}
