@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../services/supabase';
+import { auth as firebaseAuth, googleProvider, signInWithPopup, signOut as firebaseSignOut } from '../services/firebase';
 
 const AuthContext = createContext(null);
 
@@ -535,12 +536,65 @@ export function AuthProvider({ children }) {
         return { success: true, user: customerUser };
     };
 
+    // 🌐 Sign in with Google (Firebase Auth) with Automatic Role Detection
+    const loginWithGoogle = async () => {
+        try {
+            const result = await signInWithPopup(firebaseAuth, googleProvider);
+            const fbUser = result.user;
+            const cleanEmail = (fbUser.email || '').trim().toLowerCase();
+
+            // Automatic Role Detection: check if signed-in email is in Studio Owner list
+            const isOwner = OWNER_EMAILS.includes(cleanEmail) || cleanEmail.includes('owner');
+
+            const finalUser = {
+                id: fbUser.uid,
+                email: cleanEmail,
+                first_name: fbUser.displayName ? fbUser.displayName.split(' ')[0] : (isOwner ? 'Studio' : cleanEmail.split('@')[0]),
+                last_name: fbUser.displayName ? fbUser.displayName.split(' ').slice(1).join(' ') : (isOwner ? 'Owner' : ''),
+                photo_url: fbUser.photoURL || '',
+                phone: isOwner ? OWNER_PHONE : (fbUser.phoneNumber || ''),
+                user_type: isOwner ? 'studio_owner' : 'customer',
+                is_superuser: isOwner,
+                auth_provider: 'google'
+            };
+
+            setUser(finalUser);
+            setViewMode(isOwner ? 'owner' : 'customer');
+            localStorage.setItem('current_user', JSON.stringify(finalUser));
+            if (isOwner) {
+                localStorage.setItem('studio_owner_trusted_device', 'true');
+            }
+
+            recordNotification({
+                type: isOwner ? 'owner_login' : 'customer_login',
+                title: isOwner ? '👑 Studio Owner Signed In (Google)' : '👤 Client Portal Signed In (Google)',
+                message: `${finalUser.first_name} ${finalUser.last_name} (${cleanEmail}) signed in via Google at ${new Date().toLocaleTimeString()}.`,
+                email: cleanEmail,
+                unread: false
+            });
+
+            return { success: true, user: finalUser, isOwner };
+        } catch (error) {
+            console.error('Google Sign-In Error:', error);
+            if (error.code === 'auth/popup-closed-by-user') {
+                return { success: false, cancelled: true };
+            }
+            return {
+                success: false,
+                error: error.message || 'Google sign-in failed. Please try again.'
+            };
+        }
+    };
+
     // Logout
     const logout = async () => {
         localStorage.removeItem('current_user');
         localStorage.removeItem('demo_user');
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
+        try {
+            await firebaseSignOut(firebaseAuth).catch(() => {});
+        } catch {}
         try {
             await supabase.auth.signOut().catch(() => {});
         } catch {}
@@ -602,6 +656,7 @@ export function AuthProvider({ children }) {
         setViewMode,
         toggleViewMode,
         login,
+        loginWithGoogle,
         logout,
         requestAccess,
         approveCustomerAccess,
