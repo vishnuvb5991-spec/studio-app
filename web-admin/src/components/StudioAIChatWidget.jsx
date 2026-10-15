@@ -1,20 +1,54 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, X, Send, Camera, RefreshCw } from 'lucide-react';
+import { Sparkles, X, Send, Camera, RefreshCw, Languages } from 'lucide-react';
 import { sendChatMessage } from '../services/aiAssistantService';
 
-const QUICK_PROMPTS = [
-    { label: "💍 Wedding Packages", query: "Can you explain the wedding photography packages and pricing?" },
-    { label: "🖼️ Photo Restoration", query: "How does old photo restoration work and how much does it cost?" },
-    { label: "📅 Book a Date", query: "I would like to check availability and book a date for our event." },
-    { label: "🕒 Timings & Location", query: "What are your studio working hours and location in Kerala?" }
-];
+const I18N = {
+    en: {
+        title: "Balan Studios AI",
+        status: "Online • 09:00 AM - 08:30 PM",
+        welcome: "Hello! Welcome to **Balan Studios**. ✨\n\nI am your 24/7 AI concierge. Ask me anything about our **wedding packages**, **personal portfolios**, **photo restoration**, or **booking a date**!",
+        placeholder: "Ask about wedding packages, prices...",
+        error: "I'm having a slight connection moment. Please call our studio directly at **+91 0000000000** or try again in a moment!",
+        prompts: [
+            { label: "💍 Wedding Packages", query: "Can you explain the wedding photography packages and pricing?" },
+            { label: "📸 Personal Portfolio", query: "What are your Personal Portfolio and Model Shoot packages and prices?" },
+            { label: "🖼️ Photo Restoration", query: "How does old photo restoration work and how much does it cost?" },
+            { label: "📅 Book a Date", query: "I would like to check availability and book a date for our shoot." },
+            { label: "🕒 Studio Timings", query: "What are your studio working hours and location in Kerala?" }
+        ]
+    },
+    ml: {
+        title: "ബാലൻ സ്റ്റുഡിയോസ് AI",
+        status: "ലഭ്യമാണ് • 09:00 AM - 08:30 PM",
+        welcome: "നമസ്കാരം! **ബാലൻ സ്റ്റുഡിയോസിലേക്ക്** സ്വാഗതം. ✨\n\nഞങ്ങളുടെ **വെഡ്ഡിംഗ് പാക്കേജുകൾ**, **മോഡൽ & പേഴ്സണൽ പോർട്ട്ഫോളിയോ**, **പഴയ ഫോട്ടോ റീസ്റ്റോറേഷൻ**, അല്ലെങ്കിൽ **ഡേറ്റ് ബുക്കിംഗ്** എന്നിവയെക്കുറിച്ച് നിങ്ങൾക്ക് എന്തും ചോദിക്കാം!",
+        placeholder: "വെഡ്ഡിംഗ് പാക്കേജ്, ഫോട്ടോ റീസ്റ്റോറേഷൻ എന്നിവ ചോദിക്കൂ...",
+        error: "കണക്ഷനിൽ ഒരു തടസ്സം നേരിടുന്നു. ദയവായി ഞങ്ങളുടെ സ്റ്റുഡിയോയുമായി **+91 0000000000** എന്ന നമ്പറിൽ ബന്ധപ്പെടുക അല്ലെങ്കിൽ അൽപം കഴിഞ്ഞ് ശ്രമിക്കുക!",
+        prompts: [
+            { label: "💍 വെഡ്ഡിംഗ് പാക്കേജുകൾ", query: "വെഡ്ഡിംഗ് ഫോട്ടോഗ്രഫി പാക്കേജുകളെയും നിരക്കുകളെയും കുറിച്ച് വിശദീകരിക്കാമോ?" },
+            { label: "📸 പേഴ്സണൽ പോർട്ട്ഫോളിയോ", query: "മോഡൽ ഷൂട്ട്, പേഴ്സണൽ പോർട്ട്ഫോളിയോ പാക്കേജുകളുടെ വിവരങ്ങൾ എന്തൊക്കെയാണ്?" },
+            { label: "🖼️ ഫോട്ടോ റീസ്റ്റോറേഷൻ", query: "പഴയതും കേടുവന്നതുമായ ഫോട്ടോകൾ എങ്ങനെയാണ് റീസ്റ്റോർ ചെയ്യുന്നത്? നിരക്ക് എത്രയാണ്?" },
+            { label: "📅 ഡേറ്റ് ബുക്ക് ചെയ്യാൻ", query: "ഒരു ഇവന്റിനായി ഡേറ്റ് ലഭ്യമാണോ എന്ന് അറിയാനും ബുക്ക് ചെയ്യാനും ആഗ്രഹിക്കുന്നു." },
+            { label: "🕒 സമയം & സ്ഥലം", query: "സ്റ്റുഡിയോയുടെ സമയവും കേരളത്തിലെ ലൊക്കേഷനും പറയാമോ?" }
+        ]
+    }
+};
 
 export default function StudioAIChatWidget({ onOpenBookingModal }) {
     const [isOpen, setIsOpen] = useState(false);
+    const [language, setLanguage] = useState(() => {
+        try {
+            return localStorage.getItem('studio_ai_lang') || 'en';
+        } catch {
+            return 'en';
+        }
+    });
+
+    const currentI18n = I18N[language] || I18N.en;
+
     const [messages, setMessages] = useState([
         {
             role: 'assistant',
-            text: "Hello! Welcome to **Balan Studios**. ✨\n\nI am your 24/7 AI concierge. Ask me anything about our **wedding packages**, **cinematic films**, **heritage photo restoration**, or **booking a date**!",
+            text: currentI18n.welcome,
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         }
     ]);
@@ -34,6 +68,28 @@ export default function StudioAIChatWidget({ onOpenBookingModal }) {
         }
     }, [isOpen, messages, isLoading]);
 
+    // Handle switching language
+    const handleLanguageChange = (newLang) => {
+        if (newLang === language) return;
+        setLanguage(newLang);
+        try {
+            localStorage.setItem('studio_ai_lang', newLang);
+        } catch (e) {
+            // ignore localStorage quota errors
+        }
+
+        // If conversation has only the welcome message, swap to new language welcome
+        if (messages.length <= 1) {
+            setMessages([
+                {
+                    role: 'assistant',
+                    text: I18N[newLang].welcome,
+                    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                }
+            ]);
+        }
+    };
+
     const handleSend = async (textToSend) => {
         const query = (textToSend || input).trim();
         if (!query || isLoading) return;
@@ -50,7 +106,7 @@ export default function StudioAIChatWidget({ onOpenBookingModal }) {
         setIsLoading(true);
 
         try {
-            const replyText = await sendChatMessage(query, updatedHistory);
+            const replyText = await sendChatMessage(query, updatedHistory, language);
             setMessages(prev => [
                 ...prev,
                 {
@@ -64,7 +120,7 @@ export default function StudioAIChatWidget({ onOpenBookingModal }) {
                 ...prev,
                 {
                     role: 'assistant',
-                    text: "I'm having a slight connection moment. Please call our studio directly at **+91 0000000000** or try again in a moment!",
+                    text: currentI18n.error,
                     timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                 }
             ]);
@@ -86,7 +142,7 @@ export default function StudioAIChatWidget({ onOpenBookingModal }) {
         return lines.map((line, idx) => {
             const parts = line.split(/(\*\*.*?\*\*)/g);
             return (
-                <div key={idx} style={{ minHeight: line === '' ? '8px' : 'auto', margin: '3px 0', lineHeight: 1.5 }}>
+                <div key={idx} style={{ minHeight: line === '' ? '8px' : 'auto', margin: '3px 0', lineHeight: 1.6 }}>
                     {parts.map((part, pIdx) => {
                         if (part.startsWith('**') && part.endsWith('**')) {
                             return (
@@ -138,7 +194,9 @@ export default function StudioAIChatWidget({ onOpenBookingModal }) {
                         <Camera size={19} color="#ffffff" />
                         <Sparkles size={11} color="#fde68a" style={{ position: 'absolute', top: -4, right: -4 }} />
                     </div>
-                    <span style={{ letterSpacing: '0.2px' }}>Ask Studio AI</span>
+                    <span style={{ letterSpacing: '0.2px' }}>
+                        {language === 'ml' ? 'സ്റ്റുഡിയോ AI' : 'Ask Studio AI'}
+                    </span>
                     <span style={{
                         display: 'inline-block',
                         width: '8px',
@@ -153,9 +211,9 @@ export default function StudioAIChatWidget({ onOpenBookingModal }) {
             {/* ─── Chat Window Card ─── */}
             {isOpen && (
                 <div style={{
-                    width: '380px',
+                    width: '390px',
                     maxWidth: 'calc(100vw - 32px)',
-                    height: '540px',
+                    height: '560px',
                     maxHeight: 'calc(100vh - 100px)',
                     backgroundColor: '#090d16',
                     border: '1px solid rgba(217, 119, 6, 0.35)',
@@ -170,14 +228,14 @@ export default function StudioAIChatWidget({ onOpenBookingModal }) {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
-                        padding: '14px 18px',
+                        padding: '12px 16px',
                         background: 'linear-gradient(135deg, #111827 0%, #1c1917 100%)',
                         borderBottom: '1px solid rgba(217, 119, 6, 0.2)'
                     }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                             <div style={{
-                                width: '38px',
-                                height: '38px',
+                                width: '36px',
+                                height: '36px',
                                 borderRadius: '50%',
                                 background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
                                 display: 'flex',
@@ -186,47 +244,92 @@ export default function StudioAIChatWidget({ onOpenBookingModal }) {
                                 boxShadow: '0 4px 12px rgba(217, 119, 6, 0.35)',
                                 position: 'relative'
                             }}>
-                                <Camera size={19} color="#090d16" />
+                                <Camera size={18} color="#090d16" />
                                 <span style={{
                                     position: 'absolute',
                                     bottom: 0,
                                     right: 0,
-                                    width: '10px',
-                                    height: '10px',
+                                    width: '9px',
+                                    height: '9px',
                                     backgroundColor: '#10b981',
                                     border: '2px solid #111827',
                                     borderRadius: '50%'
                                 }} />
                             </div>
                             <div>
-                                <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#fef3c7', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                    Balan Studios AI
-                                    <Sparkles size={13} color="#f59e0b" />
+                                <h3 style={{ margin: 0, fontSize: '13.5px', fontWeight: 700, color: '#fef3c7', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                    {currentI18n.title}
+                                    <Sparkles size={12} color="#f59e0b" />
                                 </h3>
-                                <p style={{ margin: 0, fontSize: '11px', color: '#34d399', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#34d399' }} />
-                                    Online • 09:00 AM - 08:30 PM
+                                <p style={{ margin: 0, fontSize: '10.5px', color: '#34d399', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                    <span style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: '#34d399' }} />
+                                    {currentI18n.status}
                                 </p>
                             </div>
                         </div>
 
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            {/* Language Segmented Toggle */}
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                                borderRadius: '12px',
+                                padding: '2px',
+                                border: '1px solid rgba(217, 119, 6, 0.3)'
+                            }}>
+                                <button
+                                    onClick={() => handleLanguageChange('en')}
+                                    style={{
+                                        background: language === 'en' ? 'linear-gradient(135deg, #d97706, #b45309)' : 'transparent',
+                                        color: language === 'en' ? '#ffffff' : '#9ca3af',
+                                        border: 'none',
+                                        borderRadius: '8px',
+                                        padding: '3px 8px',
+                                        fontSize: '11px',
+                                        fontWeight: 600,
+                                        cursor: 'pointer',
+                                        transition: 'all 0.15s'
+                                    }}
+                                    title="English"
+                                >
+                                    EN
+                                </button>
+                                <button
+                                    onClick={() => handleLanguageChange('ml')}
+                                    style={{
+                                        background: language === 'ml' ? 'linear-gradient(135deg, #d97706, #b45309)' : 'transparent',
+                                        color: language === 'ml' ? '#ffffff' : '#9ca3af',
+                                        border: 'none',
+                                        borderRadius: '8px',
+                                        padding: '3px 8px',
+                                        fontSize: '11px',
+                                        fontWeight: 600,
+                                        cursor: 'pointer',
+                                        transition: 'all 0.15s'
+                                    }}
+                                    title="മലയാളം"
+                                >
+                                    മലയാളം
+                                </button>
+                            </div>
+
                             <button
-                                onClick={() => setMessages([messages[0]])}
+                                onClick={() => setMessages([{ role: 'assistant', text: currentI18n.welcome, timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }])}
                                 title="Restart chat"
                                 style={{
                                     background: 'transparent',
                                     border: 'none',
                                     color: '#9ca3af',
-                                    padding: '6px',
-                                    borderRadius: '8px',
+                                    padding: '5px',
+                                    borderRadius: '6px',
                                     cursor: 'pointer',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center'
                                 }}
                             >
-                                <RefreshCw size={15} />
+                                <RefreshCw size={14} />
                             </button>
                             <button
                                 onClick={() => setIsOpen(false)}
@@ -235,15 +338,15 @@ export default function StudioAIChatWidget({ onOpenBookingModal }) {
                                     background: 'transparent',
                                     border: 'none',
                                     color: '#9ca3af',
-                                    padding: '6px',
-                                    borderRadius: '8px',
+                                    padding: '5px',
+                                    borderRadius: '6px',
                                     cursor: 'pointer',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center'
                                 }}
                             >
-                                <X size={17} />
+                                <X size={16} />
                             </button>
                         </div>
                     </div>
@@ -252,7 +355,7 @@ export default function StudioAIChatWidget({ onOpenBookingModal }) {
                     <div style={{
                         flex: 1,
                         overflowY: 'auto',
-                        padding: '16px',
+                        padding: '14px',
                         display: 'flex',
                         flexDirection: 'column',
                         gap: '12px',
@@ -270,10 +373,10 @@ export default function StudioAIChatWidget({ onOpenBookingModal }) {
                                     }}
                                 >
                                     <div style={{
-                                        maxWidth: '85%',
+                                        maxWidth: '86%',
                                         padding: '11px 15px',
                                         fontSize: '13px',
-                                        lineHeight: 1.5,
+                                        lineHeight: 1.55,
                                         borderRadius: '16px',
                                         borderTopRightRadius: isUser ? '2px' : '16px',
                                         borderTopLeftRadius: !isUser ? '2px' : '16px',
@@ -323,7 +426,7 @@ export default function StudioAIChatWidget({ onOpenBookingModal }) {
                             flexWrap: 'wrap',
                             gap: '6px'
                         }}>
-                            {QUICK_PROMPTS.map((prompt, idx) => (
+                            {currentI18n.prompts.map((prompt, idx) => (
                                 <button
                                     key={idx}
                                     onClick={() => handleSend(prompt.query)}
@@ -367,7 +470,7 @@ export default function StudioAIChatWidget({ onOpenBookingModal }) {
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             onKeyDown={handleKeyDown}
-                            placeholder="Ask about wedding packages, prices..."
+                            placeholder={currentI18n.placeholder}
                             style={{
                                 flex: 1,
                                 backgroundColor: '#141c2c',

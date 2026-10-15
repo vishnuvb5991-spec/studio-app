@@ -70,10 +70,19 @@ function getAIClient() {
 }
 
 /**
- * Sends customer message with history to Gemini with fallback
+ * Sends customer message with history to Gemini with fallback and language preference
  */
-export async function sendChatMessage(userMessage, conversationHistory = []) {
+export async function sendChatMessage(userMessage, conversationHistory = [], language = 'en') {
     const ai = getAIClient();
+
+    let langInstruction = '';
+    if (language === 'ml') {
+        langInstruction = '\n\nLANGUAGE DIRECTIVE: The customer has chosen Malayalam (മലയാളം) as their preferred language. You MUST respond in fluent, natural, polite Malayalam script (മലയാളം). You can use standard numerals for currency and pricing (e.g. ₹85,000, 4K Cinema).';
+    } else {
+        langInstruction = '\n\nLANGUAGE DIRECTIVE: Respond in English, but match Malayalam if the customer asks in Malayalam.';
+    }
+
+    const effectiveInstruction = STUDIO_KNOWLEDGE_PROMPT + langInstruction;
 
     // Map conversation turns into Gemini parts
     const contents = [];
@@ -95,21 +104,21 @@ export async function sendChatMessage(userMessage, conversationHistory = []) {
             model: 'gemini-3.5-flash-lite',
             contents,
             config: {
-                systemInstruction: STUDIO_KNOWLEDGE_PROMPT,
+                systemInstruction: effectiveInstruction,
                 temperature: 0.7,
             }
         });
-        return response.text ? response.text.trim() : "Welcome to Balan Studios! How can I assist you today?";
+        return response.text ? response.text.trim() : (language === 'ml' ? "ബാലൻ സ്റ്റുഡിയോസിലേക്ക് സ്വാഗതം! ഞാൻ എങ്ങനെ സഹായിക്കണം?" : "Welcome to Balan Studios! How can I assist you today?");
     } catch (err) {
         console.warn("[Studio AI] Primary model error, falling back to gemini-3.8-flash:", err);
         const fallbackResponse = await ai.models.generateContent({
             model: 'gemini-3.8-flash',
             contents,
             config: {
-                systemInstruction: STUDIO_KNOWLEDGE_PROMPT,
+                systemInstruction: effectiveInstruction,
                 temperature: 0.7,
             }
         });
-        return fallbackResponse.text ? fallbackResponse.text.trim() : "Welcome to Balan Studios! How can I assist you today?";
+        return fallbackResponse.text ? fallbackResponse.text.trim() : (language === 'ml' ? "ബാലൻ സ്റ്റുഡിയോസിലേക്ക് സ്വാഗതം! ഞാൻ എങ്ങനെ സഹായിക്കണം?" : "Welcome to Balan Studios! How can I assist you today?");
     }
 }
