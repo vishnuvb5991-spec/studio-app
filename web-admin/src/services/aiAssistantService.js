@@ -59,7 +59,8 @@ let aiInstance = null;
 
 function getAIClient() {
     if (!aiInstance) {
-        const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "AQ.Ab8RN6Khrn1J6g70tHq8SyH4Ob7Twnee6StqXsY5zyypbLhUZA";
+        // Read strictly from environment variable, never hardcode in client bundle
+        const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
         if (!apiKey) {
             throw new Error("Gemini API key is not configured.");
         }
