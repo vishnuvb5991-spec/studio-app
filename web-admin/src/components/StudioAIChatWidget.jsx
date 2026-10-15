@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, MessageSquare, X, Send, Camera, Clock, MapPin, Calendar, RefreshCw, ChevronDown } from 'lucide-react';
+import { Sparkles, X, Send, Camera, RefreshCw } from 'lucide-react';
 import { sendChatMessage } from '../services/aiAssistantService';
 
 const QUICK_PROMPTS = [
@@ -23,7 +23,6 @@ export default function StudioAIChatWidget({ onOpenBookingModal }) {
     const messagesEndRef = useRef(null);
     const inputRef = useRef(null);
 
-    // Auto-scroll to latest message
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
@@ -65,7 +64,7 @@ export default function StudioAIChatWidget({ onOpenBookingModal }) {
                 ...prev,
                 {
                     role: 'assistant',
-                    text: "I'm having a slight connection moment. Please call our studio directly at **+91 0000000000** or try again in a few seconds!",
+                    text: "I'm having a slight connection moment. Please call our studio directly at **+91 0000000000** or try again in a moment!",
                     timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                 }
             ]);
@@ -81,18 +80,20 @@ export default function StudioAIChatWidget({ onOpenBookingModal }) {
         }
     };
 
-    // Render markdown-like bold text easily
     const formatMessageText = (text) => {
         if (!text) return '';
         const lines = text.split('\n');
         return lines.map((line, idx) => {
-            // Replace **bold** with <strong>
             const parts = line.split(/(\*\*.*?\*\*)/g);
             return (
-                <div key={idx} className={line === '' ? 'h-2' : 'my-0.5'}>
+                <div key={idx} style={{ minHeight: line === '' ? '8px' : 'auto', margin: '3px 0', lineHeight: 1.5 }}>
                     {parts.map((part, pIdx) => {
                         if (part.startsWith('**') && part.endsWith('**')) {
-                            return <strong key={pIdx} className="font-semibold text-amber-200">{part.slice(2, -2)}</strong>;
+                            return (
+                                <strong key={pIdx} style={{ fontWeight: 600, color: '#fef3c7' }}>
+                                    {part.slice(2, -2)}
+                                </strong>
+                            );
                         }
                         return part;
                     })}
@@ -102,98 +103,210 @@ export default function StudioAIChatWidget({ onOpenBookingModal }) {
     };
 
     return (
-        <div className="fixed bottom-6 right-6 z-50 font-sans">
-            {/* ─── Chat Floating Trigger Button ─── */}
+        <div style={{ position: 'fixed', bottom: '24px', right: '24px', zIndex: 99999, fontFamily: "'Plus Jakarta Sans', -apple-system, sans-serif" }}>
+            {/* ─── Floating Pill Launcher Button ─── */}
             {!isOpen && (
                 <button
                     onClick={() => setIsOpen(true)}
-                    className="group relative flex items-center gap-3 px-5 py-3.5 bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 text-slate-950 font-semibold rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 border border-amber-300/40 hover:shadow-amber-500/25 cursor-pointer"
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        padding: '13px 20px',
+                        background: 'linear-gradient(135deg, #d97706 0%, #b45309 100%)',
+                        color: '#ffffff',
+                        fontWeight: 600,
+                        fontSize: '14px',
+                        borderRadius: '50px',
+                        border: '1px solid rgba(253, 230, 138, 0.4)',
+                        boxShadow: '0 10px 25px -5px rgba(217, 119, 6, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3)',
+                        cursor: 'pointer',
+                        transition: 'all 0.25s ease',
+                        outline: 'none'
+                    }}
+                    onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-2px) scale(1.03)';
+                        e.currentTarget.style.boxShadow = '0 14px 28px -5px rgba(217, 119, 6, 0.65)';
+                    }}
+                    onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                        e.currentTarget.style.boxShadow = '0 10px 25px -5px rgba(217, 119, 6, 0.5)';
+                    }}
                     aria-label="Open Studio AI Assistant"
                 >
-                    <div className="relative">
-                        <Camera className="w-5 h-5 text-slate-950" />
-                        <Sparkles className="w-3 h-3 text-white absolute -top-1 -right-1.5 animate-pulse" />
+                    <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                        <Camera size={19} color="#ffffff" />
+                        <Sparkles size={11} color="#fde68a" style={{ position: 'absolute', top: -4, right: -4 }} />
                     </div>
-                    <span className="text-sm tracking-wide font-bold">Ask Studio AI</span>
-                    <span className="flex h-2.5 w-2.5 relative">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-                    </span>
+                    <span style={{ letterSpacing: '0.2px' }}>Ask Studio AI</span>
+                    <span style={{
+                        display: 'inline-block',
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                        backgroundColor: '#34d399',
+                        boxShadow: '0 0 8px #34d399'
+                    }} />
                 </button>
             )}
 
-            {/* ─── Chat Window Modal / Popup ─── */}
+            {/* ─── Chat Window Card ─── */}
             {isOpen && (
-                <div className="flex flex-col w-[380px] max-w-[calc(100vw-32px)] h-[560px] max-h-[calc(100vh-100px)] bg-slate-950/95 backdrop-blur-xl border border-amber-500/30 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                <div style={{
+                    width: '380px',
+                    maxWidth: 'calc(100vw - 32px)',
+                    height: '540px',
+                    maxHeight: 'calc(100vh - 100px)',
+                    backgroundColor: '#090d16',
+                    border: '1px solid rgba(217, 119, 6, 0.35)',
+                    borderRadius: '20px',
+                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.75), 0 0 35px rgba(217, 119, 6, 0.15)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    overflow: 'hidden'
+                }}>
                     {/* Header */}
-                    <div className="relative flex items-center justify-between px-4 py-3.5 bg-gradient-to-r from-slate-900 via-slate-900 to-amber-950/40 border-b border-amber-500/20">
-                        <div className="flex items-center gap-3">
-                            <div className="relative flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-tr from-amber-600 to-amber-400 shadow-md">
-                                <Camera className="w-5 h-5 text-slate-950" />
-                                <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-slate-900 rounded-full"></span>
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '14px 18px',
+                        background: 'linear-gradient(135deg, #111827 0%, #1c1917 100%)',
+                        borderBottom: '1px solid rgba(217, 119, 6, 0.2)'
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <div style={{
+                                width: '38px',
+                                height: '38px',
+                                borderRadius: '50%',
+                                background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                boxShadow: '0 4px 12px rgba(217, 119, 6, 0.35)',
+                                position: 'relative'
+                            }}>
+                                <Camera size={19} color="#090d16" />
+                                <span style={{
+                                    position: 'absolute',
+                                    bottom: 0,
+                                    right: 0,
+                                    width: '10px',
+                                    height: '10px',
+                                    backgroundColor: '#10b981',
+                                    border: '2px solid #111827',
+                                    borderRadius: '50%'
+                                }} />
                             </div>
                             <div>
-                                <h3 className="text-sm font-bold text-amber-100 flex items-center gap-1.5">
-                                    Balan Studios Assistant
-                                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                                <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#fef3c7', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                    Balan Studios AI
+                                    <Sparkles size={13} color="#f59e0b" />
                                 </h3>
-                                <p className="text-[11px] text-emerald-400 flex items-center gap-1">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                <p style={{ margin: 0, fontSize: '11px', color: '#34d399', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#34d399' }} />
                                     Online • 09:00 AM - 08:30 PM
                                 </p>
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-1">
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                             <button
                                 onClick={() => setMessages([messages[0]])}
-                                title="Reset conversation"
-                                className="p-1.5 text-slate-400 hover:text-amber-300 rounded-lg hover:bg-slate-800/60 transition-colors"
+                                title="Restart chat"
+                                style={{
+                                    background: 'transparent',
+                                    border: 'none',
+                                    color: '#9ca3af',
+                                    padding: '6px',
+                                    borderRadius: '8px',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }}
                             >
-                                <RefreshCw className="w-4 h-4" />
+                                <RefreshCw size={15} />
                             </button>
                             <button
                                 onClick={() => setIsOpen(false)}
                                 title="Close"
-                                className="p-1.5 text-slate-400 hover:text-rose-400 rounded-lg hover:bg-slate-800/60 transition-colors"
+                                style={{
+                                    background: 'transparent',
+                                    border: 'none',
+                                    color: '#9ca3af',
+                                    padding: '6px',
+                                    borderRadius: '8px',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }}
                             >
-                                <X className="w-4 h-4" />
+                                <X size={17} />
                             </button>
                         </div>
                     </div>
 
-                    {/* Messages Body */}
-                    <div className="flex-1 overflow-y-auto p-4 space-y-3.5 scrollbar-thin scrollbar-thumb-slate-800">
+                    {/* Messages Scroll Area */}
+                    <div style={{
+                        flex: 1,
+                        overflowY: 'auto',
+                        padding: '16px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '12px',
+                        backgroundColor: '#090d16'
+                    }}>
                         {messages.map((msg, index) => {
                             const isUser = msg.role === 'user';
                             return (
                                 <div
                                     key={index}
-                                    className={`flex flex-col ${isUser ? 'items-end' : 'items-start'}`}
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: isUser ? 'flex-end' : 'flex-start'
+                                    }}
                                 >
-                                    <div
-                                        className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-xs sm:text-sm leading-relaxed ${
-                                            isUser
-                                                ? 'bg-gradient-to-br from-amber-500 to-amber-600 text-slate-950 font-medium rounded-tr-none shadow-md'
-                                                : 'bg-slate-900/90 text-slate-200 border border-slate-800/80 rounded-tl-none shadow-inner'
-                                        }`}
-                                    >
+                                    <div style={{
+                                        maxWidth: '85%',
+                                        padding: '11px 15px',
+                                        fontSize: '13px',
+                                        lineHeight: 1.5,
+                                        borderRadius: '16px',
+                                        borderTopRightRadius: isUser ? '2px' : '16px',
+                                        borderTopLeftRadius: !isUser ? '2px' : '16px',
+                                        background: isUser
+                                            ? 'linear-gradient(135deg, #d97706 0%, #b45309 100%)'
+                                            : '#171e2e',
+                                        color: isUser ? '#ffffff' : '#e2e8f0',
+                                        border: isUser ? 'none' : '1px solid rgba(255, 255, 255, 0.08)',
+                                        boxShadow: isUser ? '0 4px 12px rgba(217, 119, 6, 0.25)' : 'none'
+                                    }}>
                                         {formatMessageText(msg.text)}
                                     </div>
-                                    <span className="text-[10px] text-slate-500 mt-1 px-1">
+                                    <span style={{ fontSize: '10px', color: '#64748b', marginTop: '4px', padding: '0 4px' }}>
                                         {msg.timestamp}
                                     </span>
                                 </div>
                             );
                         })}
 
-                        {/* Typing Indicator */}
                         {isLoading && (
-                            <div className="flex items-start">
-                                <div className="bg-slate-900/90 border border-slate-800 rounded-2xl rounded-tl-none px-4 py-3 text-slate-400 flex items-center gap-1.5">
-                                    <div className="w-2 h-2 rounded-full bg-amber-400 animate-bounce"></div>
-                                    <div className="w-2 h-2 rounded-full bg-amber-400 animate-bounce [animation-delay:0.2s]"></div>
-                                    <div className="w-2 h-2 rounded-full bg-amber-400 animate-bounce [animation-delay:0.4s]"></div>
+                            <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+                                <div style={{
+                                    backgroundColor: '#171e2e',
+                                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                                    borderRadius: '16px',
+                                    borderTopLeftRadius: '2px',
+                                    padding: '12px 18px',
+                                    display: 'flex',
+                                    gap: '5px'
+                                }}>
+                                    <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#f59e0b', animation: 'pulse 1s infinite' }} />
+                                    <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#f59e0b', animation: 'pulse 1s infinite 0.2s' }} />
+                                    <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#f59e0b', animation: 'pulse 1s infinite 0.4s' }} />
                                 </div>
                             </div>
                         )}
@@ -202,12 +315,36 @@ export default function StudioAIChatWidget({ onOpenBookingModal }) {
 
                     {/* Quick Suggestion Chips */}
                     {messages.length <= 2 && (
-                        <div className="px-3 py-2 bg-slate-900/40 border-t border-slate-800/60 flex flex-wrap gap-1.5">
+                        <div style={{
+                            padding: '8px 12px',
+                            backgroundColor: '#0e1422',
+                            borderTop: '1px solid rgba(255, 255, 255, 0.06)',
+                            display: 'flex',
+                            flexWrap: 'wrap',
+                            gap: '6px'
+                        }}>
                             {QUICK_PROMPTS.map((prompt, idx) => (
                                 <button
                                     key={idx}
                                     onClick={() => handleSend(prompt.query)}
-                                    className="text-[11px] px-2.5 py-1 bg-slate-800/70 hover:bg-amber-500/20 text-slate-300 hover:text-amber-200 border border-slate-700/60 hover:border-amber-500/40 rounded-full transition-all text-left"
+                                    style={{
+                                        fontSize: '11px',
+                                        padding: '5px 10px',
+                                        backgroundColor: '#1a2234',
+                                        color: '#cbd5e1',
+                                        border: '1px solid rgba(217, 119, 6, 0.3)',
+                                        borderRadius: '20px',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.15s ease'
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.backgroundColor = 'rgba(217, 119, 6, 0.2)';
+                                        e.currentTarget.style.color = '#fef3c7';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.backgroundColor = '#1a2234';
+                                        e.currentTarget.style.color = '#cbd5e1';
+                                    }}
                                 >
                                     {prompt.label}
                                 </button>
@@ -216,23 +353,49 @@ export default function StudioAIChatWidget({ onOpenBookingModal }) {
                     )}
 
                     {/* Input Bar */}
-                    <div className="p-3 bg-slate-900/80 border-t border-slate-800 flex items-center gap-2">
+                    <div style={{
+                        padding: '12px 14px',
+                        backgroundColor: '#0c101c',
+                        borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px'
+                    }}>
                         <input
                             ref={inputRef}
                             type="text"
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             onKeyDown={handleKeyDown}
-                            placeholder="Ask about wedding packages, pricing..."
-                            className="flex-1 bg-slate-950/80 text-slate-100 placeholder-slate-500 text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-800 focus:outline-none focus:border-amber-500 transition-colors"
+                            placeholder="Ask about wedding packages, prices..."
+                            style={{
+                                flex: 1,
+                                backgroundColor: '#141c2c',
+                                color: '#ffffff',
+                                border: '1px solid rgba(255, 255, 255, 0.12)',
+                                borderRadius: '12px',
+                                padding: '10px 14px',
+                                fontSize: '13px',
+                                outline: 'none'
+                            }}
                         />
                         <button
                             onClick={() => handleSend()}
                             disabled={!input.trim() || isLoading}
-                            className="p-2.5 bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:hover:bg-amber-500 text-slate-950 rounded-xl transition-all cursor-pointer"
-                            aria-label="Send message"
+                            style={{
+                                padding: '10px 13px',
+                                background: !input.trim() || isLoading ? '#374151' : 'linear-gradient(135deg, #d97706 0%, #b45309 100%)',
+                                color: '#ffffff',
+                                border: 'none',
+                                borderRadius: '12px',
+                                cursor: !input.trim() || isLoading ? 'default' : 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                transition: 'all 0.2s'
+                            }}
                         >
-                            <Send className="w-4 h-4" />
+                            <Send size={15} />
                         </button>
                     </div>
                 </div>
