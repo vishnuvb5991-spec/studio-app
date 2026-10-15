@@ -13,6 +13,7 @@ const mongoose = require('mongoose');
 // Import routes
 const chatRoutes = require('./routes/chat');
 const notificationRoutes = require('./routes/notifications');
+const aiAssistantRoutes = require('./routes/aiAssistant');
 
 // Import socket handlers
 const registerSocketHandlers = require('./socket/handlers');
@@ -22,10 +23,14 @@ const server = http.createServer(app);
 
 // Allowed origins for CORS
 const allowedOrigins = [
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
   'http://localhost:3000',
   'http://localhost:8080',
   'http://127.0.0.1:3000',
-  /\.onrender\.com$/
+  'https://preetha-studio-app.surge.sh',
+  /\.onrender\.com$/,
+  /\.surge\.sh$/
 ];
 
 // Socket.io setup with CORS
@@ -47,6 +52,7 @@ app.use(express.json());
 // Routes
 app.use('/api/chat', chatRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/ai', aiAssistantRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

@@ -9,6 +9,7 @@ import Hero3DCanvas from '../components/3d/Hero3DCanvas';
 import Tilt3DCard from '../components/3d/Tilt3DCard';
 import Gallery3DCarousel from '../components/3d/Gallery3DCarousel';
 import CameraLensPortal from '../components/3d/CameraLensPortal';
+import StudioAIChatWidget from '../components/StudioAIChatWidget';
 
 /* ─── Unsplash photo tokens (free, no auth needed) ─── */
 const GALLERY = [
@@ -1178,6 +1179,9 @@ export default function LandingPage() {
                     </div>
                 </div>
             )}
+            
+            {/* ─── 24/7 AI Concierge & Chat Assistant ─── */}
+            <StudioAIChatWidget onOpenBookingModal={() => setIsBookingModalOpen(true)} />
         </div>
     );
 }
