@@ -77,33 +77,6 @@ const allTransactions = [
         date: 'Aug 24, 2026',
         payoutStatus: 'Settled to Bank',
         refId: 'pay_P1rW654kJh'
-    },
-    // Demo customer transactions — visible when demo customer logs in
-    {
-        id: 'TXN-984210',
-        customer: 'Demo Customer',
-        email: 'demo.customer@example.com',
-        event: 'Luxury Destination Wedding (Jaipur)',
-        amount: 185000,
-        advance_paid: 185000,
-        gateway: 'Razorpay UPI',
-        status: 'success',
-        date: 'Aug 28, 2026',
-        payoutStatus: 'Settled to Bank',
-        refId: 'pay_P8xK910mNp'
-    },
-    {
-        id: 'TXN-984205',
-        customer: 'Demo Customer',
-        email: 'demo.customer@example.com',
-        event: 'Birthday Portrait Session',
-        amount: 8500,
-        advance_paid: 0,
-        gateway: 'Pending',
-        status: 'pending',
-        date: 'Jan 10, 2025',
-        payoutStatus: 'Awaiting Payment',
-        refId: ''
     }
 ];
 
@@ -394,32 +367,42 @@ function CustomerInvoicesView({ user }) {
         api.get('/payments/my-invoices/')
             .then(res => setMyInvoices(res.data))
             .catch(() => {
-                // 2. Filter mock transactions by this user's email
-                const email = user?.email?.toLowerCase() || '';
-                const fromMock = allTransactions.filter(t => t.email?.toLowerCase() === email);
+                // Load ONLY real bookings/payments this specific user created — NO mock data
+                const email = user?.email?.toLowerCase()?.trim() || '';
+                const firstName = (user?.first_name || '').toLowerCase()?.trim();
 
-                // 3. Also merge any localStorage bookings this user created
                 const stored = JSON.parse(localStorage.getItem('studio_custom_bookings') || '[]');
                 const fromLocal = stored
-                    .filter(b => b.email?.toLowerCase() === email || b.client?.toLowerCase() === (user?.first_name || '').toLowerCase())
-                    .map((b, i) => ({
-                        id: b.id || `LOCAL-${i}`,
-                        customer: b.client || user?.first_name || 'Customer',
-                        email: b.email || email,
-                        event: b.event_name || 'Booking',
-                        amount: Number(b.amount) || 0,
-                        advance_paid: Number(b.advance_paid) || 0,
-                        gateway: b.status === 'confirmed' ? 'Razorpay' : 'Pending',
-                        status: Number(b.amount) > 0 && Number(b.advance_paid) >= Number(b.amount) ? 'success' : 'pending',
-                        date: b.date || '—',
-                        payoutStatus: Number(b.amount) > 0 && Number(b.advance_paid) >= Number(b.amount) ? 'Settled to Bank' : 'Awaiting Payment',
-                        refId: ''
-                    }));
+                    .filter(b => {
+                        const bEmail = (b.email || b.client_email || b.customer_email || '').toLowerCase().trim();
+                        const bName = (b.client || b.customer || b.client_name || b.customer_name || '').toLowerCase().trim();
+                        return (email && bEmail === email) || (firstName && bName.includes(firstName));
+                    })
+                    .map((b, i) => {
+                        const total = Number(b.amount || b.total_amount) || 0;
+                        const adv = typeof b.advance_paid === 'boolean'
+                            ? (b.advance_paid ? total : 0)
+                            : (Number(b.advance_paid) || 0);
+                        const isFullyPaid = total > 0 && adv >= total;
 
-                // Merge, dedupe by id
-                const all = [...fromMock, ...fromLocal];
+                        return {
+                            id: b.id || `LOCAL-${i}`,
+                            customer: b.client || b.customer_name || user?.first_name || 'Customer',
+                            email: b.email || b.customer_email || email,
+                            event: b.event_name || 'Booking',
+                            amount: total,
+                            advance_paid: adv,
+                            gateway: b.status === 'confirmed' ? 'Razorpay' : 'Pending',
+                            status: isFullyPaid ? 'success' : 'pending',
+                            date: b.date || b.event_date || '—',
+                            payoutStatus: isFullyPaid ? 'Settled to Bank' : 'Awaiting Payment',
+                            refId: ''
+                        };
+                    });
+
+                // Dedupe by id — only real transactions, clean state if none
                 const seen = new Set();
-                setMyInvoices(all.filter(inv => {
+                setMyInvoices(fromLocal.filter(inv => {
                     if (seen.has(inv.id)) return false;
                     seen.add(inv.id);
                     return true;

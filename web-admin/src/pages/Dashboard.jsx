@@ -1035,21 +1035,21 @@ function CustomerPortalView({ user, isOwnerPreview }) {
     const [invoices, setInvoices] = useState([]);
     const [payingId, setPayingId] = useState(null);
 
-    // Load invoices from localStorage or fall back to demo invoices
+    // Load invoices from localStorage for this specific customer — NO mock/demo fallbacks
     useEffect(() => {
         const stored = JSON.parse(localStorage.getItem('studio_custom_bookings') || '[]');
-        const pending = stored.filter(b =>
-            (b.status === 'pending' || b.status === 'confirmed') && Number(b.amount) > 0
-        );
-        if (pending.length > 0) {
-            setInvoices(pending);
-        } else {
-            setInvoices([
-                { id: 'demo-1', event_name: 'Wedding Photography Shoot', amount: 25000, advance_paid: 5000, status: 'confirmed', date: '2024-12-25', venue: 'Taj Palace, Hyderabad' },
-                { id: 'demo-2', event_name: 'Birthday Portrait Session', amount: 8500, advance_paid: 0, status: 'pending', date: '2025-01-10', venue: 'Home Studio' }
-            ]);
-        }
-    }, []);
+        const userEmail = (user?.email || '').toLowerCase().trim();
+        const userName = (user?.first_name || '').toLowerCase().trim();
+
+        const myBookings = stored.filter(b => {
+            const bEmail = (b.email || b.client_email || '').toLowerCase().trim();
+            const bName = (b.client || b.customer || b.client_name || '').toLowerCase().trim();
+            const belongsToUser = (userEmail && bEmail === userEmail) || (userName && bName.includes(userName));
+            return belongsToUser && (b.status === 'pending' || b.status === 'confirmed') && Number(b.amount) > 0;
+        });
+
+        setInvoices(myBookings);
+    }, [user]);
 
     const handleBookingChange = (e) => {
         setBookingForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -1254,60 +1254,89 @@ function CustomerPortalView({ user, isOwnerPreview }) {
                     <span className="badge badge-success" style={{ alignSelf: 'flex-start' }}>🔒 Secured by Razorpay</span>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-                    {invoices.map((inv) => {
-                        const outstanding = Number(inv.amount) - Number(inv.advance_paid || 0);
-                        const isPaid = inv._paid || outstanding <= 0;
-                        return (
-                            <div key={inv.id} style={{
-                                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                                flexWrap: 'wrap', gap: '0.75rem',
-                                padding: '1rem 1.25rem',
-                                background: isPaid ? '#ecfdf5' : '#fafaf9',
-                                border: `1px solid ${isPaid ? '#a7f3d0' : '#e5e7eb'}`,
-                                borderRadius: 'var(--radius-md)',
-                            }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-                                    <div style={{
-                                        width: 40, height: 40, borderRadius: 'var(--radius-md)',
-                                        background: isPaid ? '#d1fae5' : '#fef3c7',
-                                        display: 'flex', alignItems: 'center', justifyContent: 'center'
-                                    }}>
-                                        {isPaid ? <CheckCircle2 size={20} color="#059669" /> : <FileText size={20} color="#d97706" />}
+                {invoices.length === 0 ? (
+                    <div style={{
+                        textAlign: 'center',
+                        padding: '2.5rem 1.5rem',
+                        background: '#fafaf9',
+                        borderRadius: 'var(--radius-md)',
+                        border: '1px dashed #e5e7eb'
+                    }}>
+                        <div style={{
+                            width: 44,
+                            height: 44,
+                            borderRadius: '50%',
+                            background: '#ecfdf5',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            margin: '0 auto 0.75rem auto'
+                        }}>
+                            <CheckCircle2 size={22} color="#059669" />
+                        </div>
+                        <p style={{ fontWeight: 700, fontSize: '0.92rem', color: '#18181b', marginBottom: '0.2rem' }}>
+                            No Pending Invoices
+                        </p>
+                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', maxWidth: 420, margin: '0 auto' }}>
+                            You have no outstanding payments. Once you schedule a shoot or an invoice is generated, it will appear here.
+                        </p>
+                    </div>
+                ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+                        {invoices.map((inv) => {
+                            const outstanding = Number(inv.amount) - Number(inv.advance_paid || 0);
+                            const isPaid = inv._paid || outstanding <= 0;
+                            return (
+                                <div key={inv.id} style={{
+                                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                                    flexWrap: 'wrap', gap: '0.75rem',
+                                    padding: '1rem 1.25rem',
+                                    background: isPaid ? '#ecfdf5' : '#fafaf9',
+                                    border: `1px solid ${isPaid ? '#a7f3d0' : '#e5e7eb'}`,
+                                    borderRadius: 'var(--radius-md)',
+                                }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+                                        <div style={{
+                                            width: 40, height: 40, borderRadius: 'var(--radius-md)',
+                                            background: isPaid ? '#d1fae5' : '#fef3c7',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                        }}>
+                                            {isPaid ? <CheckCircle2 size={20} color="#059669" /> : <FileText size={20} color="#d97706" />}
+                                        </div>
+                                        <div>
+                                            <p style={{ fontWeight: 700, fontSize: '0.9rem', color: '#18181b', marginBottom: '0.15rem' }}>
+                                                {inv.event_name}
+                                            </p>
+                                            <p style={{ fontSize: '0.76rem', color: 'var(--text-secondary)' }}>
+                                                📅 {inv.date} &nbsp;|&nbsp; 📍 {inv.venue}
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p style={{ fontWeight: 700, fontSize: '0.9rem', color: '#18181b', marginBottom: '0.15rem' }}>
-                                            {inv.event_name}
-                                        </p>
-                                        <p style={{ fontSize: '0.76rem', color: 'var(--text-secondary)' }}>
-                                            📅 {inv.date} &nbsp;|&nbsp; 📍 {inv.venue}
-                                        </p>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flexWrap: 'wrap' }}>
+                                        <div style={{ textAlign: 'right' }}>
+                                            <p style={{ fontSize: '0.75rem', color: '#71717a' }}>
+                                                Total: ₹{Number(inv.amount).toLocaleString()}
+                                            </p>
+                                            <p style={{ fontWeight: 800, fontSize: '1rem', color: isPaid ? '#059669' : '#d97706' }}>
+                                                {isPaid ? '✓ Paid' : `Due: ₹${outstanding.toLocaleString()}`}
+                                            </p>
+                                        </div>
+                                        {!isPaid && (
+                                            <button
+                                                className="btn btn-primary"
+                                                style={{ padding: '0.55rem 1.1rem', fontSize: '0.825rem', fontWeight: 700, background: '#18181b', color: '#ffffff' }}
+                                                disabled={payingId === inv.id}
+                                                onClick={() => handlePayNow(inv)}
+                                            >
+                                                {payingId === inv.id ? '⏳ Opening…' : '💳 Pay Now'}
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flexWrap: 'wrap' }}>
-                                    <div style={{ textAlign: 'right' }}>
-                                        <p style={{ fontSize: '0.75rem', color: '#71717a' }}>
-                                            Total: ₹{Number(inv.amount).toLocaleString()}
-                                        </p>
-                                        <p style={{ fontWeight: 800, fontSize: '1rem', color: isPaid ? '#059669' : '#d97706' }}>
-                                            {isPaid ? '✓ Paid' : `Due: ₹${outstanding.toLocaleString()}`}
-                                        </p>
-                                    </div>
-                                    {!isPaid && (
-                                        <button
-                                            className="btn btn-primary"
-                                            style={{ padding: '0.55rem 1.1rem', fontSize: '0.825rem', fontWeight: 700, background: '#18181b', color: '#ffffff' }}
-                                            disabled={payingId === inv.id}
-                                            onClick={() => handlePayNow(inv)}
-                                        >
-                                            {payingId === inv.id ? '⏳ Opening…' : '💳 Pay Now'}
-                                        </button>
-                                    )}
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
+                            );
+                        })}
+                    </div>
+                )}
             </div>
 
             {/* Quick Action Tiles */}

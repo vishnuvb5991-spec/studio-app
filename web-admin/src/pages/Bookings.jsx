@@ -16,6 +16,7 @@ import {
     CalendarCheck
 } from 'lucide-react';
 import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
 const defaultShowcaseBookings = [
     {
@@ -69,6 +70,9 @@ const defaultShowcaseBookings = [
 ];
 
 function Bookings() {
+    const { user, isStudioOwner, viewMode } = useAuth();
+    const isCustomer = !isStudioOwner || viewMode === 'customer';
+
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
     const [statusFilter, setStatusFilter] = useState('all');
@@ -88,7 +92,7 @@ function Bookings() {
 
     useEffect(() => {
         loadBookings();
-    }, []);
+    }, [isCustomer, user?.email]);
 
     const loadBookings = () => {
         try {
@@ -96,12 +100,30 @@ function Bookings() {
             if (stored) {
                 const parsed = JSON.parse(stored);
                 if (Array.isArray(parsed) && parsed.length > 0) {
+                    if (isCustomer) {
+                        const custEmail = (user?.email || '').toLowerCase().trim();
+                        const custName = (user?.first_name || user?.name || '').toLowerCase().trim();
+                        const myBookings = parsed.filter(b => {
+                            const bEmail = (b.customer_email || b.client_email || '').toLowerCase();
+                            const bName = (b.customer_name || b.client || '').toLowerCase();
+                            return (custEmail && bEmail === custEmail) || (custName && bName.includes(custName));
+                        });
+                        setBookings(myBookings);
+                        setLoading(false);
+                        return;
+                    }
                     setBookings(parsed);
                     setLoading(false);
                     return;
                 }
             }
         } catch (e) {}
+
+        if (isCustomer) {
+            setBookings([]);
+            setLoading(false);
+            return;
+        }
 
         setBookings(defaultShowcaseBookings);
         setLoading(false);
@@ -178,21 +200,25 @@ function Bookings() {
             }}>
                 <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
-                        <h1 className="gradient-text">Studio Production Schedule</h1>
+                        <h1 className="gradient-text">{isCustomer ? 'My Event Bookings' : 'Studio Production Schedule'}</h1>
                         <Sparkles size={20} color="#06b6d4" />
                     </div>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
-                        Manage upcoming wedding dates, drone operators, and shooting calendar.
+                        {isCustomer
+                            ? 'Track your scheduled photoshoots, venues, and booking status.'
+                            : 'Manage upcoming wedding dates, drone operators, and shooting calendar.'}
                     </p>
                 </div>
 
-                <button
-                    className="btn btn-cyan"
-                    onClick={() => setIsModalOpen(true)}
-                    style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.4rem' }}
-                >
-                    <Plus size={18} /> Schedule New Event
-                </button>
+                {!isCustomer && (
+                    <button
+                        className="btn btn-cyan"
+                        onClick={() => setIsModalOpen(true)}
+                        style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.4rem' }}
+                    >
+                        <Plus size={18} /> Schedule New Event
+                    </button>
+                )}
             </div>
 
             {/* Success Toast */}
@@ -253,116 +279,160 @@ function Bookings() {
             </div>
 
             {/* Bookings List */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {filteredBookings.map((b) => (
-                    <div
-                        key={b.id}
-                        className="card card-interactive"
-                        style={{
-                            padding: '1.4rem',
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            flexWrap: 'wrap',
-                            gap: '1.25rem'
-                        }}
-                    >
-                        {/* Event Details */}
-                        <div style={{ minWidth: 280, flex: 1 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.4rem' }}>
-                                <span style={{
-                                    fontSize: '0.7rem',
-                                    fontWeight: 800,
-                                    padding: '0.2rem 0.55rem',
-                                    borderRadius: 'var(--radius-full)',
-                                    background: b.status === 'confirmed' ? '#ecfdf5' : (b.status === 'pending' ? '#fef3c7' : '#f4f4f5'),
-                                    color: b.status === 'confirmed' ? '#065f46' : (b.status === 'pending' ? '#92400e' : '#18181b'),
-                                    border: `1px solid ${b.status === 'confirmed' ? '#a7f3d0' : (b.status === 'pending' ? '#fde68a' : '#e4e4e7')}`,
-                                    textTransform: 'uppercase'
-                                }}>
-                                    {b.status}
-                                </span>
-                                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>ID: {b.id}</span>
-                            </div>
+            {filteredBookings.length === 0 ? (
+                <div className="card" style={{
+                    padding: '3rem 2rem',
+                    textAlign: 'center',
+                    background: '#fafaf9',
+                    borderRadius: 'var(--radius-lg)',
+                    border: '1px dashed #e5e7eb'
+                }}>
+                    <div style={{
+                        width: 56,
+                        height: 56,
+                        borderRadius: '50%',
+                        background: '#fef3c7',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        margin: '0 auto 1rem auto'
+                    }}>
+                        <Calendar size={28} color="#d97706" />
+                    </div>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#18181b', marginBottom: '0.4rem' }}>
+                        {isCustomer ? 'No Bookings Found' : 'No Events Found'}
+                    </h3>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', maxWidth: 440, margin: '0 auto 1.5rem auto' }}>
+                        {isCustomer
+                            ? "You don't have any scheduled shoots or reservations yet. Once you book a session with Balan Studios, your event schedule will appear here."
+                            : "There are currently no events matching this status filter."}
+                    </p>
+                    {isCustomer && (
+                        <a
+                            href="/dashboard"
+                            className="btn btn-primary"
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.7rem 1.3rem', background: '#18181b', color: '#ffffff', textDecoration: 'none' }}
+                        >
+                            <Sparkles size={16} /> Request a New Shoot
+                        </a>
+                    )}
+                </div>
+            ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    {filteredBookings.map((b) => (
+                        <div
+                            key={b.id}
+                            className="card card-interactive"
+                            style={{
+                                padding: '1.4rem',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                flexWrap: 'wrap',
+                                gap: '1.25rem'
+                            }}
+                        >
+                            {/* Event Details */}
+                            <div style={{ minWidth: 280, flex: 1 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.4rem' }}>
+                                    <span style={{
+                                        fontSize: '0.7rem',
+                                        fontWeight: 800,
+                                        padding: '0.2rem 0.55rem',
+                                        borderRadius: 'var(--radius-full)',
+                                        background: b.status === 'confirmed' ? '#ecfdf5' : (b.status === 'pending' ? '#fef3c7' : '#f4f4f5'),
+                                        color: b.status === 'confirmed' ? '#065f46' : (b.status === 'pending' ? '#92400e' : '#18181b'),
+                                        border: `1px solid ${b.status === 'confirmed' ? '#a7f3d0' : (b.status === 'pending' ? '#fde68a' : '#e4e4e7')}`,
+                                        textTransform: 'uppercase'
+                                    }}>
+                                        {b.status}
+                                    </span>
+                                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>ID: {b.id}</span>
+                                </div>
 
-                            <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#18181b', marginBottom: '0.35rem' }}>
-                                {b.event_name}
-                            </h3>
+                                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#18181b', marginBottom: '0.35rem' }}>
+                                    {b.event_name}
+                                </h3>
 
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flexWrap: 'wrap', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                                    <Calendar size={14} color="#d97706" /> {b.event_date}
-                                </span>
-                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                                    <MapPin size={14} color="#d97706" /> {b.venue_name}
-                                </span>
-                            </div>
-                        </div>
-
-                        {/* Customer Info */}
-                        <div style={{ minWidth: 220, fontSize: '0.85rem' }}>
-                            <div style={{ fontWeight: 700, color: 'var(--text-pure)', marginBottom: '0.25rem' }}>
-                                {b.customer_name}
-                            </div>
-                            <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                                <Mail size={12} /> {b.customer_email}
-                            </div>
-                            <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.2rem' }}>
-                                <Phone size={12} /> {b.customer_phone}
-                            </div>
-                        </div>
-
-                        {/* Amount & Status Action */}
-                        <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
-                            <div>
-                                <span style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--accent-emerald)' }}>
-                                    ₹{Number(b.total_amount).toLocaleString('en-IN')}
-                                </span>
-                                <div style={{ fontSize: '0.7rem', color: b.advance_paid ? '#34d399' : '#f87171', fontWeight: 700 }}>
-                                    {b.advance_paid ? '✓ Advance Paid (Razorpay)' : '⚠️ Advance Pending'}
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flexWrap: 'wrap', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                                        <Calendar size={14} color="#d97706" /> {b.event_date}
+                                    </span>
+                                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                                        <MapPin size={14} color="#d97706" /> {b.venue_name}
+                                    </span>
                                 </div>
                             </div>
 
-                            <div style={{ display: 'flex', gap: '0.4rem' }}>
-                                {b.status !== 'confirmed' && (
-                                    <button
-                                        onClick={() => updateStatus(b.id, 'confirmed')}
-                                        style={{
-                                            padding: '0.35rem 0.65rem',
-                                            borderRadius: 'var(--radius-sm)',
-                                            background: 'rgba(16, 185, 129, 0.2)',
-                                            border: '1px solid rgba(16, 185, 129, 0.4)',
-                                            color: '#34d399',
-                                            fontSize: '0.75rem',
-                                            fontWeight: 700,
-                                            cursor: 'pointer'
-                                        }}
-                                    >
-                                        Confirm
-                                    </button>
-                                )}
-                                {b.status !== 'completed' && (
-                                    <button
-                                        onClick={() => updateStatus(b.id, 'completed')}
-                                        style={{
-                                            padding: '0.35rem 0.65rem',
-                                            borderRadius: 'var(--radius-sm)',
-                                            background: 'rgba(59, 130, 246, 0.2)',
-                                            border: '1px solid rgba(59, 130, 246, 0.4)',
-                                            color: '#60a5fa',
-                                            fontSize: '0.75rem',
-                                            fontWeight: 700,
-                                            cursor: 'pointer'
-                                        }}
-                                    >
-                                        Complete
-                                    </button>
+                            {/* Customer Info (Only for Studio Owner) */}
+                            {!isCustomer && (
+                                <div style={{ minWidth: 220, fontSize: '0.85rem' }}>
+                                    <div style={{ fontWeight: 700, color: 'var(--text-pure)', marginBottom: '0.25rem' }}>
+                                        {b.customer_name}
+                                    </div>
+                                    <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                                        <Mail size={12} /> {b.customer_email}
+                                    </div>
+                                    <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.2rem' }}>
+                                        <Phone size={12} /> {b.customer_phone}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Amount & Status Action */}
+                            <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+                                <div>
+                                    <span style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--accent-emerald)' }}>
+                                        ₹{Number(b.total_amount).toLocaleString('en-IN')}
+                                    </span>
+                                    <div style={{ fontSize: '0.7rem', color: b.advance_paid ? '#34d399' : '#f87171', fontWeight: 700 }}>
+                                        {b.advance_paid ? '✓ Advance Paid (Razorpay)' : '⚠️ Advance Pending'}
+                                    </div>
+                                </div>
+
+                                {!isCustomer && (
+                                    <div style={{ display: 'flex', gap: '0.4rem' }}>
+                                        {b.status !== 'confirmed' && (
+                                            <button
+                                                onClick={() => updateStatus(b.id, 'confirmed')}
+                                                style={{
+                                                    padding: '0.35rem 0.65rem',
+                                                    borderRadius: 'var(--radius-sm)',
+                                                    background: 'rgba(16, 185, 129, 0.2)',
+                                                    border: '1px solid rgba(16, 185, 129, 0.4)',
+                                                    color: '#34d399',
+                                                    fontSize: '0.75rem',
+                                                    fontWeight: 700,
+                                                    cursor: 'pointer'
+                                                }}
+                                            >
+                                                Confirm
+                                            </button>
+                                        )}
+                                        {b.status !== 'completed' && (
+                                            <button
+                                                onClick={() => updateStatus(b.id, 'completed')}
+                                                style={{
+                                                    padding: '0.35rem 0.65rem',
+                                                    borderRadius: 'var(--radius-sm)',
+                                                    background: 'rgba(59, 130, 246, 0.2)',
+                                                    border: '1px solid rgba(59, 130, 246, 0.4)',
+                                                    color: '#60a5fa',
+                                                    fontSize: '0.75rem',
+                                                    fontWeight: 700,
+                                                    cursor: 'pointer'
+                                                }}
+                                            >
+                                                Complete
+                                            </button>
+                                        )}
+                                    </div>
                                 )}
                             </div>
                         </div>
-                    </div>
-                ))}
-            </div>
+                    ))}
+                </div>
+            )}
 
             {/* SCHEDULE NEW EVENT MODAL */}
             {isModalOpen && (

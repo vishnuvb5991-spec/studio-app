@@ -223,10 +223,11 @@ function Navbar({ onMenuClick }) {
                     <span>Public Site</span>
                 </Link>
 
-                {/* 🔔 Interactive Notifications Bell */}
-                <div style={{ position: 'relative' }} ref={notifRef}>
-                    <button
-                        onClick={handleBellClick}
+                {/* 🔔 Interactive Notifications Bell — Studio Owner / Admin ONLY */}
+                {isStudioOwner && viewMode !== 'customer' && (
+                    <div style={{ position: 'relative' }} ref={notifRef}>
+                        <button
+                            onClick={handleBellClick}
                         style={{
                             position: 'relative',
                             width: 40,
@@ -471,6 +472,7 @@ function Navbar({ onMenuClick }) {
                         </div>
                     )}
                 </div>
+                )}
 
                 {/* Profile pill */}
                 <div style={{

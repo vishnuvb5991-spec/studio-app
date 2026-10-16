@@ -17,6 +17,7 @@ import {
     Camera
 } from 'lucide-react';
 import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
 const defaultShowcaseAlbums = [
     {
@@ -90,6 +91,9 @@ const PRESET_COVERS = [
 ];
 
 function Albums() {
+    const { user, isStudioOwner, viewMode } = useAuth();
+    const isCustomer = !isStudioOwner || viewMode === 'customer';
+
     const [albums, setAlbums] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('all');
@@ -110,23 +114,40 @@ function Albums() {
 
     useEffect(() => {
         loadAlbums();
-    }, []);
+    }, [isCustomer, user]);
 
     const loadAlbums = () => {
         try {
             const stored = localStorage.getItem('studio_custom_albums');
-            if (stored) {
-                const parsed = JSON.parse(stored);
-                if (Array.isArray(parsed) && parsed.length > 0) {
-                    setAlbums(parsed);
-                    setLoading(false);
-                    return;
-                }
+            const customAlbums = stored ? JSON.parse(stored) : [];
+
+            if (isCustomer) {
+                // For client/customer: ONLY show albums specifically added for them
+                const userEmail = (user?.email || '').toLowerCase().trim();
+                const userName = (user?.first_name || user?.name || '').toLowerCase().trim();
+
+                const myAlbums = customAlbums.filter(a => {
+                    const cEmail = (a.client_email || a.email || '').toLowerCase().trim();
+                    const cName = (a.client || a.customer || a.client_name || '').toLowerCase().trim();
+                    return (userEmail && cEmail === userEmail) || (userName && cName.includes(userName)) || (a.userId && a.userId === user?.id);
+                });
+
+                // Clean state — NO fallback to sample albums
+                setAlbums(myAlbums);
+                setLoading(false);
+                return;
+            }
+
+            // For Studio Owner: show custom albums if present, otherwise showcase albums
+            if (Array.isArray(customAlbums) && customAlbums.length > 0) {
+                setAlbums(customAlbums);
+            } else {
+                setAlbums(defaultShowcaseAlbums);
             }
         } catch (e) {
             console.error('Error reading local albums:', e);
+            setAlbums(isCustomer ? [] : defaultShowcaseAlbums);
         }
-        setAlbums(defaultShowcaseAlbums);
         setLoading(false);
     };
 
@@ -208,21 +229,25 @@ function Albums() {
             }}>
                 <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
-                        <h1 className="gradient-text">Client Gallery Hub</h1>
+                        <h1 className="gradient-text">{isCustomer ? 'My Photo Albums' : 'Client Gallery Hub'}</h1>
                         <Sparkles size={20} color="#d97706" />
                     </div>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
-                        Ultra-HD client portals with pin-protected downloads & guest sharing.
+                        {isCustomer
+                            ? 'Your private, high-resolution shoot galleries and downloads.'
+                            : 'Ultra-HD client portals with pin-protected downloads & guest sharing.'}
                     </p>
                 </div>
 
-                <button
-                    className="btn btn-primary"
-                    onClick={() => setIsCreateModalOpen(true)}
-                    style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.4rem' }}
-                >
-                    <Plus size={18} /> Create New Album
-                </button>
+                {!isCustomer && (
+                    <button
+                        className="btn btn-primary"
+                        onClick={() => setIsCreateModalOpen(true)}
+                        style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.4rem' }}
+                    >
+                        <Plus size={18} /> Create New Album
+                    </button>
+                )}
             </div>
 
             {/* Success Toast */}
@@ -283,12 +308,43 @@ function Albums() {
                 ))}
             </div>
 
-            {/* Albums Showcase Grid */}
-            <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-                gap: '1.75rem',
-            }}>
+            {/* Albums Showcase Grid or Clean Empty State */}
+            {filteredAlbums.length === 0 ? (
+                <div style={{
+                    textAlign: 'center',
+                    padding: '4rem 1.5rem',
+                    background: '#ffffff',
+                    borderRadius: '16px',
+                    border: '1px solid #e5e7eb',
+                    boxShadow: 'var(--shadow-sm)'
+                }}>
+                    <div style={{
+                        width: 64,
+                        height: 64,
+                        borderRadius: '50%',
+                        background: '#fef3c7',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        margin: '0 auto 1.25rem auto'
+                    }}>
+                        <ImageIcon size={32} color="#d97706" />
+                    </div>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#18181b', marginBottom: '0.45rem' }}>
+                        {isCustomer ? 'No Photo Albums Yet' : 'No Albums in this Collection'}
+                    </h3>
+                    <p style={{ color: '#71717a', fontSize: '0.9rem', maxWidth: 460, margin: '0 auto' }}>
+                        {isCustomer
+                            ? 'Your private, high-resolution photo albums will appear here once the studio completes editing and delivers your gallery.'
+                            : 'No albums found matching the selected filter. Click "Create New Album" to upload one.'}
+                    </p>
+                </div>
+            ) : (
+                <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+                    gap: '1.75rem',
+                }}>
                 {filteredAlbums.map((album) => (
                     <div
                         key={album.id}
@@ -431,6 +487,7 @@ function Albums() {
                     </div>
                 ))}
             </div>
+            )}
 
             {/* CREATE NEW ALBUM MODAL */}
             {isCreateModalOpen && (
