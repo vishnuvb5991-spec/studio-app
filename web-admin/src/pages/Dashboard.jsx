@@ -29,11 +29,19 @@ import {
     ShieldAlert,
     UserCheck,
     Check,
-    Lock
+    Lock,
+    MessageSquare,
+    MessageCircle,
+    Bot,
+    RefreshCw,
+    Mail,
+    PhoneCall,
+    Copy
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import api from '../services/api';
 import { loadRazorpayCheckout, openRazorpayCheckout } from '../services/razorpay';
+import { fetchAllAIInquiries } from '../services/aiChatStorage';
 
 const chartData = [
     { name: 'Mon', revenue: 14500, bookings: 4 },
@@ -54,6 +62,10 @@ function Dashboard() {
     const [loading, setLoading] = useState(true);
     const [accessRequests, setAccessRequests] = useState([]);
     const [securityAlerts, setSecurityAlerts] = useState([]);
+    const [aiInquiries, setAiInquiries] = useState([]);
+    const [loadingInquiries, setLoadingInquiries] = useState(false);
+    const [selectedInquiry, setSelectedInquiry] = useState(null);
+    const [copiedSessionId, setCopiedSessionId] = useState(null);
 
     const isCustomerView = viewMode === 'customer';
 
@@ -65,10 +77,23 @@ function Dashboard() {
         }
     };
 
+    const loadAIInquiries = async () => {
+        setLoadingInquiries(true);
+        try {
+            const list = await fetchAllAIInquiries();
+            setAiInquiries(list);
+        } catch (err) {
+            console.error('Failed to load AI inquiries:', err);
+        } finally {
+            setLoadingInquiries(false);
+        }
+    };
+
     useEffect(() => {
         if (!isCustomerView) {
             fetchStats();
             loadAccessAndSecurity();
+            loadAIInquiries();
         } else {
             setLoading(false);
         }
@@ -76,8 +101,16 @@ function Dashboard() {
         const handleNotifUpdate = () => {
             loadAccessAndSecurity();
         };
+        const handleInquiryUpdate = () => {
+            loadAIInquiries();
+        };
+
         window.addEventListener('studio_notification_update', handleNotifUpdate);
-        return () => window.removeEventListener('studio_notification_update', handleNotifUpdate);
+        window.addEventListener('studio_ai_inquiry_update', handleInquiryUpdate);
+        return () => {
+            window.removeEventListener('studio_notification_update', handleNotifUpdate);
+            window.removeEventListener('studio_ai_inquiry_update', handleInquiryUpdate);
+        };
     }, [isCustomerView]);
 
     const fetchStats = async () => {
@@ -373,6 +406,553 @@ function Dashboard() {
                                 <span style={{ fontSize: '0.72rem', color: '#9f1239', fontWeight: 600, background: '#ffe4e6', padding: '0.2rem 0.55rem', borderRadius: '999px' }}>
                                     Protected • Sample logins deactivated
                                 </span>
+                            </div>
+                        )}
+                    </div>
+                );
+            })()}
+
+            {/* 🤖 AI Assistant Inquiries & Customer Leads */}
+            {(() => {
+                const totalInquiries = aiInquiries.length;
+                const leadsWithContact = aiInquiries.filter(i => i.leadPhone || i.leadEmail);
+                const formatTime = (iso) => {
+                    if (!iso) return 'Recent';
+                    try {
+                        const d = new Date(iso);
+                        return d.toLocaleString('en-IN', {
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                    } catch {
+                        return iso;
+                    }
+                };
+
+                const cleanPhone = (phone) => {
+                    if (!phone) return '';
+                    const digits = phone.replace(/\D/g, '');
+                    return digits.length === 10 ? `91${digits}` : digits;
+                };
+
+                const handleCopyTranscript = (inquiry) => {
+                    if (!inquiry?.messages) return;
+                    const text = inquiry.messages.map(m => `[${m.role === 'user' ? 'Customer' : 'Studio AI'} - ${m.timestamp || ''}]\n${m.text}\n`).join('\n');
+                    navigator.clipboard?.writeText(text);
+                    setCopiedSessionId(inquiry.sessionId);
+                    setTimeout(() => setCopiedSessionId(null), 2500);
+                };
+
+                return (
+                    <div style={{ marginBottom: '2rem' }}>
+                        <div className="card" style={{
+                            padding: '1.5rem',
+                            border: '1px solid #fde68a',
+                            background: 'linear-gradient(180deg, #fffbeb 0%, #ffffff 100%)',
+                            boxShadow: '0 8px 24px rgba(217, 119, 6, 0.08)'
+                        }}>
+                            {/* Card Header */}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                    <div style={{
+                                        width: 40,
+                                        height: 40,
+                                        borderRadius: '10px',
+                                        background: 'linear-gradient(135deg, #d97706 0%, #b45309 100%)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        color: '#ffffff',
+                                        boxShadow: '0 4px 12px rgba(217, 119, 6, 0.25)'
+                                    }}>
+                                        <Bot size={22} />
+                                    </div>
+                                    <div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                                            <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#18181b', margin: 0 }}>
+                                                AI Inquiries & Customer Leads
+                                            </h3>
+                                            <span style={{ background: '#d97706', color: '#fff', fontSize: '0.72rem', padding: '0.15rem 0.55rem', borderRadius: '999px', fontWeight: 800 }}>
+                                                {totalInquiries} Logged
+                                            </span>
+                                            {leadsWithContact.length > 0 && (
+                                                <span style={{ background: '#059669', color: '#fff', fontSize: '0.72rem', padding: '0.15rem 0.55rem', borderRadius: '999px', fontWeight: 800 }}>
+                                                    🔥 {leadsWithContact.length} Hot Leads
+                                                </span>
+                                            )}
+                                        </div>
+                                        <p style={{ fontSize: '0.78rem', color: '#78350f', margin: '0.2rem 0 0 0' }}>
+                                            Chats held between studio visitors & the AI Assistant (English & മലയാളം). Phone numbers and inquiries captured automatically.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={loadAIInquiries}
+                                    disabled={loadingInquiries}
+                                    style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '0.4rem',
+                                        padding: '0.45rem 0.85rem',
+                                        background: '#ffffff',
+                                        border: '1px solid #d1d5db',
+                                        borderRadius: '8px',
+                                        fontSize: '0.78rem',
+                                        fontWeight: 600,
+                                        color: '#374151',
+                                        cursor: loadingInquiries ? 'wait' : 'pointer',
+                                        boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+                                    }}
+                                >
+                                    <RefreshCw size={13} style={{ animation: loadingInquiries ? 'spin 1s linear infinite' : 'none' }} />
+                                    <span>{loadingInquiries ? 'Refreshing...' : 'Refresh Chats'}</span>
+                                </button>
+                            </div>
+
+                            {/* Inquiries Content */}
+                            {totalInquiries === 0 ? (
+                                <div style={{
+                                    padding: '2rem 1.5rem',
+                                    textAlign: 'center',
+                                    background: '#ffffff',
+                                    borderRadius: '12px',
+                                    border: '1px dashed #e5e7eb'
+                                }}>
+                                    <MessageSquare size={32} color="#d97706" style={{ margin: '0 auto 0.75rem auto', opacity: 0.8 }} />
+                                    <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#18181b', margin: '0 0 0.35rem 0' }}>
+                                        No Customer AI Chats Logged Yet
+                                    </h4>
+                                    <p style={{ fontSize: '0.8rem', color: '#6b7280', margin: '0 auto', maxWidth: '480px' }}>
+                                        When visitors click the floating gold <strong>"Ask AI Assistant"</strong> widget at the bottom-right and ask about packages, rates, or dates, their conversation and phone number will appear here.
+                                    </p>
+                                </div>
+                            ) : (
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(330px, 1fr))', gap: '0.85rem' }}>
+                                    {aiInquiries.map((inq) => {
+                                        const hasLead = Boolean(inq.leadPhone || inq.leadEmail);
+                                        const waPhone = cleanPhone(inq.leadPhone);
+                                        const waLink = waPhone
+                                            ? `https://wa.me/${waPhone}?text=${encodeURIComponent('Hello! Thank you for inquiring with Balan Studios (Preetha Studio). How can we assist you with your booking?')}`
+                                            : null;
+
+                                        return (
+                                            <div
+                                                key={inq.sessionId}
+                                                style={{
+                                                    padding: '1.1rem',
+                                                    background: '#ffffff',
+                                                    border: hasLead ? '1px solid #bbf7d0' : '1px solid #e5e7eb',
+                                                    borderRadius: '12px',
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    justifyContent: 'space-between',
+                                                    boxShadow: hasLead ? '0 4px 14px rgba(5, 150, 105, 0.08)' : '0 2px 8px rgba(0,0,0,0.02)'
+                                                }}
+                                            >
+                                                <div>
+                                                    {/* Top Badges */}
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem', gap: '0.5rem' }}>
+                                                        <span style={{
+                                                            fontSize: '0.7rem',
+                                                            fontWeight: 700,
+                                                            padding: '0.15rem 0.5rem',
+                                                            borderRadius: '6px',
+                                                            background: inq.language === 'ml' ? '#fef3c7' : '#f4f4f5',
+                                                            color: inq.language === 'ml' ? '#92400e' : '#3f3f46',
+                                                            border: inq.language === 'ml' ? '1px solid #fde68a' : '1px solid #e4e4e7'
+                                                        }}>
+                                                            {inq.language === 'ml' ? '🌐 മലയാളം (Malayalam)' : '🌐 English'}
+                                                        </span>
+                                                        <span style={{ fontSize: '0.7rem', color: '#9ca3af' }}>
+                                                            {formatTime(inq.updatedAt)}
+                                                        </span>
+                                                    </div>
+
+                                                    {/* Lead Highlight Box if phone or email */}
+                                                    {hasLead ? (
+                                                        <div style={{
+                                                            padding: '0.55rem 0.75rem',
+                                                            background: '#f0fdf4',
+                                                            border: '1px solid #bbf7d0',
+                                                            borderRadius: '8px',
+                                                            marginBottom: '0.65rem'
+                                                        }}>
+                                                            <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#166534', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '0.2rem' }}>
+                                                                🎯 Customer Contact Detected
+                                                            </div>
+                                                            {inq.leadPhone && (
+                                                                <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#15803d', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                                                                    <Phone size={13} /> {inq.leadPhone}
+                                                                </div>
+                                                            )}
+                                                            {inq.leadEmail && (
+                                                                <div style={{ fontSize: '0.75rem', color: '#166534', display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.15rem' }}>
+                                                                    <Mail size={12} /> {inq.leadEmail}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    ) : (
+                                                        <div style={{ fontSize: '0.72rem', color: '#6b7280', fontStyle: 'italic', marginBottom: '0.5rem' }}>
+                                                            Visitor Inquiry (No phone provided yet)
+                                                        </div>
+                                                    )}
+
+                                                    {/* Last Query Excerpt */}
+                                                    <div style={{
+                                                        padding: '0.55rem 0.75rem',
+                                                        background: '#fafaf9',
+                                                        border: '1px solid #f4f4f5',
+                                                        borderRadius: '8px',
+                                                        marginBottom: '0.75rem'
+                                                    }}>
+                                                        <div style={{ fontSize: '0.68rem', fontWeight: 700, color: '#a1a1aa', textTransform: 'uppercase', marginBottom: '0.2rem' }}>
+                                                            Last Question Asked:
+                                                        </div>
+                                                        <p style={{
+                                                            fontSize: '0.78rem',
+                                                            color: '#27272a',
+                                                            margin: 0,
+                                                            fontWeight: 500,
+                                                            lineHeight: 1.35,
+                                                            display: '-webkit-box',
+                                                            WebkitLineClamp: 2,
+                                                            WebkitBoxOrient: 'vertical',
+                                                            overflow: 'hidden'
+                                                        }}>
+                                                            "{inq.lastQuery || 'Started chat conversation'}"
+                                                        </p>
+                                                    </div>
+                                                </div>
+
+                                                {/* Bottom Actions */}
+                                                <div>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.65rem' }}>
+                                                        <span style={{ fontSize: '0.72rem', color: '#71717a' }}>
+                                                            💬 {inq.messageCount || inq.messages?.length || 0} messages
+                                                        </span>
+                                                        <button
+                                                            onClick={() => setSelectedInquiry(inq)}
+                                                            style={{
+                                                                background: 'none',
+                                                                border: 'none',
+                                                                color: '#d97706',
+                                                                fontWeight: 700,
+                                                                fontSize: '0.76rem',
+                                                                cursor: 'pointer',
+                                                                padding: '0.2rem 0.4rem',
+                                                                display: 'inline-flex',
+                                                                alignItems: 'center',
+                                                                gap: '0.25rem'
+                                                            }}
+                                                        >
+                                                            <span>Read Transcript</span>
+                                                            <ArrowUpRight size={13} />
+                                                        </button>
+                                                    </div>
+
+                                                    {/* Action Buttons: WhatsApp & Call */}
+                                                    {inq.leadPhone && (
+                                                        <div style={{ display: 'flex', gap: '0.45rem', paddingTop: '0.4rem', borderTop: '1px solid #f4f4f5' }}>
+                                                            {waLink && (
+                                                                <a
+                                                                    href={waLink}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    style={{
+                                                                        flex: 1,
+                                                                        display: 'inline-flex',
+                                                                        alignItems: 'center',
+                                                                        justifyContent: 'center',
+                                                                        gap: '0.35rem',
+                                                                        padding: '0.45rem 0.6rem',
+                                                                        background: '#22c55e',
+                                                                        color: '#ffffff',
+                                                                        borderRadius: '8px',
+                                                                        fontSize: '0.74rem',
+                                                                        fontWeight: 700,
+                                                                        textDecoration: 'none'
+                                                                    }}
+                                                                >
+                                                                    <MessageCircle size={13} /> WhatsApp
+                                                                </a>
+                                                            )}
+                                                            <a
+                                                                href={`tel:${inq.leadPhone}`}
+                                                                style={{
+                                                                    flex: 1,
+                                                                    display: 'inline-flex',
+                                                                    alignItems: 'center',
+                                                                    justifyContent: 'center',
+                                                                    gap: '0.35rem',
+                                                                    padding: '0.45rem 0.6rem',
+                                                                    background: '#18181b',
+                                                                    color: '#ffffff',
+                                                                    borderRadius: '8px',
+                                                                    fontSize: '0.74rem',
+                                                                    fontWeight: 700,
+                                                                    textDecoration: 'none'
+                                                                }}
+                                                            >
+                                                                <PhoneCall size={13} /> Call
+                                                            </a>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* ── Full Chat Transcript Modal ── */}
+                        {selectedInquiry && (
+                            <div style={{
+                                position: 'fixed',
+                                inset: 0,
+                                background: 'rgba(0, 0, 0, 0.65)',
+                                backdropFilter: 'blur(4px)',
+                                zIndex: 10000,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                padding: '1.25rem'
+                            }}>
+                                <div style={{
+                                    width: '100%',
+                                    maxWidth: '650px',
+                                    maxHeight: '88vh',
+                                    background: '#ffffff',
+                                    borderRadius: '16px',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                                    overflow: 'hidden'
+                                }}>
+                                    {/* Modal Header */}
+                                    <div style={{
+                                        padding: '1.25rem 1.5rem',
+                                        borderBottom: '1px solid #e5e7eb',
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        background: '#fafaf9'
+                                    }}>
+                                        <div>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#18181b', margin: 0 }}>
+                                                    Customer AI Chat Transcript
+                                                </h3>
+                                                <span style={{
+                                                    fontSize: '0.7rem',
+                                                    fontWeight: 700,
+                                                    padding: '0.15rem 0.5rem',
+                                                    borderRadius: '6px',
+                                                    background: selectedInquiry.language === 'ml' ? '#fef3c7' : '#f4f4f5',
+                                                    color: selectedInquiry.language === 'ml' ? '#92400e' : '#3f3f46'
+                                                }}>
+                                                    {selectedInquiry.language === 'ml' ? 'മലയാളം' : 'English'}
+                                                </span>
+                                            </div>
+                                            <p style={{ fontSize: '0.76rem', color: '#71717a', margin: '0.2rem 0 0 0' }}>
+                                                Session: {selectedInquiry.sessionId} • {formatTime(selectedInquiry.updatedAt)}
+                                            </p>
+                                        </div>
+                                        <button
+                                            onClick={() => setSelectedInquiry(null)}
+                                            style={{
+                                                background: '#f4f4f5',
+                                                border: 'none',
+                                                borderRadius: '50%',
+                                                width: 32,
+                                                height: 32,
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                cursor: 'pointer',
+                                                color: '#71717a'
+                                            }}
+                                        >
+                                            <X size={18} />
+                                        </button>
+                                    </div>
+
+                                    {/* Modal Quick Actions Bar */}
+                                    <div style={{
+                                        padding: '0.75rem 1.5rem',
+                                        background: selectedInquiry.leadPhone ? '#f0fdf4' : '#f9fafb',
+                                        borderBottom: '1px solid #e5e7eb',
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        flexWrap: 'wrap',
+                                        gap: '0.5rem'
+                                    }}>
+                                        <div>
+                                            {selectedInquiry.leadPhone ? (
+                                                <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#15803d' }}>
+                                                    📞 Contact: {selectedInquiry.leadPhone} {selectedInquiry.leadEmail && `• ✉️ ${selectedInquiry.leadEmail}`}
+                                                </span>
+                                            ) : (
+                                                <span style={{ fontSize: '0.78rem', color: '#6b7280' }}>
+                                                    No direct contact captured in this chat session
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                            {selectedInquiry.leadPhone && (
+                                                <>
+                                                    <a
+                                                        href={`https://wa.me/${cleanPhone(selectedInquiry.leadPhone)}?text=${encodeURIComponent('Hello! Thank you for contacting Balan Studios. We received your query.')}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        style={{
+                                                            display: 'inline-flex',
+                                                            alignItems: 'center',
+                                                            gap: '0.35rem',
+                                                            padding: '0.35rem 0.7rem',
+                                                            background: '#22c55e',
+                                                            color: '#fff',
+                                                            borderRadius: '6px',
+                                                            fontSize: '0.74rem',
+                                                            fontWeight: 700,
+                                                            textDecoration: 'none'
+                                                        }}
+                                                    >
+                                                        <MessageCircle size={12} /> WhatsApp
+                                                    </a>
+                                                    <a
+                                                        href={`tel:${selectedInquiry.leadPhone}`}
+                                                        style={{
+                                                            display: 'inline-flex',
+                                                            alignItems: 'center',
+                                                            gap: '0.35rem',
+                                                            padding: '0.35rem 0.7rem',
+                                                            background: '#18181b',
+                                                            color: '#fff',
+                                                            borderRadius: '6px',
+                                                            fontSize: '0.74rem',
+                                                            fontWeight: 700,
+                                                            textDecoration: 'none'
+                                                        }}
+                                                    >
+                                                        <PhoneCall size={12} /> Call
+                                                    </a>
+                                                </>
+                                            )}
+
+                                            <button
+                                                onClick={() => handleCopyTranscript(selectedInquiry)}
+                                                style={{
+                                                    display: 'inline-flex',
+                                                    alignItems: 'center',
+                                                    gap: '0.35rem',
+                                                    padding: '0.35rem 0.7rem',
+                                                    background: '#ffffff',
+                                                    border: '1px solid #d1d5db',
+                                                    borderRadius: '6px',
+                                                    fontSize: '0.74rem',
+                                                    fontWeight: 600,
+                                                    color: '#374151',
+                                                    cursor: 'pointer'
+                                                }}
+                                            >
+                                                <Copy size={12} />
+                                                <span>{copiedSessionId === selectedInquiry.sessionId ? 'Copied! ✓' : 'Copy'}</span>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Messages Feed */}
+                                    <div style={{
+                                        padding: '1.25rem 1.5rem',
+                                        overflowY: 'auto',
+                                        flex: 1,
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: '0.85rem',
+                                        background: '#fcfcfc'
+                                    }}>
+                                        {(!selectedInquiry.messages || selectedInquiry.messages.length === 0) ? (
+                                            <p style={{ textAlign: 'center', color: '#9ca3af', fontSize: '0.85rem' }}>No messages recorded.</p>
+                                        ) : (
+                                            selectedInquiry.messages.map((m, idx) => {
+                                                const isUser = m.role === 'user';
+                                                return (
+                                                    <div
+                                                        key={idx}
+                                                        style={{
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                            alignItems: isUser ? 'flex-end' : 'flex-start'
+                                                        }}
+                                                    >
+                                                        <div style={{
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: '0.4rem',
+                                                            fontSize: '0.68rem',
+                                                            color: '#a1a1aa',
+                                                            marginBottom: '0.2rem',
+                                                            paddingLeft: isUser ? 0 : '0.25rem',
+                                                            paddingRight: isUser ? '0.25rem' : 0
+                                                        }}>
+                                                            <span>{isUser ? 'Customer' : 'Balan Studios AI'}</span>
+                                                            {m.timestamp && <span>• {m.timestamp}</span>}
+                                                        </div>
+                                                        <div style={{
+                                                            maxWidth: '85%',
+                                                            padding: '0.75rem 1rem',
+                                                            borderRadius: isUser ? '14px 14px 2px 14px' : '14px 14px 14px 2px',
+                                                            background: isUser ? '#18181b' : '#ffffff',
+                                                            color: isUser ? '#ffffff' : '#18181b',
+                                                            border: isUser ? 'none' : '1px solid #fde68a',
+                                                            boxShadow: isUser ? '0 2px 8px rgba(0,0,0,0.1)' : '0 2px 8px rgba(217, 119, 6, 0.05)',
+                                                            fontSize: '0.84rem',
+                                                            lineHeight: 1.5,
+                                                            whiteSpace: 'pre-wrap'
+                                                        }}>
+                                                            {m.text}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })
+                                        )}
+                                    </div>
+
+                                    {/* Modal Footer */}
+                                    <div style={{
+                                        padding: '0.85rem 1.5rem',
+                                        borderTop: '1px solid #e5e7eb',
+                                        background: '#fafaf9',
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center'
+                                    }}>
+                                        <span style={{ fontSize: '0.72rem', color: '#9ca3af' }}>
+                                            Synced to Cloud Firestore & Studio Cache
+                                        </span>
+                                        <button
+                                            onClick={() => setSelectedInquiry(null)}
+                                            style={{
+                                                padding: '0.45rem 1rem',
+                                                background: '#18181b',
+                                                color: '#ffffff',
+                                                borderRadius: '8px',
+                                                fontSize: '0.78rem',
+                                                fontWeight: 600,
+                                                border: 'none',
+                                                cursor: 'pointer'
+                                            }}
+                                        >
+                                            Close
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         )}
                     </div>

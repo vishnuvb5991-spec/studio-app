@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Sparkles, X, Send, Camera, RefreshCw, Languages } from 'lucide-react';
 import { sendChatMessage } from '../services/aiAssistantService';
+import { getOrCreateSessionId, logConversationTurn } from '../services/aiChatStorage';
 
 const I18N = {
     en: {
@@ -94,6 +95,7 @@ export default function StudioAIChatWidget({ onOpenBookingModal }) {
         const query = (textToSend || input).trim();
         if (!query || isLoading) return;
 
+        const sessionId = getOrCreateSessionId();
         const userMsg = {
             role: 'user',
             text: query,
@@ -105,25 +107,33 @@ export default function StudioAIChatWidget({ onOpenBookingModal }) {
         setInput('');
         setIsLoading(true);
 
+        // Log user message immediately
+        logConversationTurn(sessionId, updatedHistory, language);
+
         try {
             const replyText = await sendChatMessage(query, updatedHistory, language);
-            setMessages(prev => [
-                ...prev,
+            const finalHistory = [
+                ...updatedHistory,
                 {
                     role: 'assistant',
                     text: replyText,
                     timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                 }
-            ]);
+            ];
+            setMessages(finalHistory);
+            // Log assistant reply
+            logConversationTurn(sessionId, finalHistory, language);
         } catch (error) {
-            setMessages(prev => [
-                ...prev,
+            const errorHistory = [
+                ...updatedHistory,
                 {
                     role: 'assistant',
                     text: currentI18n.error,
                     timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                 }
-            ]);
+            ];
+            setMessages(errorHistory);
+            logConversationTurn(sessionId, errorHistory, language);
         } finally {
             setIsLoading(false);
         }
