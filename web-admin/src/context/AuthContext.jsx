@@ -536,7 +536,7 @@ export function AuthProvider({ children }) {
         return { success: true, user: customerUser };
     };
 
-    // 🌐 Sign in with Google (Firebase Auth) with Automatic Role Detection
+    // 🌐 Sign in with Google (Firebase Auth) with Automatic Role Detection & Access Control
     const loginWithGoogle = async () => {
         try {
             const result = await signInWithPopup(firebaseAuth, googleProvider);
@@ -546,34 +546,105 @@ export function AuthProvider({ children }) {
             // Automatic Role Detection: check if signed-in email is in Studio Owner list
             const isOwner = OWNER_EMAILS.includes(cleanEmail) || cleanEmail.includes('owner');
 
-            const finalUser = {
+            if (isOwner) {
+                const finalUser = {
+                    id: fbUser.uid,
+                    email: cleanEmail,
+                    first_name: fbUser.displayName ? fbUser.displayName.split(' ')[0] : 'Studio',
+                    last_name: fbUser.displayName ? fbUser.displayName.split(' ').slice(1).join(' ') : 'Owner',
+                    photo_url: fbUser.photoURL || '',
+                    phone: OWNER_PHONE,
+                    user_type: 'studio_owner',
+                    is_superuser: true,
+                    auth_provider: 'google'
+                };
+
+                setUser(finalUser);
+                setViewMode('owner');
+                localStorage.setItem('current_user', JSON.stringify(finalUser));
+                localStorage.setItem('studio_owner_trusted_device', 'true');
+
+                recordNotification({
+                    type: 'owner_login',
+                    title: '👑 Studio Owner Signed In (Google)',
+                    message: `${finalUser.first_name} ${finalUser.last_name} (${cleanEmail}) signed in via Google at ${new Date().toLocaleTimeString()}.`,
+                    email: cleanEmail,
+                    unread: false
+                });
+
+                return { success: true, user: finalUser, isOwner: true };
+            }
+
+            // 👤 Customer Access Control: Check if customer Google account is approved
+            const approvedCustomers = getApprovedCustomers();
+            const isApproved = approvedCustomers.some(e => e.toLowerCase() === cleanEmail);
+
+            if (!isApproved) {
+                // Parse Google display name
+                const displayName = fbUser.displayName || '';
+                const parts = displayName.trim().split(' ');
+                const gFirstName = parts[0] || cleanEmail.split('@')[0];
+                const gLastName = parts.slice(1).join(' ') || '';
+                const gPhone = fbUser.phoneNumber || '';
+
+                const existingRequests = getAccessRequests();
+                const alreadyRequested = existingRequests.some(r => r.email.toLowerCase() === cleanEmail);
+
+                if (!alreadyRequested) {
+                    await requestAccess({
+                        firstName: gFirstName,
+                        lastName: gLastName,
+                        email: cleanEmail,
+                        phone: gPhone || 'Google Account',
+                        eventType: 'Client Portal (Google Sign-In)',
+                        message: `Client requested access using Google account (${cleanEmail}).`
+                    });
+                } else {
+                    recordNotification({
+                        type: 'unapproved_login',
+                        title: '🚨 Pending Google Client Sign-In Attempt',
+                        message: `${gFirstName} (${cleanEmail}) tried to sign in with Google while awaiting owner approval at ${new Date().toLocaleTimeString()}.`,
+                        email: cleanEmail,
+                        unread: true
+                    });
+                }
+
+                return {
+                    success: false,
+                    pendingApproval: true,
+                    clientEmail: cleanEmail,
+                    clientName: gFirstName,
+                    error: `Access Pending Approval: Your Google account (${cleanEmail}) has been registered and is awaiting Balan Studios owner permission.`
+                };
+            }
+
+            // If approved customer:
+            const customerUser = {
                 id: fbUser.uid,
                 email: cleanEmail,
-                first_name: fbUser.displayName ? fbUser.displayName.split(' ')[0] : (isOwner ? 'Studio' : cleanEmail.split('@')[0]),
-                last_name: fbUser.displayName ? fbUser.displayName.split(' ').slice(1).join(' ') : (isOwner ? 'Owner' : ''),
+                first_name: fbUser.displayName ? fbUser.displayName.split(' ')[0] : cleanEmail.split('@')[0],
+                last_name: fbUser.displayName ? fbUser.displayName.split(' ').slice(1).join(' ') : '',
                 photo_url: fbUser.photoURL || '',
-                phone: isOwner ? OWNER_PHONE : (fbUser.phoneNumber || ''),
-                user_type: isOwner ? 'studio_owner' : 'customer',
-                is_superuser: isOwner,
+                phone: fbUser.phoneNumber || '',
+                user_type: 'customer',
+                is_superuser: false,
                 auth_provider: 'google'
             };
 
-            setUser(finalUser);
-            setViewMode(isOwner ? 'owner' : 'customer');
-            localStorage.setItem('current_user', JSON.stringify(finalUser));
-            if (isOwner) {
-                localStorage.setItem('studio_owner_trusted_device', 'true');
-            }
+            setUser(customerUser);
+            setViewMode('customer');
+            localStorage.setItem('current_user', JSON.stringify(customerUser));
+            localStorage.setItem('access_token', `cust_token_${Date.now()}`);
 
             recordNotification({
-                type: isOwner ? 'owner_login' : 'customer_login',
-                title: isOwner ? '👑 Studio Owner Signed In (Google)' : '👤 Client Portal Signed In (Google)',
-                message: `${finalUser.first_name} ${finalUser.last_name} (${cleanEmail}) signed in via Google at ${new Date().toLocaleTimeString()}.`,
+                type: 'customer_login',
+                title: '👤 Client Signed In (Google)',
+                message: `Approved client (${customerUser.first_name} - ${cleanEmail}) signed in via Google at ${new Date().toLocaleTimeString()}.`,
                 email: cleanEmail,
                 unread: false
             });
 
-            return { success: true, user: finalUser, isOwner };
+            return { success: true, user: customerUser, isOwner: false };
         } catch (error) {
             console.error('Google Sign-In Error:', error);
             if (error.code === 'auth/popup-closed-by-user') {
