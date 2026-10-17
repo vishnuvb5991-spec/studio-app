@@ -60,3 +60,6 @@ android/app/src/main/assets/google-services.json
 # OS
 .DS_Store
 Thumbs.db
+
+# Graphify
+graphify-out/
