@@ -468,33 +468,33 @@ export default function LandingPage() {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
                     {[
                         {
-                            icon: '💍', title: 'Wedding Photography',
-                            desc: 'Full-day coverage capturing every candid, emotional moment — from the first look to the last dance.',
+                            icon: '💍', title: 'Wedding Photography & Candid Videography',
+                            desc: 'Cinematic 4K coverage, drone shoots, traditional rituals & emotional candid captures from first look to reception.',
                             bg: '#fff9f0'
                         },
                         {
-                            icon: '🌅', title: 'Engagement & Pre-wedding',
-                            desc: 'Relaxed, natural shoots that capture your connection before the big day — perfect for save-the-dates.',
+                            icon: '🌅', title: 'Pre-Wedding & Post-Wedding Shoots',
+                            desc: 'Outdoor scenic sessions, romantic destination backdrops, and cinematic reels tailored for your love story.',
                             bg: '#f0fdf4'
                         },
                         {
-                            icon: '🎉', title: 'Events & Celebrations',
-                            desc: 'Birthdays, anniversaries, and family milestones photographed with the same care as a wedding.',
+                            icon: '🪔', title: 'Traditional Ceremonies & Events',
+                            desc: 'Engagements, Arangetram classical debuts, Housewarmings (Grihapravesham), Birthdays, and Anniversaries with high-speed event coverage.',
                             bg: '#faf5ff'
                         },
                         {
-                            icon: '✨', title: 'AI Photo Restoration',
-                            desc: 'Turn old, scratched, or faded photographs into pristine full-colour heirlooms with autonomous AI upscaling.',
-                            bg: '#fff0f5'
-                        },
-                        {
-                            icon: '📱', title: 'Client Web & App Portal',
-                            desc: 'Your gallery, invoices, and booking history — accessible on any device, anytime, at full resolution.',
+                            icon: '📸', title: 'Studio Portraits & Family Sessions',
+                            desc: 'In-studio high-key lighting, newborn & kids milestones, graduation, and multi-generational family heirlooms.',
                             bg: '#f0f4ff'
                         },
                         {
-                            icon: '🎬', title: '4K Cinematic Films',
-                            desc: 'Cinematic wedding films and reels edited with colour grading and original soundtrack for a timeless keepsake.',
+                            icon: '⚡', title: 'Express Digital Lab',
+                            desc: 'Instant passport/visa photos in 5 mins (US, Schengen, Gulf compliant), photo restoration, custom framing, and album printing.',
+                            bg: '#fff0f5'
+                        },
+                        {
+                            icon: '📱', title: 'Client Web & Mobile App Portal',
+                            desc: 'Private Ultra-HD photo galleries, 1-click downloads, secure online Razorpay invoicing, and instant AI chat support.',
                             bg: '#fffbf0'
                         }
                     ].map(({ icon, title, desc, bg }) => (
@@ -712,7 +712,14 @@ export default function LandingPage() {
                     {/* Services col */}
                     <div>
                         <p style={{ fontWeight: 700, color: '#fff', fontSize: '0.9rem', marginBottom: '1.1rem' }}>Services</p>
-                        {['Wedding Photography', 'Engagement & Pre-wedding', 'Events & Celebrations', 'AI Photo Restoration'].map(s => (
+                        {[
+                            'Wedding & Candid Videography',
+                            'Pre-Wedding & Post-Wedding Shoots',
+                            'Traditional Ceremonies & Arangetram',
+                            'Studio Portraits & Family Sessions',
+                            'Express Digital Lab (Passport Photos)',
+                            'Custom Framing & Album Printing'
+                        ].map(s => (
                             <p key={s} style={{ color: '#9ca3af', fontSize: '0.875rem', marginBottom: '0.65rem' }}>{s}</p>
                         ))}
                     </div>
@@ -1047,11 +1054,12 @@ export default function LandingPage() {
                                                 onChange={e => setEventType(e.target.value)}
                                                 style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', background: '#f8fafc', borderColor: '#e2e8f0', color: '#18181b', fontSize: '0.82rem' }}
                                             >
-                                                <option value="Wedding Photography">Wedding Photography</option>
-                                                <option value="Pre-Wedding / Post-Wedding">Pre-Wedding / Post-Wedding</option>
-                                                <option value="Engagement / Ring Ceremony">Engagement / Ring Ceremony</option>
-                                                <option value="Birthday / Family Function">Birthday / Family Function</option>
-                                                <option value="Old Photo Restoration">Old Photo Restoration</option>
+                                                <option value="Wedding & Candid Videography">Wedding &amp; Candid Videography (4K + Drone)</option>
+                                                <option value="Pre-Wedding / Post-Wedding">Pre-Wedding / Post-Wedding Shoot</option>
+                                                <option value="Traditional Ceremonies (Arangetram, Housewarming)">Traditional Ceremonies (Arangetram, Housewarming)</option>
+                                                <option value="Studio Portraits & Family Sessions">Studio Portraits &amp; Family Sessions</option>
+                                                <option value="Express Digital Lab & Custom Framing">Express Digital Lab (Passport, Framing, Albums)</option>
+                                                <option value="Old Photo Restoration">Old Photo Restoration &amp; Colorization</option>
                                                 <option value="Other Commercial Project">Other Commercial Project</option>
                                             </select>
                                         </div>
@@ -1227,12 +1235,14 @@ export default function LandingPage() {
                             <input type="email" placeholder="Email Address" style={{ background: '#f8fafc', color: '#1a1a1a', borderColor: '#e2e8f0', fontFamily: 'inherit' }} />
                             <input type="tel" placeholder="WhatsApp Number" style={{ background: '#f8fafc', color: '#1a1a1a', borderColor: '#e2e8f0', fontFamily: 'inherit' }} />
                             <select style={{ background: '#f8fafc', color: '#1a1a1a', borderColor: '#e2e8f0', fontFamily: 'inherit', padding: '0.75rem', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.9rem' }}>
-                                <option>Wedding &amp; Reception (4K Cinema)</option>
-                                <option>Pre-Wedding Sunset Story</option>
-                                <option>Engagement Shoot</option>
-                                <option>Birthday / Anniversary</option>
-                                <option>Commercial Lookbook</option>
-                                <option>AI Photo Restoration Batch</option>
+                                <option>Wedding &amp; Candid Videography (4K Cinema + Drone)</option>
+                                <option>Pre-Wedding &amp; Post-Wedding Scenic Shoot</option>
+                                <option>Traditional Ceremonies (Engagements, Birthdays, Housewarmings, Arangetram)</option>
+                                <option>Studio Portraits &amp; Family Sessions</option>
+                                <option>Express Digital Lab (Instant Passport/Visa Photos in 5 Mins)</option>
+                                <option>Antique Photo Restoration &amp; Colorization</option>
+                                <option>Custom Framing &amp; Premium Album Printing</option>
+                                <option>Commercial Lookbook &amp; Corporate Event</option>
                             </select>
                             <button
                                 onClick={() => { alert("Shoot request submitted! We'll reach out on WhatsApp within 2 hours."); setIsBookingModalOpen(false); }}

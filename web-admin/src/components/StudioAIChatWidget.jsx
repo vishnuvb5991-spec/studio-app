@@ -7,29 +7,29 @@ const I18N = {
     en: {
         title: "Balan Studios AI",
         status: "Online • 09:00 AM - 08:30 PM",
-        welcome: "Hello! Welcome to **Balan Studios**. ✨\n\nI am your 24/7 AI concierge. Ask me anything about our **wedding packages**, **personal portfolios**, **photo restoration**, or **booking a date**!",
-        placeholder: "Ask about wedding packages, prices...",
+        welcome: "Hello! Welcome to **Balan Studios**. ✨\n\nI am your 24/7 AI concierge. Ask me about our **Wedding & Candid Videography**, **Traditional Ceremonies (Arangetram, Housewarmings, Birthdays)**, **Studio & Family Portraits**, or our **Express Digital Lab (Instant Passport Photos, Photo Restoration, Custom Framing & Album Printing)**!",
+        placeholder: "Ask about wedding films, studio portraits, digital lab...",
         error: "I'm having a slight connection moment. Please call our studio directly at **+91 0000000000** or try again in a moment!",
         prompts: [
-            { label: "💍 Wedding Packages", query: "Can you explain the wedding photography packages and pricing?" },
-            { label: "📸 Personal Portfolio", query: "What are your Personal Portfolio and Model Shoot packages and prices?" },
-            { label: "🖼️ Photo Restoration", query: "How does old photo restoration work and how much does it cost?" },
-            { label: "📅 Book a Date", query: "I would like to check availability and book a date for our shoot." },
-            { label: "🕒 Studio Timings", query: "What are your studio working hours and location in Kerala?" }
+            { label: "💍 Wedding & Candid Films", query: "Can you explain your wedding photography & candid videography (4K, drone, teaser) packages?" },
+            { label: "🪔 Traditional Ceremonies", query: "What packages do you have for traditional ceremonies like Arangetram, Housewarmings, and Birthdays?" },
+            { label: "📸 Studio & Family Portraits", query: "What are your in-studio portrait, kids, and family session options and rates?" },
+            { label: "⚡ Express Digital Lab", query: "Tell me about instant 5-min passport photos, antique photo restoration, custom framing, and album printing." },
+            { label: "📅 Book a Date", query: "I would like to check availability and book a date for our shoot." }
         ]
     },
     ml: {
         title: "ബാലൻ സ്റ്റുഡിയോസ് AI",
         status: "ലഭ്യമാണ് • 09:00 AM - 08:30 PM",
-        welcome: "നമസ്കാരം! **ബാലൻ സ്റ്റുഡിയോസിലേക്ക്** സ്വാഗതം. ✨\n\nഞങ്ങളുടെ **വെഡ്ഡിംഗ് പാക്കേജുകൾ**, **മോഡൽ & പേഴ്സണൽ പോർട്ട്ഫോളിയോ**, **പഴയ ഫോട്ടോ റീസ്റ്റോറേഷൻ**, അല്ലെങ്കിൽ **ഡേറ്റ് ബുക്കിംഗ്** എന്നിവയെക്കുറിച്ച് നിങ്ങൾക്ക് എന്തും ചോദിക്കാം!",
-        placeholder: "വെഡ്ഡിംഗ് പാക്കേജ്, ഫോട്ടോ റീസ്റ്റോറേഷൻ എന്നിവ ചോദിക്കൂ...",
+        welcome: "നമസ്കാരം! **ബാലൻ സ്റ്റുഡിയോസിലേക്ക്** സ്വാഗതം. ✨\n\nഞങ്ങളുടെ **വെഡ്ഡിംഗ് & കാൻഡിഡ് വീഡിയോഗ്രഫി**, **പരമ്പരാഗത ചടങ്ങുകൾ (അരങ്ങേറ്റം, ഗൃഹപ്രവേശം, ജന്മദിനം)**, **സ്റ്റുഡിയോ പോർട്രെയ്റ്റുകൾ**, **എക്സ്പ്രസ്സ് ഡിജിറ്റൽ ലാബ് (5 മിനിറ്റ് പാസ്പോർട്ട് ഫോട്ടോ, ഫോട്ടോ റീസ്റ്റോറേഷൻ, കസ്റ്റം ഫ്രെയിമിംഗ് & ആൽബം പ്രിന്റിംഗ്)** എന്നിവയെക്കുറിച്ച് എന്തും ചോദിക്കാം!",
+        placeholder: "വെഡ്ഡിംഗ് സിനിമ, സ്റ്റുഡിയോ പോർട്രെയ്റ്റ്, റീസ്റ്റോറേഷൻ എന്നിവ ചോദിക്കൂ...",
         error: "കണക്ഷനിൽ ഒരു തടസ്സം നേരിടുന്നു. ദയവായി ഞങ്ങളുടെ സ്റ്റുഡിയോയുമായി **+91 0000000000** എന്ന നമ്പറിൽ ബന്ധപ്പെടുക അല്ലെങ്കിൽ അൽപം കഴിഞ്ഞ് ശ്രമിക്കുക!",
         prompts: [
-            { label: "💍 വെഡ്ഡിംഗ് പാക്കേജുകൾ", query: "വെഡ്ഡിംഗ് ഫോട്ടോഗ്രഫി പാക്കേജുകളെയും നിരക്കുകളെയും കുറിച്ച് വിശദീകരിക്കാമോ?" },
-            { label: "📸 പേഴ്സണൽ പോർട്ട്ഫോളിയോ", query: "മോഡൽ ഷൂട്ട്, പേഴ്സണൽ പോർട്ട്ഫോളിയോ പാക്കേജുകളുടെ വിവരങ്ങൾ എന്തൊക്കെയാണ്?" },
-            { label: "🖼️ ഫോട്ടോ റീസ്റ്റോറേഷൻ", query: "പഴയതും കേടുവന്നതുമായ ഫോട്ടോകൾ എങ്ങനെയാണ് റീസ്റ്റോർ ചെയ്യുന്നത്? നിരക്ക് എത്രയാണ്?" },
-            { label: "📅 ഡേറ്റ് ബുക്ക് ചെയ്യാൻ", query: "ഒരു ഇവന്റിനായി ഡേറ്റ് ലഭ്യമാണോ എന്ന് അറിയാനും ബുക്ക് ചെയ്യാനും ആഗ്രഹിക്കുന്നു." },
-            { label: "🕒 സമയം & സ്ഥലം", query: "സ്റ്റുഡിയോയുടെ സമയവും കേരളത്തിലെ ലൊക്കേഷനും പറയാമോ?" }
+            { label: "💍 വെഡ്ഡിംഗ് & കാൻഡിഡ്", query: "വെഡ്ഡിംഗ് ഫോട്ടോഗ്രഫി, 4K കാൻഡിഡ് വീഡിയോഗ്രഫി, ഡ്രോൺ പാക്കേജുകൾ വിശദീകരിക്കാമോ?" },
+            { label: "🪔 പരമ്പരാഗത ചടങ്ങുകൾ", query: "അരങ്ങേറ്റം, ഗൃഹപ്രവേശം, എൻഗേജ്മെന്റ് ചടങ്ങുകൾക്കുള്ള പാക്കേജുകൾ എന്തൊക്കെയാണ്?" },
+            { label: "📸 സ്റ്റുഡിയോ & ഫാമിലി", query: "സ്റ്റുഡിയോ പോർട്രെയ്റ്റ്, കുട്ടികളുടെ ഫോട്ടോകൾ, ഫാമിലി സെഷനുകൾ എന്നിവയുടെ നിരക്കുകൾ എത്രയാണ്?" },
+            { label: "⚡ എക്സ്പ്രസ്സ് ഡിജിറ്റൽ ലാബ്", query: "5 മിനിറ്റിൽ പാസ്പോർട്ട് ഫോട്ടോ, ഫോട്ടോ റീസ്റ്റോറേഷൻ, കസ്റ്റം ഫ്രെയിമിംഗ്, ആൽബം പ്രിന്റിംഗ് എന്നിവയെക്കുറിച്ച് പറയാമോ?" },
+            { label: "📅 ഡേറ്റ് ബുക്ക് ചെയ്യാൻ", query: "ഒരു ഇവന്റിനായി ഡേറ്റ് ലഭ്യമാണോ എന്ന് അറിയാനും ബുക്ക് ചെയ്യാനും ആഗ്രഹിക്കുന്നു." }
         ]
     }
 };

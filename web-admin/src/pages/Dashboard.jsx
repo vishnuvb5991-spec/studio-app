@@ -1480,14 +1480,14 @@ function CustomerPortalView({ user, isOwnerPreview }) {
                                         }}
                                     >
                                         <option value="" disabled>Select event type...</option>
-                                        <option value="Wedding Photography">💒 Wedding Photography</option>
-                                        <option value="Pre-Wedding Shoot">💑 Pre-Wedding Shoot</option>
-                                        <option value="Birthday Portraits">🎂 Birthday Portraits</option>
-                                        <option value="Maternity Shoot">🤰 Maternity Shoot</option>
-                                        <option value="Baby/Newborn Photography">👶 Baby / Newborn Photography</option>
-                                        <option value="Corporate Event">🏢 Corporate Event</option>
-                                        <option value="Product Photography">📦 Product Photography</option>
-                                        <option value="Other">✨ Other</option>
+                                        <option value="Wedding Photography & Candid Videography">💒 Wedding Photography &amp; Candid Videography (4K + Drone)</option>
+                                        <option value="Pre-Wedding & Post-Wedding Shoots">💑 Pre-Wedding &amp; Post-Wedding Scenic Shoot</option>
+                                        <option value="Traditional Ceremonies (Arangetram, Housewarming, Birthday)">🪔 Traditional Ceremonies (Arangetram, Housewarming, Birthday)</option>
+                                        <option value="Studio Portraits & Family Sessions">📸 Studio Portraits &amp; Family Sessions</option>
+                                        <option value="Express Digital Lab (Passport Photos / Framing / Albums)">⚡ Express Digital Lab (Passport Photos / Framing / Albums)</option>
+                                        <option value="Old Photo Restoration & Upscaling">✨ Old Photo Restoration &amp; Upscaling</option>
+                                        <option value="Corporate / Commercial Event">🏢 Corporate / Commercial Event</option>
+                                        <option value="Other Custom Session">✨ Other Custom Session</option>
                                     </select>
                                 </div>
 

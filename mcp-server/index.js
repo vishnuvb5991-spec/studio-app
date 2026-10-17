@@ -30,37 +30,51 @@ const DEFAULT_DATA = {
   packages: [
     {
       id: "pkg-1",
-      name: "Royal Wedding Cinematic Package",
+      name: "Wedding & Candid Videography (Royal Package)",
       price_inr: 85000,
-      description: "Full wedding coverage including traditional + candid photography, 4K cinematic film, drone aerial coverage, luxury velvet photo album (40 pages), and teaser trailer.",
+      description: "Full wedding coverage including traditional + candid photography, 4K cinematic film, drone aerial coverage, luxury velvet photo album (40 pages), and 1-min teaser trailer.",
       category: "Wedding"
     },
     {
       id: "pkg-2",
       name: "Classic Wedding & Reception",
       price_inr: 55000,
-      description: "Traditional photography & HD video coverage for ceremony and reception with premium embossed photo book.",
+      description: "Traditional photography & HD multicam video coverage for ceremony and reception with premium embossed photo book.",
       category: "Wedding"
     },
     {
       id: "pkg-3",
-      name: "Pre-Wedding / Post-Wedding Shoot",
+      name: "Pre-Wedding & Post-Wedding Shoots",
       price_inr: 25000,
-      description: "Outdoor destination couple shoot with costume changes, candid photography, and 1-minute cinematic reel.",
+      description: "Outdoor scenic destination couple shoot with up to 3 costume changes, candid photography, and 1-minute cinematic reel.",
       category: "Couples"
     },
     {
       id: "pkg-4",
-      name: "Portrait & Model Portfolio",
-      price_inr: 8000,
-      description: "In-studio session with 3 lighting styles, 15 retouched high-resolution digital portraits, and web gallery.",
-      category: "Portrait"
+      name: "Traditional Ceremonies & Events (Arangetram, Housewarming, Birthday)",
+      price_inr: 18000,
+      description: "Full coverage for engagements, Arangetram classical dance debuts, housewarmings (Grihapravesham), and birthday celebrations with stage photography & 4K video.",
+      category: "Events"
     },
     {
       id: "pkg-5",
-      name: "Heritage Photo Restoration",
+      name: "Studio Portraits & Family Sessions",
+      price_inr: 6500,
+      description: "In-studio session with high-key lighting, kids & baby milestones, graduation, multi-generational family portraits, retouched digital files, and web gallery.",
+      category: "Portrait"
+    },
+    {
+      id: "pkg-6",
+      name: "Express Digital Lab & Instant Passport Photos",
+      price_inr: 250,
+      description: "Instant passport and visa photos ready in 5 minutes conforming to global biometric specifications (US Visa 2x2, Schengen, UK, Gulf, Indian Passport/OCI).",
+      category: "Lab"
+    },
+    {
+      id: "pkg-7",
+      name: "Antique Photo Restoration & Custom Framing",
       price_inr: 1500,
-      description: "Digital scanning, scratch/tear repair, color restoration, face reconstruction, and premium framed print.",
+      description: "Autonomous AI repair of torn, water-damaged, faded photos, B&W colorization, facial enhancement, custom wooden/acrylic framing, and premium album printing.",
       category: "Restoration"
     }
   ],
